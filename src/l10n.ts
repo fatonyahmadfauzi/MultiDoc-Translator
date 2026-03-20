@@ -1,4 +1,3 @@
-// l10n.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -44,22 +43,31 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "progress.description": "View detailed translation logs and progress",
     "progress.startingTranslation": "🚀 Starting translation for {0} languages...",
     "progress.translating": "🌍 Translating READMEs",
-    
-    // ✅ KEYS BARU YANG DITAMBAHKAN:
+    "progress.translatingTables": "📊 Translating Markdown tables...",
     "progress.translatingLanguage": "📘 Translating {0} ({1}) ...",
     "progress.lineProgress": "   ↳ Progress: {0}/{1} lines ({2}%)",
     "progress.fileCreated": "✅ {0} successfully created",
-    "progress.waiting": "   ⏳ Waiting {0}s...",
-    
+    "progress.waiting": "   ⏳ Waiting {0}s...",  
     "progress.completed": "🎉 Translation completed successfully!",
     "progress.filesSaved": "📁 Files saved in: {0}",
     "progress.removingSelected": "🗑️ Removing {0} selected languages...",
     "progress.removingAll": "🗑️ Removing ALL translation files...",
+
+    // Di dalam FALLBACK_TRANSLATIONS, tambahkan key baru:
+    "progress.translatingWithChangelog": "Translating README + CHANGELOG",
+    "progress.translatingReadmeOnly": "Translating README only",
+    "success.filesSavedWithChangelog": "READMEs and CHANGELOGs",
+    "success.filesSavedReadmeOnly": "READMEs only", 
+    "success.translationCompletedWithChangelog": "✅ {0} READMEs and CHANGELOGs successfully translated!",
+    "success.translationCompletedReadmeOnly": "✅ {0} READMEs successfully translated!",
+    "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md not found - skipping CHANGELOG translation",
+    
     "changelog.title": "📋 Changelog Management",
     "changelog.features": "CHANGELOG.md Features:",
     "changelog.featureList": "• Auto-detect CHANGELOG.md file<br>• Add changelog section to README<br>• Translate changelog to all languages<br>• Update links in translated READMEs<br>• <strong>Auto-detect GitHub URL</strong> from package.json",
     "changelog.autoSetup": "🔧 Auto Setup Changelog",
     "changelog.translateOnly": "🌐 Translate Changelog Only",
+    "changelog.removeOnly": "🗑️ Remove Changelog Only",
     "changelog.detectGitHub": "🔍 Detect GitHub URL",
     "changelog.githubDetection": "GitHub URL Auto-detection:",
     "changelog.githubSources": "• Reads from package.json (repository field)<br>• Falls back to .git/config<br>• Auto-generates Releases page link",
@@ -69,6 +77,32 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "changelog.selectLanguages": "Select which languages to translate CHANGELOG to",
     "changelog.translateAll": "Translate CHANGELOG to all supported languages",
     "changelog.translateSelected": "Translate CHANGELOG to {0} selected languages",
+
+    // ✅ NEW: CHANGELOG Only actions
+    "changelog.onlyActions": "📋 CHANGELOG Only Actions",
+    "changelog.generateRemoveOnly": "Generate/Remove CHANGELOG Only",
+    "changelog.onlyDescription": "These actions only affect CHANGELOG files, README files remain unchanged.",
+    "changelog.generateOnly": "🌐 Generate CHANGELOG Only",
+    "changelog.removeSelected": "🗑️ Remove CHANGELOG Selected",
+    "changelog.affectsSelected": "Affects only selected languages: {0} languages",
+    "changelog.generateWith": "📋 Generate with CHANGELOG",
+    "changelog.checkedDescription": "When checked: Translates both README and CHANGELOG files",
+    "changelog.uncheckedDescription": "When unchecked: Translates only README files",
+    
+    // Error messages
+    "errors.changelogGenerateFailed": "❌ CHANGELOG generation failed",
+    "errors.changelogRemoveSelectedFailed": "❌ Failed to remove selected CHANGELOG files",
+    
+    // Success messages
+    "success.changelogGenerated": "✅ CHANGELOG successfully generated for {0} languages",
+    "success.changelogRemovedSelected": "✅ {0} CHANGELOG files successfully removed",
+    
+    // Confirmation messages
+    "confirmation.removeChangelogSelected": "Are you sure you want to remove CHANGELOG files for {0} selected languages? README files will not be affected.",
+
+    // Progress messages
+    "progress.changelogTranslated": "✅ CHANGELOG successfully translated for {0}",
+
     "protection.title": "🛡️ Phrase Protection Settings",
     "protection.status": "Protection Status",
     "protection.active": "ACTIVE ✅",
@@ -96,6 +130,7 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "actions.removeAll": "🗑️ Remove All",
     "actions.yesRemove": "Yes, Remove",
     "actions.yesRemoveAll": "Yes, Remove All",
+    "actions.yesRemoveChangelog": "Yes, Remove CHANGELOGs",
     "actions.yesReset": "Yes, Reset",
     "actions.cancel": "Cancel",
     "errors.noLanguagesSelected": "❌ Select at least one language to translate.",
@@ -108,9 +143,11 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "errors.noChangelogFile": "❌ You don't have CHANGELOG.md file in root directory",
     "errors.changelogSetupFailed": "❌ Changelog setup failed",
     "errors.changelogTranslationFailed": "❌ Failed to translate CHANGELOG",
+    "errors.changelogRemoveFailed": "❌ Failed to remove CHANGELOG files",
     "errors.githubUrlNotDetected": "❌ Could not detect GitHub repository URL automatically.\n\nPlease check:\n• package.json has 'repository' field\n• .git/config has remote URL\n• Or add GitHub URL manually to README",
     "confirmation.removeSelected": "Are you sure you want to remove {0} selected languages?",
     "confirmation.removeAll": "Are you sure you want to remove ALL translation files?",
+    "confirmation.removeChangelog": "Are you sure you want to remove ALL translated CHANGELOG files? This will only remove CHANGELOG files, README files will remain.",
     "confirmation.resetPhrases": "Are you sure you want to reset protection phrases to default?",
     "changelog.translating": "📘 Translating CHANGELOG for {0}...",
     "changelog.translated": "✅ CHANGELOG successfully translated for {0}",
@@ -130,9 +167,11 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "success.changelogSectionAdded": "✅ Changelog section added to README.md",
     "success.changelogTranslationCompleted": "🎉 CHANGELOG translation completed!",
     "success.changelogTranslated": "✅ CHANGELOG translated to {0} languages",
+    "success.changelogRemoved": "✅ Successfully removed {0} translated CHANGELOG files",
     "success.githubUrlDetected": "✅ GitHub URL detected: {0}\nReleases: {1}",
     "info.noFilesDeleted": "ℹ️ No files were successfully deleted.",
     "info.noTranslationFiles": "ℹ️ No translation files found.",
+    "info.noChangelogFiles": "ℹ️ No translated CHANGELOG files found.",
     "info.phraseExists": "ℹ️ Phrase '{0}' already exists in protection list.",
     "info.noPhrasesToRemove": "ℹ️ No protection phrases available to remove.",
     "info.noPhrasesRegistered": "ℹ️ No protection phrases registered.",

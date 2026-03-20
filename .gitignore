@@ -1,5 +1,13 @@
+# Build output
 out
 dist
+*.vsix
+
+# Dependencies
 node_modules
 .vscode-test/
-*.vsix
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo

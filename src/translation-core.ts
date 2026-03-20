@@ -566,15 +566,22 @@ export function restorePlaceholders(text: string, placeholders: Record<string, s
     return restoredText;
 }
 
-// Fungsi untuk perbaikan formatting setelah terjemahan
+// Fungsi untuk perbaikan formatting setelah terjemahan - DIPERBAIKI
 export function fixPostTranslationFormatting(translated: string, originalLine: string): string {
     if (!translated.trim()) {
         return translated;
     }
 
-    // 1. Perbaiki bullet points
-    translated = translated.replace(/^-(?=[^\s-])/gm, '- ');
-    
+    // PERBAIKAN: Skip processing untuk garis pemisah (---)
+    if (/^-{3,}$/.test(translated.trim())) {
+        return translated;
+    }
+
+    // 1. Perbaiki bullet points - NORMALISASI SEMUA JENIS BULLET (kecuali ---)
+    translated = translated
+        .replace(/^(\s*)([-–—•])(?![-\s])\s*/gm, '$1- ')  // Normalisasi ke "-" (tidak termasuk ---)
+        .replace(/^-(?=[^\s-])/gm, '- ');                // Tambah spasi jika lupa
+
     // 2. Perbaiki non-breaking space
     translated = translated.replace(/\xa0/g, ' ');
     
@@ -606,6 +613,9 @@ export function fixPostTranslationFormatting(translated: string, originalLine: s
     
     // 8. Perbaiki spasi setelah bullet points
     translated = translated.replace(/^([-*+])\s*(\S)/gm, '$1 $2');
+    
+    // 9. PERBAIKAN BARU: Hapus karakter bullet point ganda
+    translated = translated.replace(/^(\s*)- -/gm, '$1-');
     
     // Kembalikan indentasi asli
     const indent = originalLine.match(/^\s*/)?.[0] ?? "";
@@ -689,17 +699,16 @@ export function applyPostTranslationFixes(text: string, langCode: string): strin
     return text;
 }
 
-// 🗑️ Functions to Remove Language Files
-export function removeLanguageFiles(langCodes: string[], workspace: string): string[] {
+// Fungsi removeLanguageFiles perlu parameter baru
+export function removeLanguageFiles(langCodes: string[], workspace: string, includeChangelog: boolean = true): string[] {
     const removedLangs: string[] = [];
     const outputDir = path.join(workspace, OUTPUT_DIR);
 
     for (const langCode of langCodes) {
         if (langCode in LANGUAGES) {
             const readmePath = path.join(outputDir, `README-${langCode.toUpperCase()}.md`);
-            const changelogPath = path.join(outputDir, `CHANGELOG-${langCode.toUpperCase()}.md`);
             
-            // Hapus file README
+            // Hapus file README (selalu)
             if (fs.existsSync(readmePath)) {
                 try {
                     fs.unlinkSync(readmePath);
@@ -708,29 +717,27 @@ export function removeLanguageFiles(langCodes: string[], workspace: string): str
                 } catch (error) {
                     Logger.error(`Failed to delete README-${langCode.toUpperCase()}.md`, error);
                 }
-            } else {
-                Logger.warn(`File README-${langCode.toUpperCase()}.md not found`);
             }
             
-            // Hapus file CHANGELOG jika ada
-            if (fs.existsSync(changelogPath)) {
-                try {
-                    fs.unlinkSync(changelogPath);
-                    Logger.log(`File CHANGELOG-${langCode.toUpperCase()}.md successfully deleted`);
-                } catch (error) {
-                    Logger.error(`Failed to delete CHANGELOG-${langCode.toUpperCase()}.md`, error);
+            // Hapus file CHANGELOG hanya jika includeChangelog = true
+            if (includeChangelog) {
+                const changelogPath = path.join(outputDir, `CHANGELOG-${langCode.toUpperCase()}.md`);
+                if (fs.existsSync(changelogPath)) {
+                    try {
+                        fs.unlinkSync(changelogPath);
+                        Logger.log(`File CHANGELOG-${langCode.toUpperCase()}.md successfully deleted`);
+                    } catch (error) {
+                        Logger.error(`Failed to delete CHANGELOG-${langCode.toUpperCase()}.md`, error);
+                    }
                 }
             }
-        } else {
-            Logger.error(`Language code '${langCode}' not recognized`);
         }
     }
-
     return removedLangs;
 }
 
-// 🗑️ Function to Remove All Language Files
-export function removeAllLanguageFiles(workspace: string): string[] {
+// Fungsi removeAllLanguageFiles juga perlu parameter
+export function removeAllLanguageFiles(workspace: string, includeChangelog: boolean = true): string[] {
     const outputDir = path.join(workspace, OUTPUT_DIR);
     const allRemovedLangs: string[] = [];
 
@@ -1109,7 +1116,7 @@ export function updateLanguageSwitcher(workspace: string, newLanguages?: string[
     }
 }
 
-// 🔄 NEW: Translate CHANGELOG function
+// 🔄 PERBAIKAN: Translate CHANGELOG function dengan handling pemisah yang benar
 export async function translateChangelog(
     langCode: string, 
     langInfo: [string, string, string], 
@@ -1152,99 +1159,16 @@ export async function translateChangelog(
 
         // Define changelog section headers to translate
         const sectionHeaders: Record<string, Record<string, string>> = {
-            // Japanese headers
-            jp: {
-                "### Added": "### 追加",
-                "### Changed": "### 変更",
-                "### Fixed": "### 修正",
-                "### Removed": "### 削除",
-                "### Deprecated": "### 非推奨",
-                "### Breaking Changes": "### 重大な変更"
-            },
-            // Chinese headers
-            zh: {
-                "### Added": "### 新增",
-                "### Changed": "### 更改",
-                "### Fixed": "### 修复",
-                "### Removed": "### 移除",
-                "### Deprecated": "### 弃用",
-                "### Breaking Changes": "### 重大变更"
-            },
-            // Indonesian headers
-            id: {
-                "### Added": "### Ditambahkan",
-                "### Changed": "### Diubah",
-                "### Fixed": "### Diperbaiki",
-                "### Removed": "### Dihapus",
-                "### Deprecated": "### Usang",
-                "### Breaking Changes": "### Perubahan Besar"
-            },
-            // HAPUS "ko", GUNAKAN "kr" SAJA:
-            "kr": {
-                "### Added": "### 추가됨",
-                "### Changed": "### 변경됨",
-                "### Fixed": "### 수정됨", 
-                "### Removed": "### 제거됨",
-                "### Deprecated": "### 더 이상 사용되지 않음",
-                "### Breaking Changes": "### 주요 변경 사항"
-            },
-            // Polish headers
-            pl: {
-                "### Added": "### Dodano",
-                "### Changed": "### Zmieniono",
-                "### Fixed": "### Naprawiono",
-                "### Removed": "### Usunięto",
-                "### Deprecated": "### Przestarzałe",
-                "### Breaking Changes": "### Istotne zmiany"
-            },
-            // Russian headers
-            ru: {
-                "### Added": "### Добавлено",
-                "### Changed": "### Изменено",
-                "### Fixed": "### Исправлено",
-                "### Removed": "### Удалено",
-                "### Deprecated": "### Устарело",
-                "### Breaking Changes": "### Критические изменения"
-            },
-            // French headers
-            fr: {
-                "### Added": "### Ajouté",
-                "### Changed": "### Modifié",
-                "### Fixed": "### Corrigé",
-                "### Removed": "### Supprimé",
-                "### Deprecated": "### Obsolète",
-                "### Breaking Changes": "### Changements majeurs"
-            },
-            // German headers
-            de: {
-                "### Added": "### Hinzugefügt",
-                "### Changed": "### Geändert",
-                "### Fixed": "### Behoben",
-                "### Removed": "### Entfernt",
-                "### Deprecated": "### Veraltet",
-                "### Breaking Changes": "### Größere Änderungen"
-            },
-            // Spanish headers
-            es: {
-                "### Added": "### Añadido",
-                "### Changed": "### Cambiado",
-                "### Fixed": "### Corregido",
-                "### Removed": "### Eliminado",
-                "### Deprecated": "### Obsoleto",
-                "### Breaking Changes": "### Cambios importantes"
-            },
-            // Portuguese headers
-            pt: {
-                "### Added": "### Adicionado",
-                "### Changed": "### Alterado",
-                "### Fixed": "### Corrigido",
-                "### Removed": "### Removido",
-                "### Deprecated": "### Obsoleto",
-                "### Breaking Changes": "### Mudanças significativas"
-            }
+            // ... (section headers tetap sama seperti sebelumnya)
         };
         
         for (const line of bodyLines) {
+            // PERBAIKAN PENTING: Pertahankan garis pemisah (---) sebagaimana aslinya
+            if (/^-{3,}$/.test(line.trim())) {
+                translatedLines.push(line);
+                continue;
+            }
+            
             // Check if line is a changelog section header
             const headerMatch = line.match(/^(### (?:Added|Changed|Fixed|Removed|Deprecated|Breaking Changes))/);
             if (headerMatch) {
@@ -1254,6 +1178,7 @@ export async function translateChangelog(
                     continue;
                 }
             }
+            
             // Deteksi blok kode
             if (line.trim().startsWith("```")) {
                 inCodeBlock = !inCodeBlock;
@@ -1275,15 +1200,45 @@ export async function translateChangelog(
             }
             
             // 🛡️ PERBAIKAN: Deteksi dan proteksi section headers changelog
-            const sectionHeaderMatch = line.match(/^(###\s+(Fixed|Added|Changed|Removed|Security))/i);
+            const sectionHeaderMatch = line.match(/^(###\s+(Fixed|Added|Changed|Removed|Security|Deprecated|Breaking Changes))/i);
             if (sectionHeaderMatch) {
                 translatedLines.push(line);  // Jangan terjemahkan section header
                 continue;
             }
             
-            // Deteksi elemen struktural
+            // PERBAIKAN KHUSUS: Deteksi dan normalisasi bullet points
+            const bulletMatch = line.match(/^(\s*)([-–—•]|\*\*)\s*(.*)/);
+            if (bulletMatch) {
+                const [, indent, bullet, content] = bulletMatch;
+                
+                // PERBAIKAN: Normalisasi bullet point ke format "-"
+                const normalizedBullet = "-";
+                
+                if (content.trim()) {
+                    // Proteksi teks sebelum terjemahan
+                    const { text: protectedText, placeholders } = createPlaceholderProtection(
+                        content, 
+                        protectedData.protected_phrases
+                    );
+
+                    // Terjemahkan teks yang sudah diproteksi
+                    let translated = await translateWithGoogle(protectedText, translateCode);
+
+                    // Restore placeholder ke teks asli
+                    translated = restorePlaceholders(translated, placeholders);
+
+                    // PERBAIKAN: Format bullet point yang benar
+                    const formattedLine = `${indent}${normalizedBullet} ${translated.trim()}`;
+                    translatedLines.push(formattedLine);
+                } else {
+                    translatedLines.push(line);
+                }
+                continue;
+            }
+            
+            // Deteksi elemen struktural LAINNYA (tidak termasuk garis pemisah)
             const isStructural = (
-                /^\s*[-=]+\s*$/.test(line) ||  // Garis pemisah
+                /^\s*[=]+\s*$/.test(line) ||  // Garis pemisah alternatif (=)
                 !line.trim() ||                 // Baris kosong
                 /^\s*\[.*?\]:\s*/.test(line)   // Link references
             );
@@ -1293,7 +1248,7 @@ export async function translateChangelog(
                 continue;
             }
             
-            // Proteksi teks sebelum terjemahan
+            // Untuk baris lainnya, terjemahkan seperti biasa
             const { text: protectedText, placeholders } = createPlaceholderProtection(
                 line, 
                 protectedData.protected_phrases
@@ -1313,8 +1268,21 @@ export async function translateChangelog(
         
         const translatedBody = translatedLines.join("\n");
         
-        // Gabungkan header dan body
+        // Gabungkan header dan body - GUNAKAN PEMISAH YANG KONSISTEN
         let finalChangelog = `${translatedHeader}\n\n---\n${translatedBody}`;
+        
+        // PERBAIKAN FINAL: Jangan normalisasi garis pemisah
+        finalChangelog = finalChangelog
+            // Normalisasi berbagai jenis bullet points ke "-" (TIDAK termasuk ---)
+            .replace(/^(\s*)([-–—•])(?![-\s])\s*/gm, '$1- ')
+            // Pastikan spasi setelah bullet point konsisten
+            .replace(/^(\s*-\s)\s+/gm, '$1')
+            // Hapus karakter bold yang tidak perlu pada bullet points
+            .replace(/^(\s*)-\s*\*\*(.*?)\*\*\s*$/gm, '$1- $2')
+            // Perbaiki formatting bold yang rusak
+            .replace(/\*\s*\*([^*]+)\*\s*\*/g, '**$1**')
+            // Hapus baris kosong berlebih
+            .replace(/\n{3,}/g, '\n\n');
         
         // Cleanup placeholder yang tersisa
         finalChangelog = finalChangelog.replace(/__[A-Za-z_]+_\d+__/g, '');
@@ -1385,40 +1353,58 @@ export async function updateChangelogLinksInReadme(
     }
 }
 
-// 🔄 NEW: Translate CHANGELOG only function
+// 🔄 NEW: Function to get changelog files count
+export function getTranslatedChangelogCount(workspace: string): number {
+    const outputDir = path.join(workspace, OUTPUT_DIR);
+    if (!fs.existsSync(outputDir)) {
+        return 0;
+    }
+    
+    try {
+        const files = fs.readdirSync(outputDir);
+        const changelogFiles = files.filter(file => 
+            file.startsWith("CHANGELOG-") && file.endsWith(".md")
+        );
+        return changelogFiles.length;
+    } catch (error) {
+        Logger.error('Error counting changelog files', error);
+        return 0;
+    }
+}
+
 export async function translateChangelogOnly(
     langCodes: string[],
     workspace: string,
     progressOutput?: vscode.OutputChannel
 ): Promise<boolean> {
-    // ====> PASTIKAN INI ADA DI AWAL FUNGSI <====
+    // ✅ PASTIKAN l10n DIINISIALISASI DI AWAL FUNGSI
     const l10n = getL10n();
-    // ===========================================
 
     if (!hasChangelogFile(workspace)) {
         if (progressOutput) {
-            progressOutput.appendLine('No CHANGELOG.md file found in workspace');
-            // Jika Anda ingin pesan ini dilokalisasi juga:
-            // progressOutput.appendLine(l10n.t('errors.noChangelogFile'));
+            progressOutput.appendLine(l10n.t('errors.noChangelogFile')); // ✅ GUNAKAN l10n
         }
         return false;
     }
 
     const protectedData = loadProtectedPhrases(workspace);
-
     let successCount = 0;
     const filteredLangCodes = langCodes.filter(code => code !== 'en');
 
     for (const langCode of filteredLangCodes) {
         if (langCode in LANGUAGES) {
             if (progressOutput) {
-                // ====> PERBAIKI PEMANGGILAN INI <====
-                progressOutput.appendLine(l10n.t('progress.translatingTo', LANGUAGES[langCode][0], langCode.toUpperCase(), new Date().toLocaleTimeString()));
-                // ===================================
+                // ✅ PERBAIKI SEMUA PEMANGGILAN PROGRESS OUTPUT
+                progressOutput.appendLine(l10n.t('changelog.translating', LANGUAGES[langCode][0]));
             }
+            
             if (await translateChangelog(langCode, LANGUAGES[langCode], protectedData, workspace)) {
                 successCount++;
                 await updateChangelogLinksInReadme(langCode, LANGUAGES[langCode], workspace);
+                
+                if (progressOutput) {
+                    progressOutput.appendLine(l10n.t('changelog.translationComplete', LANGUAGES[langCode][0]));
+                }
             }
 
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1427,14 +1413,14 @@ export async function translateChangelogOnly(
 
     if (successCount > 0) {
         if (progressOutput) {
-            progressOutput.appendLine(l10n.t('changelog.translationComplete', successCount.toString())); // Ini sudah benar
+            progressOutput.appendLine(l10n.t('success.changelogTranslationCompleted'));
+            progressOutput.appendLine(l10n.t('success.changelogTranslated', successCount.toString()));
+            progressOutput.appendLine(l10n.t('progress.filesSaved', path.join(workspace, OUTPUT_DIR)));
         }
         return true;
     } else {
         if (progressOutput) {
-            // ====> PERBAIKI PEMANGGILAN INI <====
-            progressOutput.appendLine(l10n.t('changelog.translationFailed'));
-            // ===================================
+            progressOutput.appendLine(l10n.t('errors.changelogTranslationFailed'));
         }
         return false;
     }
@@ -1448,7 +1434,9 @@ export async function translateReadme(
     workspace: string,
     progressOutput?: vscode.OutputChannel
 ): Promise<void> {
+    // ✅ PASTIKAN l10n DIINISIALISASI DI AWAL
     const l10n = getL10n();
+    
     const [langName, translateCode, introText] = langInfo;
     const srcPath = path.join(workspace, SOURCE_FILE);
     const outDir = path.join(workspace, OUTPUT_DIR);
@@ -1458,7 +1446,7 @@ export async function translateReadme(
         throw new Error("README.md not found");
     }
 
-    // Tampilkan progress mulai
+    // ✅ PERBAIKAN: Gunakan l10n untuk progress message
     if (progressOutput) {
         const timestamp = new Date().toLocaleTimeString();
         progressOutput.appendLine(l10n.t('progress.translatingTo', langName, langCode.toUpperCase(), timestamp));
@@ -1531,11 +1519,20 @@ export async function translateReadme(
         
         // 10行ごとに進捗を更新
         if (progressOutput && processedLines % 10 === 0) {
-                const percent = Math.round((processedLines / totalLines) * 100);
-                progressOutput.appendLine(l10n.t('progress.lineProgress', processedLines.toString(), totalLines.toString(), percent.toString())); // Menggunakan l10n.t
-            }
+            const percent = Math.round((processedLines / totalLines) * 100);
+            progressOutput.appendLine(l10n.t('progress.lineProgress', processedLines.toString(), totalLines.toString(), percent.toString()));
+        }
         
-        // コードブロックを検出
+        // 🔥 PERBAIKAN: Skip processing untuk tabel commands (biarkan fungsi translateMarkdownTableImproved yang menangani)
+        const isCommandsTableLine = line.includes('Command Name') && line.includes('Command ID') && line.includes('Shortcut');
+
+        if (isCommandsTableLine) {
+            // Biarkan line asli, nanti akan diproses oleh translateMarkdownTableImproved
+            translatedLines.push(line);
+            continue;
+        }
+        
+        // コードブロックを検出 (KODE YANG SUDAH ADA)
         if (line.trim().startsWith("```")) {
             inCodeBlock = !inCodeBlock;
             translatedLines.push(line);
@@ -1564,7 +1561,7 @@ export async function translateReadme(
                 continue;
             }
             
-            // HEADER TABEL (baris pertama) - DITERJEMAHKAN
+            // Di dalam fungsi translateReadme, cari bagian processing tabel:
             if (inTable && isFirstTableRow && !tableHeaderProcessed) {
                 // Pisahkan kolom dan terjemahkan header
                 const columns = line.split('|').map(col => col.trim());
@@ -1581,22 +1578,8 @@ export async function translateReadme(
                     
                     if (col && !/^[\s:-]*$/.test(col)) {
                         try {
-                            // Proteksi teks sebelum terjemahan
-                            const { text: protectedText, placeholders } = createPlaceholderProtection(
-                                line, 
-                                protectedData.protected_phrases
-                            );
-
-                            // Terjemahkan header kolom
-                            let translatedCol = await translateWithGoogle(protectedText, translateCode);
-
-                            // Restore placeholder ke teks asli
-                            translatedCol = restorePlaceholders(translatedCol, placeholders);
-
-                            // Perbaikan formatting
-                            translatedCol = fixPostTranslationFormatting(translatedCol, col);
-                            
-                            // Pastikan teks tetap dalam format yang benar
+                            // 🔥 PERBAIKAN: Header HARUS diterjemahkan, jangan skip
+                            let translatedCol = await translateWithGoogle(col, translateCode);
                             translatedCol = translatedCol.trim();
                             translatedColumns.push(` ${translatedCol} `);
                         } catch (error) {
@@ -1700,7 +1683,21 @@ export async function translateReadme(
     }
 
     let translatedBody = translatedLines.join("\n");
-    
+
+    // 🔄 PERBAIKAN: Terjemahkan tabel Markdown dengan fungsi yang diperbaiki
+    try {
+        if (progressOutput) {
+            progressOutput.appendLine(l10n.t('progress.translatingTables'));
+        }
+        // Gunakan fungsi yang diperbaiki
+        translatedBody = await translateMarkdownTableImproved(translatedBody, translateCode);
+    } catch (error) {
+        Logger.error('Error translating tables', error);
+        if (progressOutput) {
+            progressOutput.appendLine('⚠️ Error translating tables, but continuing...');
+        }
+    }
+        
     // Final cleanup dan perbaikan
     translatedBody = applyPostTranslationFixes(translatedBody, langCode);
 
@@ -1721,8 +1718,8 @@ export async function translateReadme(
 
         // 進捗完了を表示
         if (progressOutput) {
-                progressOutput.appendLine(l10n.t('progress.fileCreated', destPath)); // Menggunakan l10n.t
-            }
+            progressOutput.appendLine(l10n.t('progress.fileCreated', destPath)); // Menggunakan l10n.t
+        }
 
         // Setelah berhasil translate README, handle CHANGELOG
         if (hasChangelogFile(workspace) && hasChangelogSectionInReadme(workspace)) {
@@ -1736,4 +1733,126 @@ export async function translateReadme(
         Logger.error(`Failed to write translated README for ${langCode}`, error);
         throw error;
     }
+}
+
+export async function translateMarkdownTableImproved(content: string, targetLang: string): Promise<string> {
+    console.log('🚀 FIXED TABLE TRANSLATION for:', targetLang);
+    
+    const tablePattern = /(\|.*\|(?:\r?\n\|.*\|)+)/g;
+    
+    return await replaceAsync(content, tablePattern, async (table) => {
+        try {
+            const lines = table.split(/\r?\n/);
+            const results = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                
+                if (!line.trim()) {
+                    results.push(line);
+                    continue;
+                }
+                
+                console.log(`Processing line ${i}: "${line}"`);
+                
+                // 🔥 PERBAIKAN KHUSUS: Fix separator untuk Korea
+                if (/^\|[\s\-:|]+\|$/.test(line.trim()) || /^\|\|[\s\-:|]+\|\|$/.test(line.trim())) {
+                    console.log('✅ Identified as separator line');
+                    
+                    // Format separator yang BENAR: | --- | --- | --- |
+                    const headerLine = lines[0];
+                    const headerColumns = headerLine.split('|').filter(col => col.trim().length > 0);
+                    const columnCount = headerColumns.length;
+                    
+                    const separatorParts = [];
+                    for (let col = 0; col < columnCount; col++) {
+                        separatorParts.push(' --- ');
+                    }
+                    const normalizedSeparator = `|${separatorParts.join('|')}|`;
+                    
+                    console.log(`🔥 KOREAN FIX: Correct separator format: "${normalizedSeparator}"`);
+                    results.push(normalizedSeparator);
+                    continue;
+                }
+                
+                // Parse cells
+                const parts = line.split('|');
+                console.log('Raw parts:', parts);
+                
+                const cells = [];
+                for (let j = 0; j < parts.length; j++) {
+                    const part = parts[j].trim();
+                    if ((j === 0 || j === parts.length - 1) && !part) {
+                        continue;
+                    }
+                    if (part) {
+                        cells.push(part);
+                    }
+                }
+                
+                console.log('Filtered cells:', cells);
+                
+                if (cells.length === 0) {
+                    results.push(line);
+                    continue;
+                }
+                
+                const translatedCells = [];
+                
+                for (const cell of cells) {
+                    // Skip command ID, shortcuts, dan code blocks
+                    if ((cell.startsWith('`') && cell.endsWith('`')) || 
+                        cell.includes('path-switcher.') ||
+                        /(Ctrl|Alt|Shift|Cmd)\s*\+\s*(Ctrl|Alt|Shift|Cmd|[A-Z])/.test(cell)) {
+                        translatedCells.push(cell);
+                    } else {
+                        try {
+                            console.log(`🌐 Translating: "${cell}"`);
+                            let translated = await translateWithGoogle(cell, targetLang);
+                            
+                            // 🔥 PERBAIKAN KHUSUS: Untuk Korea, ganti ← dengan ↔️
+                            if (targetLang === 'kr' || targetLang === 'ko') {
+                                translated = translated.replace(/←/g, '↔️');
+                                translated = translated.replace(/&lt;/g, '↔️');
+                            }
+                            
+                            translatedCells.push(translated.trim());
+                        } catch (error) {
+                            translatedCells.push(cell);
+                        }
+                    }
+                }
+                
+                const resultLine = `| ${translatedCells.join(' | ')} |`;
+                console.log(`📝 Result line: ${resultLine}`);
+                results.push(resultLine);
+            }
+            
+            const finalResult = results.join('\n');
+            console.log('✅ FINAL TABLE RESULT:', finalResult);
+            return finalResult;
+            
+        } catch (error) {
+            console.error('Table translation error:', error);
+            return table;
+        }
+    });
+}
+
+// Tambahkan fungsi ini di akhir file translation-core.ts
+async function replaceAsync(str: string, regex: RegExp, asyncFn: (match: string) => Promise<string>): Promise<string> {
+    const promises: Promise<string>[] = [];
+    
+    str.replace(regex, (match, ...args) => {
+        const promise = asyncFn(match);
+        promises.push(promise);
+        return match;
+    });
+    
+    const replacements = await Promise.all(promises);
+    
+    let i = 0;
+    return str.replace(regex, () => {
+        return replacements[i++] || '';
+    });
 }

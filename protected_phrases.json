@@ -4,7 +4,18 @@
     "https?:\\/\\/\\S+",
     "\\(LICENSE\\)",
     "\\(\\.\\./\\.\\./LICENSE\\)",
-    "TypeScript",
-    "Lint"
+    "\\*\\*1\\.85\\.0\\*\\*",
+    "\\*\\*Windows\\*\\*",
+    "\\*\\*macOS\\*\\*",
+    "\\*\\*Linux\\*\\*",
+    "\\*\\*Windows,\\s*macOS\\s*et\\s*Linux\\*\\*",
+    "Visual Studio Code",
+    "VS Code",
+    "Google Translate",
+    "API",
+    "GitHub",
+    "README\\.md",
+    "CHANGELOG\\.md",
+    "Markdown"
   ]
 }

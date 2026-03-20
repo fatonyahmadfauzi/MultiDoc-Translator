@@ -4,15 +4,10 @@ src/**
 node_modules/**
 
 # Abaikan file konfigurasi
-.vscode-test.mjs
 .gitignore
 tsconfig.json
 eslint.config.mjs
-auto_translate_readmes.py
 package-lock.json
-
-# Abaikan folder output lama dari tsc
-out/**
 
 # Jangan abaikan dokumentasi dan ikon
 !docs/

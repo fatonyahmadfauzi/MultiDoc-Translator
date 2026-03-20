@@ -13,6 +13,8 @@ import shutil
 import sys
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
+import colorama
+from colorama import Fore, Style, init
 
 SOURCE_FILE = "README.md"
 CHANGELOG_FILE = "CHANGELOG.md"
@@ -105,7 +107,64 @@ Examples:
         "help_translate_changelog": "Translate only CHANGELOG.md (use 'all' for all languages or specify codes)",
         "help_auto_setup_changelog": "Automatically add changelog section to README.md if CHANGELOG.md exists",
         "help_detect_github_url": "Detect and display GitHub repository URL from various sources",
-        "help_display": "Display language for terminal notifications (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Display language for terminal notifications (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        # NEW: CHANGELOG Only actions translations
+        "changelog.onlyActions": "📋 CHANGELOG Only Actions",
+        "changelog.generateRemoveOnly": "Generate/Remove CHANGELOG Only", 
+        "changelog.onlyDescription": "These actions only affect CHANGELOG files, README files remain unchanged.",
+        "changelog.generateOnly": "🌐 Generate CHANGELOG Only",
+        "changelog.removeSelected": "🗑️ Remove CHANGELOG Selected",
+        "changelog.affectsSelected": "Affects only selected languages: {0} languages",
+        "changelog.generateWith": "📋 Generate with CHANGELOG",
+        "changelog.checkedDescription": "When checked: Translates both README and CHANGELOG files",
+        "changelog.uncheckedDescription": "When unchecked: Translates only README files",
+        
+        # NEW: Progress messages for CHANGELOG only
+        "progress.translatingWithChangelog": "Translating README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Translating README only",
+        "success.filesSavedWithChangelog": "READMEs and CHANGELOGs", 
+        "success.filesSavedReadmeOnly": "READMEs only",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs and CHANGELOGs successfully translated!",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs successfully translated!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md not found - skipping CHANGELOG translation",
+        
+        # NEW: Error and success messages for CHANGELOG only
+        "errors.changelogGenerateFailed": "❌ CHANGELOG generation failed",
+        "errors.changelogRemoveSelectedFailed": "❌ Failed to remove selected CHANGELOG files",
+        "success.changelogGenerated": "✅ CHANGELOG successfully generated for {count} languages",
+        "success.changelogRemovedSelected": "✅ {0} CHANGELOG files successfully removed",
+        "confirmation.removeChangelogSelected": "Are you sure you want to remove CHANGELOG files for {0} selected languages? README files will not be affected.",
+        
+        # NEW: Command help texts
+        "help_generate_changelog_only": "Generate CHANGELOG files only for selected languages (README files remain unchanged)",
+        "help_remove_changelog_selected": "Remove CHANGELOG files for selected languages only (README files remain unchanged)", 
+        "help_remove_changelog_only": "Remove ALL CHANGELOG files only (README files remain unchanged)",
+        "help_with_changelog": "When enabled: Translate both README and CHANGELOG. When disabled: Translate only README",
+        "errors.noLanguagesSelected": "❌ No languages selected",
+        "errors.noLanguagesSelectedRemove": "❌ No languages selected for removal",
+        "progress.startingTranslation": "🚀 Starting translation for {count} languages - {mode_text}",
+        "progress.translatingLanguage": "📖 Translating {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Waiting {seconds} seconds before next translation...",
+        "progress.completed": "✅ Translation process completed",
+        "progress.filesSaved": "💾 Files saved to: {path}",
+        "progress.removingSelected": "🗑️ Removing selected CHANGELOG files...",
+        "progress.fileCreated": "✅ Removed: {path}",
+        "progress.removingChangelog": "🗑️ Removing all CHANGELOG files...",
+        "changelog.translatingChangelog": "📘 Translating CHANGELOG for {count} languages...",
+        "changelog.translating": "🔧 Translating CHANGELOG to {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG translated to {lang_name}",
+        "changelog.autoSettingUp": "🔧 Auto-setting up changelog section...",
+        "changelog.checkingSpacing": "🔧 Checking changelog section spacing...",
+        "progress.changelogTranslated": "✅ CHANGELOG translated to {lang_name}",
+        "errors.translationFailedShort": "❌ Translation failed for {lang_name}",
+        "errors.translationFailed": "❌ Translation failed for {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ CHANGELOG translation failed",
+        "success.changelogTranslationCompleted": "✅ CHANGELOG translation completed",
+        "errors.changelogRemoveFailed": "❌ Failed to remove CHANGELOG file",
+        "info.noChangelogFiles": "ℹ️ No CHANGELOG files found",
+        "success.changelogRemoved": "✅ {count} CHANGELOG files successfully removed",
+        "confirmation.removeChangelog": "Are you sure you want to remove ALL CHANGELOG files? README files will not be affected."
     },
     "id": {
         "translating_readme": "📘 Menerjemahkan README ke {lang_name} ({lang_code})...",
@@ -189,7 +248,60 @@ Contoh:
         "help_translate_changelog": "Hanya terjemahkan CHANGELOG.md (gunakan 'all' untuk semua bahasa atau tentukan kode)",
         "help_auto_setup_changelog": "Otomatis tambahkan section changelog ke README.md jika CHANGELOG.md ada",
         "help_detect_github_url": "Deteksi dan tampilkan URL repository GitHub dari berbagai sumber",
-        "help_display": "Bahasa untuk notifikasi terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Bahasa untuk notifikasi terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Aksi CHANGELOG Saja",
+        "changelog.generateRemoveOnly": "Generate/Hapus CHANGELOG Saja",
+        "changelog.onlyDescription": "Aksi ini hanya mempengaruhi file CHANGELOG, file README tidak berubah.",
+        "changelog.generateOnly": "🌐 Generate CHANGELOG Saja",
+        "changelog.removeSelected": "🗑️ Hapus CHANGELOG Terpilih",
+        "changelog.affectsSelected": "Hanya mempengaruhi bahasa terpilih: {0} bahasa",
+        "changelog.generateWith": "📋 Generate dengan CHANGELOG",
+        "changelog.checkedDescription": "Jika dicentang: Menerjemahkan file README dan CHANGELOG",
+        "changelog.uncheckedDescription": "Jika tidak dicentang: Hanya menerjemahkan file README",
+        
+        "progress.translatingWithChangelog": "Menerjemahkan README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Menerjemahkan README saja",
+        "success.filesSavedWithChangelog": "README dan CHANGELOG",
+        "success.filesSavedReadmeOnly": "README saja",
+        "success.translationCompletedWithChangelog": "✅ {0} README dan CHANGELOG berhasil diterjemahkan!",
+        "success.translationCompletedReadmeOnly": "✅ {0} README berhasil diterjemahkan!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md tidak ditemukan - melewati penerjemahan CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Generate CHANGELOG gagal",
+        "errors.changelogRemoveSelectedFailed": "❌ Gagal menghapus file CHANGELOG terpilih",
+        "success.changelogGenerated": "✅ CHANGELOG berhasil digenerate untuk {0} bahasa",
+        "success.changelogRemovedSelected": "✅ {0} file CHANGELOG berhasil dihapus",
+        "confirmation.removeChangelogSelected": "Apakah Anda yakin ingin menghapus file CHANGELOG untuk {0} bahasa terpilih? File README tidak akan terpengaruh.",
+        
+        "help_generate_changelog_only": "Generate file CHANGELOG saja untuk bahasa terpilih (file README tidak berubah)",
+        "help_remove_changelog_selected": "Hapus file CHANGELOG untuk bahasa terpilih saja (file README tidak berubah)",
+        "help_remove_changelog_only": "Hapus SEMUA file CHANGELOG saja (file README tidak berubah)",
+        "help_with_changelog": "Jika diaktifkan: Terjemahkan README dan CHANGELOG. Jika dinonaktifkan: Hanya terjemahkan README",
+        "errors.noLanguagesSelected": "❌ Tidak ada bahasa yang dipilih",
+        "errors.noLanguagesSelectedRemove": "❌ Tidak ada bahasa yang dipilih untuk dihapus",
+        "progress.startingTranslation": "🚀 Memulai terjemahan untuk {count} bahasa - {mode_text}",
+        "progress.translatingLanguage": "📖 Menerjemahkan {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Menunggu {seconds} detik sebelum terjemahan berikutnya...",
+        "progress.completed": "✅ Proses terjemahan selesai",
+        "progress.filesSaved": "💾 File disimpan ke: {path}",
+        "progress.removingSelected": "🗑️ Menghapus file CHANGELOG terpilih...",
+        "progress.fileCreated": "✅ Dihapus: {path}",
+        "progress.removingChangelog": "🗑️ Menghapus semua file CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Menerjemahkan CHANGELOG untuk {count} bahasa...",
+        "changelog.translating": "🔧 Menerjemahkan CHANGELOG ke {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG diterjemahkan ke {lang_name}",
+        "changelog.autoSettingUp": "🔧 Auto-setting up section changelog...",
+        "changelog.checkingSpacing": "🔧 Mengecek spacing section changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG diterjemahkan ke {lang_name}",
+        "errors.translationFailedShort": "❌ Terjemahan gagal untuk {lang_name}",
+        "errors.translationFailed": "❌ Terjemahan gagal untuk {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Terjemahan CHANGELOG gagal",
+        "success.changelogTranslationCompleted": "✅ Terjemahan CHANGELOG selesai",
+        "errors.changelogRemoveFailed": "❌ Gagal menghapus file CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ Tidak ada file CHANGELOG ditemukan",
+        "success.changelogRemoved": "✅ {count} file CHANGELOG berhasil dihapus",
+        "confirmation.removeChangelog": "Apakah Anda yakin ingin menghapus SEMUA file CHANGELOG? File README tidak akan terpengaruh."
     },
     "jp": {
         "translating_readme": "📘 READMEを{lang_name}に翻訳中 ({lang_code})...",
@@ -273,7 +385,60 @@ Contoh:
         "help_translate_changelog": "CHANGELOG.mdのみ翻訳（全言語の場合は'all'、またはコード指定）",
         "help_auto_setup_changelog": "CHANGELOG.mdが存在する場合、README.mdに変更ログセクションを自動追加",
         "help_detect_github_url": "さまざまなソースからGitHubリポジトリURLを検出して表示",
-        "help_display": "ターミナル通知の表示言語 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "ターミナル通知の表示言語 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 CHANGELOGのみのアクション",
+        "changelog.generateRemoveOnly": "CHANGELOGのみ生成/削除",
+        "changelog.onlyDescription": "これらのアクションはCHANGELOGファイルのみに影響し、READMEファイルは変更されません。",
+        "changelog.generateOnly": "🌐 CHANGELOGのみ生成",
+        "changelog.removeSelected": "🗑️ 選択したCHANGELOGを削除",
+        "changelog.affectsSelected": "選択した言語のみに影響: {0}言語",
+        "changelog.generateWith": "📋 CHANGELOG付きで生成",
+        "changelog.checkedDescription": "チェック時: READMEとCHANGELOGファイルの両方を翻訳",
+        "changelog.uncheckedDescription": "未チェック時: READMEファイルのみ翻訳",
+        
+        "progress.translatingWithChangelog": "README + CHANGELOGを翻訳中",
+        "progress.translatingReadmeOnly": "READMEのみ翻訳中",
+        "success.filesSavedWithChangelog": "READMEとCHANGELOG",
+        "success.filesSavedReadmeOnly": "READMEのみ",
+        "success.translationCompletedWithChangelog": "✅ {0}個のREADMEとCHANGELOGが正常に翻訳されました！",
+        "success.translationCompletedReadmeOnly": "✅ {0}個のREADMEが正常に翻訳されました！",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.mdが見つかりません - CHANGELOG翻訳をスキップします",
+        
+        "errors.changelogGenerateFailed": "❌ CHANGELOG生成に失敗しました",
+        "errors.changelogRemoveSelectedFailed": "❌ 選択したCHANGELOGファイルの削除に失敗しました",
+        "success.changelogGenerated": "✅ {0}言語のCHANGELOGが正常に生成されました",
+        "success.changelogRemovedSelected": "✅ {0}個のCHANGELOGファイルが正常に削除されました",
+        "confirmation.removeChangelogSelected": "選択した{0}言語のCHANGELOGファイルを削除してもよろしいですか？READMEファイルは影響を受けません。",
+        
+        "help_generate_changelog_only": "選択した言語のCHANGELOGファイルのみ生成（READMEファイルは変更されません）",
+        "help_remove_changelog_selected": "選択した言語のCHANGELOGファイルのみ削除（READMEファイルは変更されません）",
+        "help_remove_changelog_only": "すべてのCHANGELOGファイルのみ削除（READMEファイルは変更されません）",
+        "help_with_changelog": "有効時: READMEとCHANGELOGを翻訳。無効時: READMEのみ翻訳",
+        "errors.noLanguagesSelected": "❌ 言語が選択されていません",
+        "errors.noLanguagesSelectedRemove": "❌ 削除する言語が選択されていません",
+        "progress.startingTranslation": "🚀 {count}言語の翻訳を開始します - {mode_text}",
+        "progress.translatingLanguage": "📖 {lang_name}を翻訳中 ({current}/{total})...",
+        "progress.waiting": "⏳ 次の翻訳まで{seconds}秒待機中...",
+        "progress.completed": "✅ 翻訳プロセスが完了しました",
+        "progress.filesSaved": "💾 ファイルを保存しました: {path}",
+        "progress.removingSelected": "🗑️ 選択したCHANGELOGファイルを削除中...",
+        "progress.fileCreated": "✅ 削除しました: {path}",
+        "progress.removingChangelog": "🗑️ すべてのCHANGELOGファイルを削除中...",
+        "changelog.translatingChangelog": "📘 {count}言語のCHANGELOGを翻訳中...",
+        "changelog.translating": "🔧 CHANGELOGを{lang_name}に翻訳中...",
+        "changelog.translated": "✅ CHANGELOGを{lang_name}に翻訳しました",
+        "changelog.autoSettingUp": "🔧 チェンジログセクションを自動設定中...",
+        "changelog.checkingSpacing": "🔧 チェンジログセクションの間隔を確認中...",
+        "progress.changelogTranslated": "✅ CHANGELOGを{lang_name}に翻訳しました",
+        "errors.translationFailedShort": "❌ {lang_name}の翻訳に失敗しました",
+        "errors.translationFailed": "❌ {lang_code}の翻訳に失敗しました: {error}",
+        "errors.changelogTranslationFailed": "❌ CHANGELOGの翻訳に失敗しました",
+        "success.changelogTranslationCompleted": "✅ CHANGELOGの翻訳が完了しました",
+        "errors.changelogRemoveFailed": "❌ CHANGELOGファイルの削除に失敗しました",
+        "info.noChangelogFiles": "ℹ️ CHANGELOGファイルが見つかりません",
+        "success.changelogRemoved": "✅ {count}個のCHANGELOGファイルを削除しました",
+        "confirmation.removeChangelog": "すべてのCHANGELOGファイルを削除してもよろしいですか？READMEファイルは影響を受けません。"
     },
     "de": {
         "translating_readme": "📘 Übersetze README in {lang_name} ({lang_code})...",
@@ -357,7 +522,60 @@ Beispiele:
         "help_translate_changelog": "Nur CHANGELOG.md übersetzen ('all' für alle Sprachen oder Codes angeben)",
         "help_auto_setup_changelog": "Changelog-Bereich automatisch zu README.md hinzufügen, wenn CHANGELOG.md existiert",
         "help_detect_github_url": "GitHub-Repository-URL aus verschiedenen Quellen erkennen und anzeigen",
-        "help_display": "Anzeigesprache für Terminalbenachrichtigungen (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Anzeigesprache für Terminalbenachrichtigungen (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Nur CHANGELOG Aktionen",
+        "changelog.generateRemoveOnly": "CHANGELOG nur generieren/entfernen",
+        "changelog.onlyDescription": "Diese Aktionen betreffen nur CHANGELOG-Dateien, README-Dateien bleiben unverändert.",
+        "changelog.generateOnly": "🌐 Nur CHANGELOG generieren",
+        "changelog.removeSelected": "🗑️ Ausgewählte CHANGELOGs entfernen",
+        "changelog.affectsSelected": "Betrifft nur ausgewählte Sprachen: {0} Sprachen",
+        "changelog.generateWith": "📋 Mit CHANGELOG generieren",
+        "changelog.checkedDescription": "Wenn aktiviert: Übersetzt sowohl README- als auch CHANGELOG-Dateien",
+        "changelog.uncheckedDescription": "Wenn deaktiviert: Übersetzt nur README-Dateien",
+        
+        "progress.translatingWithChangelog": "Übersetze README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Übersetze nur README",
+        "success.filesSavedWithChangelog": "READMEs und CHANGELOGs",
+        "success.filesSavedReadmeOnly": "Nur READMEs",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs und CHANGELOGs erfolgreich übersetzt!",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs erfolgreich übersetzt!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md nicht gefunden - überspringe CHANGELOG-Übersetzung",
+        
+        "errors.changelogGenerateFailed": "❌ CHANGELOG-Generierung fehlgeschlagen",
+        "errors.changelogRemoveSelectedFailed": "❌ Fehler beim Entfernen ausgewählter CHANGELOG-Dateien",
+        "success.changelogGenerated": "✅ CHANGELOG erfolgreich für {0} Sprachen generiert",
+        "success.changelogRemovedSelected": "✅ {0} CHANGELOG-Dateien erfolgreich entfernt",
+        "confirmation.removeChangelogSelected": "Sind Sie sicher, dass Sie CHANGELOG-Dateien für {0} ausgewählte Sprachen entfernen möchten? README-Dateien werden nicht beeinflusst.",
+        
+        "help_generate_changelog_only": "Nur CHANGELOG-Dateien für ausgewählte Sprachen generieren (README-Dateien bleiben unverändert)",
+        "help_remove_changelog_selected": "Nur CHANGELOG-Dateien für ausgewählte Sprachen entfernen (README-Dateien bleiben unverändert)",
+        "help_remove_changelog_only": "Nur ALLE CHANGELOG-Dateien entfernen (README-Dateien bleiben unverändert)",
+        "help_with_changelog": "Wenn aktiviert: Übersetze README und CHANGELOG. Wenn deaktiviert: Übersetze nur README",
+        "errors.noLanguagesSelected": "❌ Keine Sprachen ausgewählt",
+        "errors.noLanguagesSelectedRemove": "❌ Keine Sprachen zum Entfernen ausgewählt",
+        "progress.startingTranslation": "🚀 Starte Übersetzung für {count} Sprachen - {mode_text}",
+        "progress.translatingLanguage": "📖 Übersetze {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Warte {seconds} Sekunden vor der nächsten Übersetzung...",
+        "progress.completed": "✅ Übersetzungsprozess abgeschlossen",
+        "progress.filesSaved": "💾 Dateien gespeichert in: {path}",
+        "progress.removingSelected": "🗑️ Entferne ausgewählte CHANGELOG-Dateien...",
+        "progress.fileCreated": "✅ Entfernt: {path}",
+        "progress.removingChangelog": "🗑️ Entferne alle CHANGELOG-Dateien...",
+        "changelog.translatingChangelog": "📘 Übersetze CHANGELOG für {count} Sprachen...",
+        "changelog.translating": "🔧 Übersetze CHANGELOG in {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG in {lang_name} übersetzt",
+        "changelog.autoSettingUp": "🔧 Automatische Einrichtung des Changelog-Abschnitts...",
+        "changelog.checkingSpacing": "🔧 Überprüfe Changelog-Abschnittsabstand...",
+        "progress.changelogTranslated": "✅ CHANGELOG in {lang_name} übersetzt",
+        "errors.translationFailedShort": "❌ Übersetzung für {lang_name} fehlgeschlagen",
+        "errors.translationFailed": "❌ Übersetzung für {lang_code} fehlgeschlagen: {error}",
+        "errors.changelogTranslationFailed": "❌ CHANGELOG-Übersetzung fehlgeschlagen",
+        "success.changelogTranslationCompleted": "✅ CHANGELOG-Übersetzung abgeschlossen",
+        "errors.changelogRemoveFailed": "❌ CHANGELOG-Datei konnte nicht entfernt werden",
+        "info.noChangelogFiles": "ℹ️ Keine CHANGELOG-Dateien gefunden",
+        "success.changelogRemoved": "✅ {count} CHANGELOG-Dateien erfolgreich entfernt",
+        "confirmation.removeChangelog": "Sind Sie sicher, dass Sie ALLE CHANGELOG-Dateien entfernen möchten? README-Dateien werden nicht beeinflusst."
     },
     "es": {
         "translating_readme": "📘 Traduciendo README a {lang_name} ({lang_code})...",
@@ -441,7 +659,60 @@ Ejemplos:
         "help_translate_changelog": "Traducir solo CHANGELOG.md (usar 'all' para todos los idiomas o especificar códigos)",
         "help_auto_setup_changelog": "Agregar automáticamente sección changelog a README.md si CHANGELOG.md existe",
         "help_detect_github_url": "Detectar y mostrar URL de repositorio GitHub desde varias fuentes",
-        "help_display": "Idioma de visualización para notificaciones de terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Idioma de visualización para notificaciones de terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Acciones solo de CHANGELOG",
+        "changelog.generateRemoveOnly": "Generar/Eliminar solo CHANGELOG",
+        "changelog.onlyDescription": "Estas acciones solo afectan archivos CHANGELOG, los archivos README permanecen sin cambios.",
+        "changelog.generateOnly": "🌐 Generar solo CHANGELOG",
+        "changelog.removeSelected": "🗑️ Eliminar CHANGELOG seleccionado",
+        "changelog.affectsSelected": "Afecta solo idiomas seleccionados: {0} idiomas",
+        "changelog.generateWith": "📋 Generar con CHANGELOG",
+        "changelog.checkedDescription": "Cuando está marcado: Traduce archivos README y CHANGELOG",
+        "changelog.uncheckedDescription": "Cuando no está marcado: Traduce solo archivos README",
+        
+        "progress.translatingWithChangelog": "Traduciendo README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Traduciendo solo README",
+        "success.filesSavedWithChangelog": "READMES y CHANGELOGs",
+        "success.filesSavedReadmeOnly": "Solo READMEs",
+        "success.translationCompletedWithChangelog": "✅ ¡{0} READMEs y CHANGELOGs traducidos exitosamente!",
+        "success.translationCompletedReadmeOnly": "✅ ¡{0} READMEs traducidos exitosamente!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md no encontrado - omitiendo traducción de CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Generación de CHANGELOG fallida",
+        "errors.changelogRemoveSelectedFailed": "❌ Error al eliminar archivos CHANGELOG seleccionados",
+        "success.changelogGenerated": "✅ CHANGELOG generado exitosamente para {0} idiomas",
+        "success.changelogRemovedSelected": "✅ {0} archivos CHANGELOG eliminados exitosamente",
+        "confirmation.removeChangelogSelected": "¿Está seguro de que desea eliminar archivos CHANGELOG para {0} idiomas seleccionados? Los archivos README no se verán afectados.",
+        
+        "help_generate_changelog_only": "Generar solo archivos CHANGELOG para idiomas seleccionados (los archivos README permanecen sin cambios)",
+        "help_remove_changelog_selected": "Eliminar solo archivos CHANGELOG para idiomas seleccionados (los archivos README permanecen sin cambios)",
+        "help_remove_changelog_only": "Eliminar solo TODOS los archivos CHANGELOG (los archivos README permanecen sin cambios)",
+        "help_with_changelog": "Cuando está habilitado: Traduce README y CHANGELOG. Cuando está deshabilitado: Traduce solo README",
+        "errors.noLanguagesSelected": "❌ No se seleccionaron idiomas",
+        "errors.noLanguagesSelectedRemove": "❌ No se seleccionaron idiomas para eliminar",
+        "progress.startingTranslation": "🚀 Iniciando traducción para {count} idiomas - {mode_text}",
+        "progress.translatingLanguage": "📖 Traduciendo {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Esperando {seconds} segundos antes de la siguiente traducción...",
+        "progress.completed": "✅ Proceso de traducción completado",
+        "progress.filesSaved": "💾 Archivos guardados en: {path}",
+        "progress.removingSelected": "🗑️ Eliminando archivos CHANGELOG seleccionados...",
+        "progress.fileCreated": "✅ Eliminado: {path}",
+        "progress.removingChangelog": "🗑️ Eliminando todos los archivos CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Traduciendo CHANGELOG para {count} idiomas...",
+        "changelog.translating": "🔧 Traduciendo CHANGELOG a {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG traducido a {lang_name}",
+        "changelog.autoSettingUp": "🔧 Configuración automática de sección changelog...",
+        "changelog.checkingSpacing": "🔧 Verificando espaciado de sección changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG traducido a {lang_name}",
+        "errors.translationFailedShort": "❌ Traducción fallida para {lang_name}",
+        "errors.translationFailed": "❌ Traducción fallida para {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Traducción de CHANGELOG fallida",
+        "success.changelogTranslationCompleted": "✅ Traducción de CHANGELOG completada",
+        "errors.changelogRemoveFailed": "❌ Error al eliminar archivo CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ No se encontraron archivos CHANGELOG",
+        "success.changelogRemoved": "✅ {count} archivos CHANGELOG eliminados exitosamente",
+        "confirmation.removeChangelog": "¿Está seguro de que desea eliminar TODOS los archivos CHANGELOG? Los archivos README no se verán afectados."
     },
     "fr": {
         "translating_readme": "📘 Traduction du README en {lang_name} ({lang_code})...",
@@ -525,7 +796,60 @@ Exemples :
         "help_translate_changelog": "Traduire seulement CHANGELOG.md (utiliser 'all' pour toutes les langues ou spécifier des codes)",
         "help_auto_setup_changelog": "Ajouter automatiquement la section changelog à README.md si CHANGELOG.md existe",
         "help_detect_github_url": "Détecter et afficher l'URL du dépôt GitHub depuis diverses sources",
-        "help_display": "Langue d'affichage pour les notifications du terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Langue d'affichage pour les notifications du terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Actions CHANGELOG uniquement",
+        "changelog.generateRemoveOnly": "Générer/Supprimer CHANGELOG uniquement",
+        "changelog.onlyDescription": "Ces actions n'affectent que les fichiers CHANGELOG, les fichiers README restent inchangés.",
+        "changelog.generateOnly": "🌐 Générer CHANGELOG uniquement",
+        "changelog.removeSelected": "🗑️ Supprimer CHANGELOG sélectionné",
+        "changelog.affectsSelected": "Affecte uniquement les langues sélectionnées : {0} langues",
+        "changelog.generateWith": "📋 Générer avec CHANGELOG",
+        "changelog.checkedDescription": "Lorsqu'elle est cochée : Traduit les fichiers README et CHANGELOG",
+        "changelog.uncheckedDescription": "Lorsqu'elle n'est pas cochée : Traduit uniquement les fichiers README",
+        
+        "progress.translatingWithChangelog": "Traduction README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Traduction README uniquement",
+        "success.filesSavedWithChangelog": "READMES et CHANGELOGs",
+        "success.filesSavedReadmeOnly": "READMES uniquement",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs et CHANGELOGs traduits avec succès !",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs traduits avec succès !",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md non trouvé - ignore la traduction CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Échec de la génération CHANGELOG",
+        "errors.changelogRemoveSelectedFailed": "❌ Échec de la suppression des fichiers CHANGELOG sélectionnés",
+        "success.changelogGenerated": "✅ CHANGELOG généré avec succès pour {0} langues",
+        "success.changelogRemovedSelected": "✅ {0} fichiers CHANGELOG supprimés avec succès",
+        "confirmation.removeChangelogSelected": "Êtes-vous sûr de vouloir supprimer les fichiers CHANGELOG pour {0} langues sélectionnées ? Les fichiers README ne seront pas affectés.",
+        
+        "help_generate_changelog_only": "Générer uniquement les fichiers CHANGELOG pour les langues sélectionnées (les fichiers README restent inchangés)",
+        "help_remove_changelog_selected": "Supprimer uniquement les fichiers CHANGELOG pour les langues sélectionnées (les fichiers README restent inchangés)",
+        "help_remove_changelog_only": "Supprimer uniquement TOUS les fichiers CHANGELOG (les fichiers README restent inchangés)",
+        "help_with_changelog": "Lorsqu'elle est activée : Traduit README et CHANGELOG. Lorsqu'elle est désactivée : Traduit uniquement README",
+        "errors.noLanguagesSelected": "❌ Aucune langue sélectionnée",
+        "errors.noLanguagesSelectedRemove": "❌ Aucune langue sélectionnée pour suppression",
+        "progress.startingTranslation": "🚀 Démarrage de la traduction pour {count} langues - {mode_text}",
+        "progress.translatingLanguage": "📖 Traduction de {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Attente de {seconds} secondes avant la prochaine traduction...",
+        "progress.completed": "✅ Processus de traduction terminé",
+        "progress.filesSaved": "💾 Fichiers enregistrés dans: {path}",
+        "progress.removingSelected": "🗑️ Suppression des fichiers CHANGELOG sélectionnés...",
+        "progress.fileCreated": "✅ Supprimé: {path}",
+        "progress.removingChangelog": "🗑️ Suppression de tous les fichiers CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Traduction de CHANGELOG pour {count} langues...",
+        "changelog.translating": "🔧 Traduction de CHANGELOG en {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG traduit en {lang_name}",
+        "changelog.autoSettingUp": "🔧 Configuration automatique de la section changelog...",
+        "changelog.checkingSpacing": "🔧 Vérification de l'espacement de la section changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG traduit en {lang_name}",
+        "errors.translationFailedShort": "❌ Échec de la traduction pour {lang_name}",
+        "errors.translationFailed": "❌ Échec de la traduction pour {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Échec de la traduction CHANGELOG",
+        "success.changelogTranslationCompleted": "✅ Traduction CHANGELOG terminée",
+        "errors.changelogRemoveFailed": "❌ Échec de la suppression du fichier CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ Aucun fichier CHANGELOG trouvé",
+        "success.changelogRemoved": "✅ {count} fichiers CHANGELOG supprimés avec succès",
+        "confirmation.removeChangelog": "Êtes-vous sûr de vouloir supprimer TOUS les fichiers CHANGELOG ? Les fichiers README ne seront pas affectés."
     },
     "kr": {
         "translating_readme": "📘 README를 {lang_name}({lang_code})로 번역 중...",
@@ -609,7 +933,60 @@ Exemples :
         "help_translate_changelog": "CHANGELOG.md만 번역 (모든 언어는 'all' 사용 또는 코드 지정)",
         "help_auto_setup_changelog": "CHANGELOG.md가 존재하면 README.md에 체인지로그 섹션 자동 추가",
         "help_detect_github_url": "다양한 소스에서 GitHub 저장소 URL 감지 및 표시",
-        "help_display": "터미널 알림 표시 언어 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "터미널 알림 표시 언어 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 CHANGELOG 전용 작업",
+        "changelog.generateRemoveOnly": "CHANGELOG만 생성/삭제",
+        "changelog.onlyDescription": "이 작업은 CHANGELOG 파일에만 영향을 미치며, README 파일은 변경되지 않습니다.",
+        "changelog.generateOnly": "🌐 CHANGELOG만 생성",
+        "changelog.removeSelected": "🗑️ 선택한 CHANGELOG 삭제",
+        "changelog.affectsSelected": "선택한 언어만 영향: {0}개 언어",
+        "changelog.generateWith": "📋 CHANGELOG 포함 생성",
+        "changelog.checkedDescription": "체크 시: README와 CHANGELOG 파일 모두 번역",
+        "changelog.uncheckedDescription": "체크 해제 시: README 파일만 번역",
+        
+        "progress.translatingWithChangelog": "README + CHANGELOG 번역 중",
+        "progress.translatingReadmeOnly": "README만 번역 중",
+        "success.filesSavedWithChangelog": "README와 CHANGELOG",
+        "success.filesSavedReadmeOnly": "README만",
+        "success.translationCompletedWithChangelog": "✅ {0}개 README와 CHANGELOG가 성공적으로 번역되었습니다!",
+        "success.translationCompletedReadmeOnly": "✅ {0}개 README가 성공적으로 번역되었습니다!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md를 찾을 수 없음 - CHANGELOG 번역 건너뜀",
+        
+        "errors.changelogGenerateFailed": "❌ CHANGELOG 생성 실패",
+        "errors.changelogRemoveSelectedFailed": "❌ 선택한 CHANGELOG 파일 삭제 실패",
+        "success.changelogGenerated": "✅ {0}개 언어의 CHANGELOG가 성공적으로 생성되었습니다",
+        "success.changelogRemovedSelected": "✅ {0}개 CHANGELOG 파일이 성공적으로 삭제되었습니다",
+        "confirmation.removeChangelogSelected": "선택한 {0}개 언어의 CHANGELOG 파일을 삭제하시겠습니까? README 파일은 영향을 받지 않습니다.",
+        
+        "help_generate_changelog_only": "선택한 언어의 CHANGELOG 파일만 생성 (README 파일은 변경되지 않음)",
+        "help_remove_changelog_selected": "선택한 언어의 CHANGELOG 파일만 삭제 (README 파일은 변경되지 않음)",
+        "help_remove_changelog_only": "모든 CHANGELOG 파일만 삭제 (README 파일은 변경되지 않음)",
+        "help_with_changelog": "활성화 시: README와 CHANGELOG 번역. 비활성화 시: README만 번역",
+        "errors.noLanguagesSelected": "❌ 선택된 언어가 없습니다",
+        "errors.noLanguagesSelectedRemove": "❌ 제거할 언어가 선택되지 않았습니다",
+        "progress.startingTranslation": "🚀 {count}개 언어 번역 시작 - {mode_text}",
+        "progress.translatingLanguage": "📖 {lang_name} 번역 중 ({current}/{total})...",
+        "progress.waiting": "⏳ 다음 번역 전 {seconds}초 대기 중...",
+        "progress.completed": "✅ 번역 프로세스 완료",
+        "progress.filesSaved": "💾 파일 저장 위치: {path}",
+        "progress.removingSelected": "🗑️ 선택한 CHANGELOG 파일 제거 중...",
+        "progress.fileCreated": "✅ 제거됨: {path}",
+        "progress.removingChangelog": "🗑️ 모든 CHANGELOG 파일 제거 중...",
+        "changelog.translatingChangelog": "📘 {count}개 언어 CHANGELOG 번역 중...",
+        "changelog.translating": "🔧 CHANGELOG를 {lang_name}로 번역 중...",
+        "changelog.translated": "✅ CHANGELOG가 {lang_name}로 번역됨",
+        "changelog.autoSettingUp": "🔧 체인지로그 섹션 자동 설정 중...",
+        "changelog.checkingSpacing": "🔧 체인지로그 섹션 간격 확인 중...",
+        "progress.changelogTranslated": "✅ CHANGELOG가 {lang_name}로 번역됨",
+        "errors.translationFailedShort": "❌ {lang_name} 번역 실패",
+        "errors.translationFailed": "❌ {lang_code} 번역 실패: {error}",
+        "errors.changelogTranslationFailed": "❌ CHANGELOG 번역 실패",
+        "success.changelogTranslationCompleted": "✅ CHANGELOG 번역 완료",
+        "errors.changelogRemoveFailed": "❌ CHANGELOG 파일 제거 실패",
+        "info.noChangelogFiles": "ℹ️ CHANGELOG 파일을 찾을 수 없습니다",
+        "success.changelogRemoved": "✅ {count}개 CHANGELOG 파일 성공적으로 제거됨",
+        "confirmation.removeChangelog": "모든 CHANGELOG 파일을 제거하시겠습니까? README 파일은 영향을 받지 않습니다."
     },
     "pl": {
         "translating_readme": "📘 Tłumaczenie README na {lang_name} ({lang_code})...",
@@ -693,7 +1070,60 @@ Przykłady:
         "help_translate_changelog": "Tłumaczenie tylko CHANGELOG.md (użyj 'all' dla wszystkich języków lub określ kody)",
         "help_auto_setup_changelog": "Automatyczne dodawanie sekcji changelog do README.md, jeśli CHANGELOG.md istnieje",
         "help_detect_github_url": "Wykrywanie i wyświetlanie URL repozytorium GitHub z różnych źródeł",
-        "help_display": "Język wyświetlania powiadomień terminala (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Język wyświetlania powiadomień terminala (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Akcje tylko CHANGELOG",
+        "changelog.generateRemoveOnly": "Tylko generuj/usuń CHANGELOG",
+        "changelog.onlyDescription": "Te działania dotyczą tylko plików CHANGELOG, pliki README pozostają niezmienione.",
+        "changelog.generateOnly": "🌐 Tylko generuj CHANGELOG",
+        "changelog.removeSelected": "🗑️ Usuń wybrane CHANGELOG",
+        "changelog.affectsSelected": "Wpływa tylko na wybrane języki: {0} języków",
+        "changelog.generateWith": "📋 Generuj z CHANGELOG",
+        "changelog.checkedDescription": "Gdy zaznaczone: Tłumaczy zarówno pliki README jak i CHANGELOG",
+        "changelog.uncheckedDescription": "Gdy niezaznaczone: Tłumaczy tylko pliki README",
+        
+        "progress.translatingWithChangelog": "Tłumaczenie README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Tłumaczenie tylko README",
+        "success.filesSavedWithChangelog": "READMES i CHANGELOGs",
+        "success.filesSavedReadmeOnly": "Tylko READMEs",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs i CHANGELOGs pomyślnie przetłumaczone!",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs pomyślnie przetłumaczone!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md nie znaleziono - pomijam tłumaczenie CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Generowanie CHANGELOG nie powiodło się",
+        "errors.changelogRemoveSelectedFailed": "❌ Nie udało się usunąć wybranych plików CHANGELOG",
+        "success.changelogGenerated": "✅ CHANGELOG pomyślnie wygenerowany dla {0} języków",
+        "success.changelogRemovedSelected": "✅ {0} plików CHANGELOG pomyślnie usunięto",
+        "confirmation.removeChangelogSelected": "Czy na pewno chcesz usunąć pliki CHANGELOG dla {0} wybranych języków? Pliki README nie zostaną naruszone.",
+        
+        "help_generate_changelog_only": "Tylko generuj pliki CHANGELOG dla wybranych języków (pliki README pozostają niezmienione)",
+        "help_remove_changelog_selected": "Tylko usuń pliki CHANGELOG dla wybranych języków (pliki README pozostają niezmienione)",
+        "help_remove_changelog_only": "Tylko usuń WSZYSTKIE pliki CHANGELOG (pliki README pozostają niezmienione)",
+        "help_with_changelog": "Gdy włączone: Tłumacz README i CHANGELOG. Gdy wyłączone: Tłumacz tylko README",
+        "errors.noLanguagesSelected": "❌ Nie wybrano języków",
+        "errors.noLanguagesSelectedRemove": "❌ Nie wybrano języków do usunięcia",
+        "progress.startingTranslation": "🚀 Rozpoczynanie tłumaczenia dla {count} języków - {mode_text}",
+        "progress.translatingLanguage": "📖 Tłumaczenie {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Oczekiwanie {seconds} sekund przed następnym tłumaczeniem...",
+        "progress.completed": "✅ Proces tłumaczenia zakończony",
+        "progress.filesSaved": "💾 Pliki zapisane w: {path}",
+        "progress.removingSelected": "🗑️ Usuwanie wybranych plików CHANGELOG...",
+        "progress.fileCreated": "✅ Usunięto: {path}",
+        "progress.removingChangelog": "🗑️ Usuwanie wszystkich plików CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Tłumaczenie CHANGELOG dla {count} języków...",
+        "changelog.translating": "🔧 Tłumaczenie CHANGELOG na {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG przetłumaczony na {lang_name}",
+        "changelog.autoSettingUp": "🔧 Automatyczna konfiguracja sekcji changelog...",
+        "changelog.checkingSpacing": "🔧 Sprawdzanie odstępów sekcji changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG przetłumaczony na {lang_name}",
+        "errors.translationFailedShort": "❌ Tłumaczenie nie powiodło się dla {lang_name}",
+        "errors.translationFailed": "❌ Tłumaczenie nie powiodło się dla {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Tłumaczenie CHANGELOG nie powiodło się",
+        "success.changelogTranslationCompleted": "✅ Tłumaczenie CHANGELOG ukończone",
+        "errors.changelogRemoveFailed": "❌ Nie udało się usunąć pliku CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ Nie znaleziono plików CHANGELOG",
+        "success.changelogRemoved": "✅ {count} plików CHANGELOG pomyślnie usunięto",
+        "confirmation.removeChangelog": "Czy na pewno chcesz usunąć WSZYSTKIE pliki CHANGELOG? Pliki README nie zostaną naruszone."
     },
     "pt": {
         "translating_readme": "📘 Traduzindo README para {lang_name} ({lang_code})...",
@@ -777,7 +1207,60 @@ Exemplos:
         "help_translate_changelog": "Traduzir apenas CHANGELOG.md (use 'all' para todos os idiomas ou especifique códigos)",
         "help_auto_setup_changelog": "Adicionar automaticamente seção changelog ao README.md se CHANGELOG.md existir",
         "help_detect_github_url": "Detectar e exibir URL do repositório GitHub de várias fontes",
-        "help_display": "Idioma de exibição para notificações do terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Idioma de exibição para notificações do terminal (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Ações apenas CHANGELOG",
+        "changelog.generateRemoveOnly": "Gerar/Remover apenas CHANGELOG",
+        "changelog.onlyDescription": "Estas ações afetam apenas arquivos CHANGELOG, arquivos README permanecem inalterados.",
+        "changelog.generateOnly": "🌐 Gerar apenas CHANGELOG",
+        "changelog.removeSelected": "🗑️ Remover CHANGELOG selecionado",
+        "changelog.affectsSelected": "Afeta apenas idiomas selecionados: {0} idiomas",
+        "changelog.generateWith": "📋 Gerar com CHANGELOG",
+        "changelog.checkedDescription": "Quando marcado: Traduz arquivos README e CHANGELOG",
+        "changelog.uncheckedDescription": "Quando desmarcado: Traduz apenas arquivos README",
+        
+        "progress.translatingWithChangelog": "Traduzindo README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Traduzindo apenas README",
+        "success.filesSavedWithChangelog": "READMES e CHANGELOGs",
+        "success.filesSavedReadmeOnly": "Apenas READMEs",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs e CHANGELOGs traduzidos com sucesso!",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs traduzidos com sucesso!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md não encontrado - ignorando tradução CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Falha na geração CHANGELOG",
+        "errors.changelogRemoveSelectedFailed": "❌ Falha ao remover arquivos CHANGELOG selecionados",
+        "success.changelogGenerated": "✅ CHANGELOG gerado com sucesso para {0} idiomas",
+        "success.changelogRemovedSelected": "✅ {0} arquivos CHANGELOG removidos com sucesso",
+        "confirmation.removeChangelogSelected": "Tem certeza de que deseja remover arquivos CHANGELOG para {0} idiomas selecionados? Arquivos README não serão afetados.",
+        
+        "help_generate_changelog_only": "Apenas gerar arquivos CHANGELOG para idiomas selecionados (arquivos README permanecem inalterados)",
+        "help_remove_changelog_selected": "Apenas remover arquivos CHANGELOG para idiomas selecionados (arquivos README permanecem inalterados)",
+        "help_remove_changelog_only": "Apenas remover TODOS os arquivos CHANGELOG (arquivos README permanecem inalterados)",
+        "help_with_changelog": "Quando habilitado: Traduz README e CHANGELOG. Quando desabilitado: Traduz apenas README",
+        "errors.noLanguagesSelected": "❌ Nenhum idioma selecionado",
+        "errors.noLanguagesSelectedRemove": "❌ Nenhum idioma selecionado para remoção",
+        "progress.startingTranslation": "🚀 Iniciando tradução para {count} idiomas - {mode_text}",
+        "progress.translatingLanguage": "📖 Traduzindo {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Aguardando {seconds} segundos antes da próxima tradução...",
+        "progress.completed": "✅ Processo de tradução concluído",
+        "progress.filesSaved": "💾 Arquivos salvos em: {path}",
+        "progress.removingSelected": "🗑️ Removendo arquivos CHANGELOG selecionados...",
+        "progress.fileCreated": "✅ Removido: {path}",
+        "progress.removingChangelog": "🗑️ Removendo todos os arquivos CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Traduzindo CHANGELOG para {count} idiomas...",
+        "changelog.translating": "🔧 Traduzindo CHANGELOG para {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG traduzido para {lang_name}",
+        "changelog.autoSettingUp": "🔧 Configuração automática da seção changelog...",
+        "changelog.checkingSpacing": "🔧 Verificando espaçamento da seção changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG traduzido para {lang_name}",
+        "errors.translationFailedShort": "❌ Falha na tradução para {lang_name}",
+        "errors.translationFailed": "❌ Falha na tradução para {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Falha na tradução do CHANGELOG",
+        "success.changelogTranslationCompleted": "✅ Tradução do CHANGELOG concluída",
+        "errors.changelogRemoveFailed": "❌ Falha ao remover arquivo CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ Nenhum arquivo CHANGELOG encontrado",
+        "success.changelogRemoved": "✅ {count} arquivos CHANGELOG removidos com sucesso",
+        "confirmation.removeChangelog": "Tem certeza de que deseja remover TODOS os arquivos CHANGELOG? Os arquivos README não serão afetados."
     },
     "ru": {
         "translating_readme": "📘 Перевод README на {lang_name} ({lang_code})...",
@@ -861,7 +1344,60 @@ Exemplos:
         "help_translate_changelog": "Перевести только CHANGELOG.md (использовать 'all' для всех языков или указать коды)",
         "help_auto_setup_changelog": "Автоматически добавить раздел changelog в README.md, если CHANGELOG.md существует",
         "help_detect_github_url": "Обнаружить и отобразить URL репозитория GitHub из различных источников",
-        "help_display": "Язык отображения для уведомлений терминала (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "Язык отображения для уведомлений терминала (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 Действия только с CHANGELOG",
+        "changelog.generateRemoveOnly": "Только генерировать/удалять CHANGELOG",
+        "changelog.onlyDescription": "Эти действия затрагивают только файлы CHANGELOG, файлы README остаются неизменными.",
+        "changelog.generateOnly": "🌐 Только генерировать CHANGELOG",
+        "changelog.removeSelected": "🗑️ Удалить выбранные CHANGELOG",
+        "changelog.affectsSelected": "Затрагивает только выбранные языки: {0} языков",
+        "changelog.generateWith": "📋 Генерировать с CHANGELOG",
+        "changelog.checkedDescription": "Когда отмечено: Переводит файлы README и CHANGELOG",
+        "changelog.uncheckedDescription": "Когда не отмечено: Переводит только файлы README",
+        
+        "progress.translatingWithChangelog": "Перевод README + CHANGELOG",
+        "progress.translatingReadmeOnly": "Перевод только README",
+        "success.filesSavedWithChangelog": "READMES и CHANGELOGs",
+        "success.filesSavedReadmeOnly": "Только READMEs",
+        "success.translationCompletedWithChangelog": "✅ {0} READMEs и CHANGELOGs успешно переведены!",
+        "success.translationCompletedReadmeOnly": "✅ {0} READMEs успешно переведены!",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md не найден - пропускаю перевод CHANGELOG",
+        
+        "errors.changelogGenerateFailed": "❌ Ошибка генерации CHANGELOG",
+        "errors.changelogRemoveSelectedFailed": "❌ Ошибка удаления выбранных файлов CHANGELOG",
+        "success.changelogGenerated": "✅ CHANGELOG успешно сгенерирован для {0} языков",
+        "success.changelogRemovedSelected": "✅ {0} файлов CHANGELOG успешно удалено",
+        "confirmation.removeChangelogSelected": "Вы уверены, что хотите удалить файлы CHANGELOG для {0} выбранных языков? Файлы README не будут затронуты.",
+        
+        "help_generate_changelog_only": "Только генерировать файлы CHANGELOG для выбранных языков (файлы README остаются неизменными)",
+        "help_remove_changelog_selected": "Только удалять файлы CHANGELOG для выбранных языков (файлы README остаются неизменными)",
+        "help_remove_changelog_only": "Только удалять ВСЕ файлы CHANGELOG (файлы README остаются неизменными)",
+        "help_with_changelog": "Когда включено: Переводит README и CHANGELOG. Когда выключено: Переводит только README",
+        "errors.noLanguagesSelected": "❌ Языки не выбраны",
+        "errors.noLanguagesSelectedRemove": "❌ Языки для удаления не выбраны",
+        "progress.startingTranslation": "🚀 Начало перевода для {count} языков - {mode_text}",
+        "progress.translatingLanguage": "📖 Перевод {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ Ожидание {seconds} секунд перед следующим переводом...",
+        "progress.completed": "✅ Процесс перевода завершен",
+        "progress.filesSaved": "💾 Файлы сохранены в: {path}",
+        "progress.removingSelected": "🗑️ Удаление выбранных файлов CHANGELOG...",
+        "progress.fileCreated": "✅ Удалено: {path}",
+        "progress.removingChangelog": "🗑️ Удаление всех файлов CHANGELOG...",
+        "changelog.translatingChangelog": "📘 Перевод CHANGELOG для {count} языков...",
+        "changelog.translating": "🔧 Перевод CHANGELOG на {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG переведен на {lang_name}",
+        "changelog.autoSettingUp": "🔧 Автоматическая настройка раздела changelog...",
+        "changelog.checkingSpacing": "🔧 Проверка отступов раздела changelog...",
+        "progress.changelogTranslated": "✅ CHANGELOG переведен на {lang_name}",
+        "errors.translationFailedShort": "❌ Ошибка перевода для {lang_name}",
+        "errors.translationFailed": "❌ Ошибка перевода для {lang_code}: {error}",
+        "errors.changelogTranslationFailed": "❌ Ошибка перевода CHANGELOG",
+        "success.changelogTranslationCompleted": "✅ Перевод CHANGELOG завершен",
+        "errors.changelogRemoveFailed": "❌ Ошибка удаления файла CHANGELOG",
+        "info.noChangelogFiles": "ℹ️ Файлы CHANGELOG не найдены",
+        "success.changelogRemoved": "✅ {count} файлов CHANGELOG успешно удалено",
+        "confirmation.removeChangelog": "Вы уверены, что хотите удалить ВСЕ файлы CHANGELOG? Файлы README не будут затронуты."
     },
     "zh": {
         "translating_readme": "📘 正在将 README 翻译为 {lang_name} ({lang_code})...",
@@ -945,12 +1481,65 @@ Exemplos:
         "help_translate_changelog": "仅翻译 CHANGELOG.md（对所有语言使用 'all' 或指定代码）",
         "help_auto_setup_changelog": "如果 CHANGELOG.md 存在，则自动将更新日志部分添加到 README.md",
         "help_detect_github_url": "从各种来源检测并显示 GitHub 仓库 URL",
-        "help_display": "终端通知的显示语言 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)"
+        "help_display": "终端通知的显示语言 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
+
+        "changelog.onlyActions": "📋 仅 CHANGELOG 操作",
+        "changelog.generateRemoveOnly": "仅生成/删除 CHANGELOG",
+        "changelog.onlyDescription": "这些操作仅影响 CHANGELOG 文件，README 文件保持不变。",
+        "changelog.generateOnly": "🌐 仅生成 CHANGELOG",
+        "changelog.removeSelected": "🗑️ 删除选中的 CHANGELOG",
+        "changelog.affectsSelected": "仅影响选中的语言：{0} 种语言",
+        "changelog.generateWith": "📋 生成包含 CHANGELOG",
+        "changelog.checkedDescription": "勾选时：翻译 README 和 CHANGELOG 文件",
+        "changelog.uncheckedDescription": "未勾选时：仅翻译 README 文件",
+        
+        "progress.translatingWithChangelog": "正在翻译 README + CHANGELOG",
+        "progress.translatingReadmeOnly": "仅翻译 README",
+        "success.filesSavedWithChangelog": "README 和 CHANGELOG",
+        "success.filesSavedReadmeOnly": "仅 README",
+        "success.translationCompletedWithChangelog": "✅ {0} 个 README 和 CHANGELOG 成功翻译！",
+        "success.translationCompletedReadmeOnly": "✅ {0} 个 README 成功翻译！",
+        "info.noChangelogFileSkipping": "⚠️ 未找到 CHANGELOG.md - 跳过 CHANGELOG 翻译",
+        
+        "errors.changelogGenerateFailed": "❌ CHANGELOG 生成失败",
+        "errors.changelogRemoveSelectedFailed": "❌ 删除选中的 CHANGELOG 文件失败",
+        "success.changelogGenerated": "✅ 成功为 {0} 种语言生成 CHANGELOG",
+        "success.changelogRemovedSelected": "✅ {0} 个 CHANGELOG 文件成功删除",
+        "confirmation.removeChangelogSelected": "您确定要删除 {0} 种选中语言的 CHANGELOG 文件吗？README 文件将不受影响。",
+        
+        "help_generate_changelog_only": "仅为选中的语言生成 CHANGELOG 文件（README 文件保持不变）",
+        "help_remove_changelog_selected": "仅删除选中的语言的 CHANGELOG 文件（README 文件保持不变）",
+        "help_remove_changelog_only": "仅删除所有 CHANGELOG 文件（README 文件保持不变）",
+        "help_with_changelog": "启用时：翻译 README 和 CHANGELOG。禁用时：仅翻译 README",
+        "errors.noLanguagesSelected": "❌ 未选择语言",
+        "errors.noLanguagesSelectedRemove": "❌ 未选择要删除的语言",
+        "progress.startingTranslation": "🚀 开始翻译 {count} 种语言 - {mode_text}",
+        "progress.translatingLanguage": "📖 正在翻译 {lang_name} ({current}/{total})...",
+        "progress.waiting": "⏳ 等待 {seconds} 秒后进行下一个翻译...",
+        "progress.completed": "✅ 翻译过程已完成",
+        "progress.filesSaved": "💾 文件已保存至: {path}",
+        "progress.removingSelected": "🗑️ 正在删除选中的 CHANGELOG 文件...",
+        "progress.fileCreated": "✅ 已删除: {path}",
+        "progress.removingChangelog": "🗑️ 正在删除所有 CHANGELOG 文件...",
+        "changelog.translatingChangelog": "📘 正在为 {count} 种语言翻译 CHANGELOG...",
+        "changelog.translating": "🔧 正在将 CHANGELOG 翻译为 {lang_name}...",
+        "changelog.translated": "✅ CHANGELOG 已翻译为 {lang_name}",
+        "changelog.autoSettingUp": "🔧 自动设置更新日志部分...",
+        "changelog.checkingSpacing": "🔧 检查更新日志部分间距...",
+        "progress.changelogTranslated": "✅ CHANGELOG 已翻译为 {lang_name}",
+        "errors.translationFailedShort": "❌ {lang_name} 翻译失败",
+        "errors.translationFailed": "❌ {lang_code} 翻译失败: {error}",
+        "errors.changelogTranslationFailed": "❌ CHANGELOG 翻译失败",
+        "success.changelogTranslationCompleted": "✅ CHANGELOG 翻译已完成",
+        "errors.changelogRemoveFailed": "❌ 删除 CHANGELOG 文件失败",
+        "info.noChangelogFiles": "ℹ️ 未找到 CHANGELOG 文件",
+        "success.changelogRemoved": "✅ {count} 个 CHANGELOG 文件已成功删除",
+        "confirmation.removeChangelog": "您确定要删除所有 CHANGELOG 文件吗？README 文件将不受影响。"
     }
 }
 
-# Global variable for display language - CHANGED TO ENGLISH AS DEFAULT
-DISPLAY_LANG = "en"  # default changed to English
+# Global variable for display language
+DISPLAY_LANG = "en"
 
 def set_display_language(lang_code):
     """Set display language for notifications"""
@@ -961,8 +1550,29 @@ def set_display_language(lang_code):
         print(DISPLAY_LANGUAGES["en"]["language_not_supported"].format(code=lang_code))
 
 def t(key, **kwargs):
-    """Translation function for notifications"""
-    return DISPLAY_LANGUAGES[DISPLAY_LANG][key].format(**kwargs)
+    """Translation function for notifications - will be populated globally"""
+    global DISPLAY_LANG
+    try:
+        # Try to get translation from current display language
+        if DISPLAY_LANG in DISPLAY_LANGUAGES and key in DISPLAY_LANGUAGES[DISPLAY_LANG]:
+            return DISPLAY_LANGUAGES[DISPLAY_LANG][key].format(**kwargs)
+        # Fallback to English
+        elif key in DISPLAY_LANGUAGES["en"]:
+            return DISPLAY_LANGUAGES["en"][key].format(**kwargs)
+        else:
+            # Return key as placeholder - will be filled globally
+            return f"{key}"
+    except Exception as e:
+        # Return key on error - will be filled globally
+        return f"{key}"
+
+def get_display_language():
+    """Get current display language"""
+    return DISPLAY_LANG
+
+def get_available_languages():
+    """Get list of available languages"""
+    return list(DISPLAY_LANGUAGES.keys())
 
 # ---------------------- LANGUAGE SETTINGS ----------------------
 LANGUAGES = {
@@ -1121,8 +1731,6 @@ def has_changelog_file():
 
 def has_changelog_section_in_readme():
     """Check if README.md has Changelog section"""
-    if not os.path.exists(SOURCE_FILE):
-        return False
     
     with open(SOURCE_FILE, "r", encoding="utf-8") as f:
         content = f.read()
@@ -1379,30 +1987,31 @@ def update_language_switcher(new_languages=None, removed_languages=None):
                     lang_links.append(f"[{name}](docs/lang/README-{code.upper()}.md)")
         
         if lang_links:
-            switcher = f"> 🌐 Available in other languages: {' | '.join(lang_links)}\n"
+            switcher = f"> 🌐 Available in other languages: {' | '.join(lang_links)}"
             
-            # Find and replace existing language switcher
-            if "> 🌐 Available in other languages:" in content:
-                # Replace only the language switcher part
-                content = re.sub(
-                    r'> 🌐 Available in other languages:.*', 
-                    f'> 🌐 Available in other languages: {" | ".join(lang_links)}', 
-                    content
-                )
+            # 1. Start by stripping ALL previous switchers to fix duplicates
+            content = re.sub(r'> 🌐 Available in other languages:[^\n]*\n?', '', content)
+            
+            # Strip multiple empty lines
+            content = re.sub(r'\n{3,}', '\n\n', content)
+            
+            # 2. Insert new switcher at the proper position
+            match = re.search(r"\n-{3,}\n", content)
+            if match:
+                position = match.start()
+                content = content[:position] + "\n\n" + switcher + "\n" + content[position:]
             else:
-                # Add new one before ---
-                match = re.search(r"\n-{3,}\n", content)
-                if match:
-                    position = match.start()
-                    content = content[:position] + "\n" + switcher + content[position:]
+                # Insert just below H1 title and any badges
+                header_match = re.search(r'^(#\s+[^\n]+(?:\n(?:\[!\[|!\[|<a)[^\n]*)*)', content, re.MULTILINE)
+                if header_match:
+                    position = header_match.end()
+                    content = content[:position] + "\n\n" + switcher + "\n" + content[position:]
                 else:
-                    content = content.strip() + "\n" + switcher
+                    content = switcher + "\n\n" + content.strip()
         else:
-            # Remove language switcher if no other languages (including excess empty lines)
-            content = re.sub(r'> 🌐 Available in other languages:.*\n', '', content)
-            # Remove remaining excess empty lines
-            content = re.sub(r'\n\n\n', '\n\n', content)
-            content = re.sub(r'\n\n\n', '\n\n', content)
+            # Remove entirely
+            content = re.sub(r'> 🌐 Available in other languages:[^\n]*\n?', '', content)
+            content = re.sub(r'\n{3,}', '\n\n', content)
         
         with open(SOURCE_FILE, "w", encoding="utf-8") as f:
             f.write(content)
@@ -1455,21 +2064,24 @@ def update_language_switcher(new_languages=None, removed_languages=None):
                     links_text = " | ".join(links)
                     new_switcher_line = f"> {intro_text} {links_text}"
                     
-                    # Find and replace existing language switcher
+                    # 1. Stripe all previous switchers
                     escaped_intro = re.escape(intro_text)
-                    if f"> {intro_text}" in content:
-                        # Replace only the language switcher part
-                        content = re.sub(
-                            fr'> {escaped_intro}.*', 
-                            new_switcher_line, 
-                            content
-                        )
+                    content = re.sub(fr'> {escaped_intro}[^\n]*\n?', '', content)
+                    content = re.sub(r'> 🌐 Available in other languages:[^\n]*\n?', '', content)
+                    content = re.sub(r'\n{3,}', '\n\n', content)
+                    
+                    # 2. Insert new switcher
+                    match = re.search(r"\n-{3,}\n", content)
+                    if match:
+                        position = match.start()
+                        content = content[:position] + "\n\n" + new_switcher_line + "\n" + content[position:]
                     else:
-                        # Add new one before ---
-                        match = re.search(r"\n-{3,}\n", content)
-                        if match:
-                            position = match.start()
-                            content = content[:position] + "\n" + new_switcher_line + "\n" + content[position:]
+                        header_match = re.search(r'^(#\s+[^\n]+(?:\n(?:\[!\[|!\[|<a)[^\n]*)*)', content, re.MULTILINE)
+                        if header_match:
+                            position = header_match.end()
+                            content = content[:position] + "\n\n" + new_switcher_line + "\n" + content[position:]
+                        else:
+                            content = new_switcher_line + "\n\n" + content.strip()
                     
                     with open(readme_path, "w", encoding="utf-8") as f:
                         f.write(content)
@@ -1847,6 +2459,238 @@ def translate_changelog_only(lang_codes=None):
         print(t("no_changelog_translated"))
         return False
 
+# ---------------------- NEW CHANGELOG ONLY FUNCTIONS ----------------------
+
+def generate_changelog_only(lang_codes=None):
+    """Generate CHANGELOG files only for selected languages (README files remain unchanged)"""
+    if not has_changelog_file():
+        print(t("no_changelog_file"))
+        return False
+    
+    if not lang_codes:
+        print(t("errors.noLanguagesSelected"))
+        return False
+    
+    # Filter valid language codes
+    valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
+    
+    if not valid_langs:
+        print(t("errors.noLanguagesSelected"))
+        return False
+    
+    protected = load_protected_phrases()
+    success_count = 0
+    
+    print(t("changelog.translatingChangelog", count=len(valid_langs)))
+    
+    for lang_code in valid_langs:
+        lang_name = LANGUAGES[lang_code][0]
+        print(t("changelog.translating", lang_name=lang_name))
+        
+        try:
+            if translate_changelog(lang_code, LANGUAGES[lang_code], protected):
+                update_changelog_links_in_readme(lang_code, LANGUAGES[lang_code])
+                success_count += 1
+                print(t("changelog.translated", lang_name=lang_name))
+            else:
+                print(t("errors.translationFailedShort", lang_name=lang_name))
+            
+            time.sleep(2)  # Delay to avoid rate limiting
+            
+        except Exception as e:
+            error_msg = t("errors.translationFailed", lang_code=lang_code, error=str(e))
+            print(f"❌ {error_msg}")
+    
+    if success_count > 0:
+        print(t("success.changelogTranslationCompleted"))
+        print(t("progress.filesSaved", path=os.path.join(OUTPUT_DIR)))
+        print(t("success.changelogGenerated", count=success_count))
+        return True
+    else:
+        print(t("errors.changelogTranslationFailed"))
+        return False
+
+def remove_changelog_selected(lang_codes):
+    """Remove CHANGELOG files for selected languages only (README files remain unchanged)"""
+    if not lang_codes:
+        print(t("errors.noLanguagesSelectedRemove"))
+        return False
+    
+    # Filter valid language codes
+    valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
+    
+    if not valid_langs:
+        print(t("errors.noLanguagesSelectedRemove"))
+        return False
+    
+    # Confirmation prompt
+    confirmation = input(t("confirmation.removeChangelogSelected", count=len(valid_langs)) + " (y/N): ")
+    if confirmation.lower() not in ['y', 'yes']:
+        print("Operation cancelled.")
+        return False
+    
+    print(t("progress.removingSelected", count=len(valid_langs)))
+    
+    removed_count = 0
+    for lang_code in valid_langs:
+        # Special filename format for jp, zh, kr
+        if lang_code == "jp":
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-JP.md")
+        elif lang_code == "zh":
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-ZH.md")
+        elif lang_code == "kr":
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-KR.md")
+        else:
+            changelog_path = os.path.join(OUTPUT_DIR, f"CHANGELOG-{lang_code.upper()}.md")
+        
+        if os.path.exists(changelog_path):
+            try:
+                os.remove(changelog_path)
+                removed_count += 1
+                lang_name = LANGUAGES[lang_code][0]
+                print(t("progress.fileCreated", path=lang_name))
+            except Exception as e:
+                print(t("errors.changelogRemoveFailed"))
+        else:
+            print(t("info.noChangelogFiles"))
+    
+    if removed_count > 0:
+        print(t("success.changelogRemovedSelected", count=removed_count))
+        return True
+    else:
+        print(t("info.noChangelogFiles"))
+        return False
+
+def remove_changelog_only():
+    """Remove ALL CHANGELOG files only (README files remain unchanged)"""
+    # Confirmation prompt
+    confirmation = input(t("confirmation.removeChangelog") + " (y/N): ")
+    if confirmation.lower() not in ['y', 'yes']:
+        print("Operation cancelled.")
+        return False
+    
+    print(t("progress.removingChangelog"))
+    
+    removed_count = 0
+    output_dir = OUTPUT_DIR
+    
+    if os.path.exists(output_dir):
+        try:
+            files = os.listdir(output_dir)
+            changelog_files = [f for f in files if f.startswith("CHANGELOG-") and f.endswith(".md")]
+            
+            for file in changelog_files:
+                try:
+                    file_path = os.path.join(output_dir, file)
+                    os.remove(file_path)
+                    removed_count += 1
+                    print(f"✅ Removed: {file}")
+                except Exception as e:
+                    print(f"❌ Failed to remove: {file}")
+            
+            # Remove empty directories
+            try:
+                if os.path.exists(output_dir):
+                    remaining_files = os.listdir(output_dir)
+                    if not remaining_files:
+                        shutil.rmtree(output_dir)
+                        print(f"📁 Folder {output_dir} deleted (empty)")
+                        
+                        # Check if docs folder is also empty
+                        docs_dir = os.path.dirname(output_dir)
+                        if os.path.exists(docs_dir) and not os.listdir(docs_dir):
+                            shutil.rmtree(docs_dir)
+                            print(f"📁 Folder {docs_dir} deleted (empty)")
+            except Exception as e:
+                print(f"❌ Failed to delete folder: {e}")
+                
+        except Exception as e:
+            print(f"❌ Error reading directory: {e}")
+    
+    if removed_count > 0:
+        print(t("success.changelogRemoved", count=removed_count))
+        return True
+    else:
+        print(t("info.noChangelogFiles"))
+        return False
+
+def translate_with_changelog(lang_codes, with_changelog=True):
+    """
+    Translate README with option to include CHANGELOG
+    """
+    if not lang_codes:
+        print(t("errors.noLanguagesSelected"))
+        return False
+    
+    valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
+    
+    if not valid_langs:
+        print(t("errors.noLanguagesSelected"))
+        return False
+    
+    # Auto setup changelog only if with_changelog is True AND CHANGELOG file exists
+    if with_changelog and has_changelog_file() and not has_changelog_section_in_readme():
+        print(t("changelog.autoSettingUp"))
+        add_changelog_section_to_readme()
+    elif with_changelog and has_changelog_section_in_readme():
+        print(t("changelog.checkingSpacing"))
+        fix_existing_changelog_spacing()
+    
+    protected = load_protected_phrases()
+    
+    # Show progress mode
+    mode_text = t("progress.translatingWithChangelog") if with_changelog else t("progress.translatingReadmeOnly")
+    print(t("progress.startingTranslation", count=len(valid_langs), mode_text=mode_text))
+    
+    success_count = 0
+    
+    for i, lang_code in enumerate(valid_langs):
+        lang_name = LANGUAGES[lang_code][0]
+        progress_msg = t("progress.translatingLanguage", 
+                        lang_name=lang_name, 
+                        current=i+1, 
+                        total=len(valid_langs))
+        print(progress_msg)
+        
+        try:
+            # Translate README first
+            translate_readme(lang_code, LANGUAGES[lang_code], protected)
+            
+            # Translate CHANGELOG only if option is enabled AND CHANGELOG file exists
+            if with_changelog and has_changelog_file():
+                print(t("changelog.translating", lang_name=lang_name))
+                translate_changelog(lang_code, LANGUAGES[lang_code], protected)
+                print(t("progress.changelogTranslated", lang_name=lang_name))
+            elif with_changelog and not has_changelog_file():
+                print(t("info.noChangelogFileSkipping"))
+            
+            success_count += 1
+            
+            # Delay to avoid rate limiting
+            print(t("progress.waiting", seconds=3))
+            time.sleep(3)
+            
+        except Exception as e:
+            error_msg = t("errors.translationFailed", lang_code=lang_code, error=str(e))
+            print(f"❌ {error_msg}")
+    
+    # Update language switcher for ALL existing languages (including English)
+    all_langs_for_switcher = ['en'] + valid_langs
+    update_language_switcher(all_langs_for_switcher)
+    
+    # Show summary
+    print(t("progress.completed"))
+    
+    mode_summary = t("success.filesSavedWithChangelog") if with_changelog else t("success.filesSavedReadmeOnly")
+    print(t("progress.filesSaved", path=os.path.join(OUTPUT_DIR)))
+    
+    success_message = (t("success.translationCompletedWithChangelog", count=success_count) 
+                      if with_changelog else 
+                      t("success.translationCompletedReadmeOnly", count=success_count))
+    print(success_message)
+    
+    return success_count > 0
+
 # ---------------------- MAIN README TRANSLATION FUNCTION ----------------------
 def translate_readme(lang_code, lang_info, protected):
     lang_name, translate_code, intro_text = lang_info
@@ -1865,7 +2709,20 @@ def translate_readme(lang_code, lang_info, protected):
         src_text = f.read()
 
     parts = re.split(r'\n-{3,}\n', src_text, 1)
-    src_header, src_body = (parts[0], parts[1]) if len(parts) > 1 else (src_text, "")
+    if len(parts) > 1:
+        src_header, src_body = parts[0], parts[1]
+    else:
+        # Jika tidak ada pembatas '---', cari '# JudulUtama' atau baris pertama
+        match = re.search(r'^(#\s+[^\n]+(?:\n(?:\[!\[|!\[|<a)[^\n]*)*)', src_text, re.MULTILINE)
+        if match:
+            split_pos = match.end()
+            src_header = src_text[:split_pos].strip()
+            src_body = src_text[split_pos:].lstrip()
+        else:
+            # Fallback jika tidak ditemukan (# Judul)
+            lines = src_text.split('\n', 1)
+            src_header = lines[0] if len(lines) > 0 else src_text
+            src_body = lines[1] if len(lines) > 1 else ""
 
     # Clean existing language switcher from header
     cleaned_header = re.sub(r'^\s*>\s*🌐.*$', '', src_header, flags=re.MULTILINE).strip()
@@ -1897,8 +2754,6 @@ def translate_readme(lang_code, lang_info, protected):
     translated_lines = []
     in_code_block = False
     in_example_block = False
-    in_table = False
-    table_header_processed = False
 
     for i, line in enumerate(body_lines):
         # Detect code blocks
@@ -1906,32 +2761,6 @@ def translate_readme(lang_code, lang_info, protected):
             in_code_block = not in_code_block
             translated_lines.append(line)
             continue
-
-        # Detect tables
-        if re.match(r'^\|.*\|$', line) and not in_code_block:
-            if not in_table:
-                in_table = True
-                table_header_processed = False
-            
-            # Table separator row (---|---|)
-            if re.match(r'^\|?[\s:-]+\|[\s:-]+\|[\s:-]+\|?$', line):
-                translated_lines.append(line)
-                table_header_processed = True
-                continue
-            
-            # FIX: Table header NOT translated, copied directly
-            if in_table and not table_header_processed:
-                translated_lines.append(line)  # Table header not translated
-                table_header_processed = True
-            else:
-                # Table data rows, not translated
-                translated_lines.append(line)
-            continue
-        else:
-            # Exit table mode
-            if in_table:
-                in_table = False
-                table_header_processed = False
 
         # Detect example sections (Before/After)
         if re.match(r'^\*\*Before:\*\*$', line, re.IGNORECASE):
@@ -2044,6 +2873,13 @@ def translate_readme(lang_code, lang_info, protected):
     final_text = f"{final_header}\n\n---\n{translated_body}"
     final_text = re.sub(r"\(LICENSE\)", "(../../LICENSE)", final_text)
     final_text = re.sub(r"__p\d+__", "", final_text)
+    # 🔽 Tambahkan baris ini agar tabel diterjemahkan otomatis
+    # Di fungsi translate_readme, tambahkan error handling untuk translate_markdown_table
+    try:
+        final_text = translate_markdown_table(final_text, lang_code)
+    except Exception as e:
+        print(f"Warning: Table translation failed: {e}")
+        # Continue with untranslated tables
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     with open(dest_path, "w", encoding="utf-8") as f:
@@ -2059,11 +2895,360 @@ def translate_readme(lang_code, lang_info, protected):
         # Update CHANGELOG link in translated README
         update_changelog_links_in_readme(lang_code, lang_info)
 
+def translate_markdown_table(content: str, lang_code: str) -> str:
+    """
+    Automatically detect markdown tables and translate header + specific columns.
+    Keeps Command ID and Default Shortcut columns untranslated.
+    """
+    table_pattern = re.compile(
+        r"(\|[^\n]+\|\s*\n\|(?:\s*:?[-]+:?[\s|]+)+\n(?:\|[^\n]+\n?)+)",
+        re.MULTILINE
+    )
+
+    tables = table_pattern.findall(content)
+    if not tables:
+        return content
+
+    for table in tables:
+        lines = [line.strip() for line in table.strip().split("\n") if line.strip()]
+        if len(lines) < 3:
+            continue
+
+        header = [h.strip() for h in lines[0].split("|") if h.strip()]
+        separator = lines[1]
+        rows = lines[2:]
+
+        # Cek apakah tabel adalah tabel Commands (dari README)
+        if not any("Command Name" in h for h in header):
+            continue
+
+        # Tentukan kolom mana yang diterjemahkan
+        try:
+            idx_command_name = header.index("Command Name")
+        except ValueError:
+            idx_command_name = None
+        try:
+            idx_desc = header.index("Description")
+        except ValueError:
+            idx_desc = None
+
+        # Terjemahkan header seluruhnya
+        translated_header = []
+        for h in header:
+            try:
+                translated_header.append(GoogleTranslator(source="en", target=lang_code).translate(h))
+            except Exception:
+                translated_header.append(h)
+
+        # Terjemahkan baris data
+        translated_rows = []
+        for row in rows:
+            cols = [c.strip() for c in row.split("|") if c.strip()]
+            new_cols = []
+            for i, col in enumerate(cols):
+                if i in (idx_command_name, idx_desc):
+                    try:
+                        new_cols.append(GoogleTranslator(source="en", target=lang_code).translate(col))
+                    except Exception:
+                        new_cols.append(col)
+                else:
+                    new_cols.append(col)
+            translated_rows.append("| " + " | ".join(new_cols) + " |")
+
+        # Gabungkan ulang tabel
+        translated_table = (
+            "| " + " | ".join(translated_header) + " |\n" +
+            separator + "\n" +
+            "\n".join(translated_rows)
+        )
+
+        # Ganti di konten asli
+        content = content.replace(table, translated_table)
+
+    return content
+
+# ---------------------- INTERACTIVE MENU ----------------------
+def repair_translations():
+    """Repair language switchers positioning, remove duplicates, and detect translation failures."""
+    print(Fore.CYAN + "\n[+] Starting Translation Repair Tool...")
+    
+    # 1. Update/fix all switchers globally
+    print(Fore.YELLOW + "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...")
+    update_language_switcher()
+    
+    # 2. Detect translation failures
+    print(Fore.YELLOW + "\n2. Scanning translated documents for failures (API errors / unchanged English)...")
+    existing_langs = get_existing_translated_languages()
+    failed_langs = []
+    
+    if not os.path.exists(SOURCE_FILE):
+        print(Fore.RED + "   Error: Root README.md not found.")
+        return False
+        
+    try:
+        with open(SOURCE_FILE, "r", encoding="utf-8") as f:
+            src_content = f.read()
+    except Exception as e:
+        print(Fore.RED + f"   Failed to read source file: {e}")
+        return False
+        
+    for lang_code in existing_langs:
+        if lang_code == "jp":
+            readme_path = os.path.join(OUTPUT_DIR, "README-JP.md")
+        elif lang_code == "zh":
+            readme_path = os.path.join(OUTPUT_DIR, "README-ZH.md")
+        elif lang_code == "kr":
+            readme_path = os.path.join(OUTPUT_DIR, "README-KR.md")
+        else:
+            readme_path = os.path.join(OUTPUT_DIR, f"README-{lang_code.upper()}.md")
+            
+        if os.path.exists(readme_path):
+            try:
+                with open(readme_path, "r", encoding="utf-8") as f:
+                    trans_content = f.read()
+                
+                # Strip markdown syntax and compare structural words
+                def strip_md(text):
+                    text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
+                    text = re.sub(r'\[.*?\]\(.*?\)', '', text)
+                    text = re.sub(r'\W+', ' ', text).lower()
+                    return text
+                    
+                src_words = strip_md(src_content).split()
+                tr_words = strip_md(trans_content).split()
+                
+                if src_words and tr_words:
+                    common_words = set(src_words).intersection(set(tr_words))
+                    overlap_ratio = len(common_words) / len(set(src_words)) if set(src_words) else 0
+                    
+                    if overlap_ratio > 0.65:
+                        print(Fore.RED + f"   - [FAIL] {LANGUAGES[lang_code][0]} ({lang_code}): High English overlap ({int(overlap_ratio*100)}%)")
+                        failed_langs.append(lang_code)
+                    else:
+                        print(Fore.GREEN + f"   - [OK] {LANGUAGES[lang_code][0]} ({lang_code}) looks properly translated.")
+            except Exception as e:
+                print(Fore.RED + f"   - [ERROR] {lang_code}: Could not scan ({e})")
+                
+    if failed_langs:
+        print(Fore.CYAN + f"\n3. Re-translating {len(failed_langs)} failed files: {', '.join(failed_langs)}")
+        translate_with_changelog(failed_langs, with_changelog=has_changelog_file())
+        print(Fore.GREEN + "\nRepair completed! Missing translations have been fixed.")
+    else:
+        print(Fore.GREEN + "\nNo failed translations detected. All files are clean and fully repaired!")
+        
+    return True
+
+def ask_target_directory():
+    target_path = input(Fore.CYAN + "\nEnter project folder or README path\n(Type 'root' to use current directory, or leave empty to cancel): " + Fore.WHITE).strip()
+    
+    if not target_path:
+        print(Fore.YELLOW + "Action cancelled. Returning to main menu...\n")
+        return False
+        
+    if target_path.lower() == 'root':
+        print(Fore.GREEN + f"Using current root directory: {os.getcwd()}\n")
+        return True
+        
+    target_path = target_path.strip('"\'')
+    if os.path.isfile(target_path):
+        target_dir = os.path.dirname(target_path)
+    elif os.path.isdir(target_path):
+        target_dir = target_path
+    else:
+        print(Fore.RED + "Invalid path. Returning to main menu...\n")
+        return False
+        
+    try:
+        os.chdir(target_dir)
+        print(Fore.GREEN + f"Target directory set to: {os.getcwd()}\n")
+    except Exception as e:
+        print(Fore.RED + f"Failed to change directory: {e}\n")
+        return False
+        
+    return True
+
+def interactive_menu():
+    init(autoreset=True)
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(Fore.CYAN + "=" * 80)
+        print(Fore.GREEN + r"""
+  __  __       _ _   _ ____            _______                 _       _             
+ |  \/  |     | | | (_)  _ \          |__   __|               | |     | |            
+ | \  / |_   _| | |_ _| | | | ___   ___  | |_ __ __ _ _ __ ___| | __ _| |_ ___  _ __ 
+ | |\/| | | | | | __| | | | |/ _ \ / __| | | '__/ _` | '_ \ __| |/ _` | __/ _ \| '__|
+ | |  | | |_| | | |_| | |_| | (_) | (__  | | | | (_| | | | \__ \ | (_| | || (_) | |   
+ |_|  |_|\__,_|_|\__|_|____/ \___/ \___| |_|_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   
+        """)
+        print(Style.BRIGHT + Fore.WHITE + " MultiDoc Translator")
+        print(Fore.LIGHTBLACK_EX + " Developer: Fatony Ahmad Fauzi")
+        print(Fore.CYAN + "=" * 80)
+        print(Fore.GREEN + "[1]" + Fore.LIGHTGREEN_EX + " Translate README & CHANGELOG")
+        print(Fore.GREEN + "[2]" + Fore.LIGHTGREEN_EX + " Translate README Only")
+        print(Fore.GREEN + "[3]" + Fore.LIGHTGREEN_EX + " Translate CHANGELOG Only")
+        print(Fore.GREEN + "[4]" + Fore.LIGHTGREEN_EX + " Remove Translated Languages")
+        print(Fore.GREEN + "[5]" + Fore.LIGHTGREEN_EX + " Protection Settings (Phrases)")
+        print(Fore.GREEN + "[6]" + Fore.LIGHTGREEN_EX + " Auto Setup Changelog Section")
+        print(Fore.GREEN + "[7]" + Fore.LIGHTGREEN_EX + " Detect GitHub URL")
+        print(Fore.RED + "[8]" + Fore.LIGHTRED_EX + " Repair Translations (Fix Duplicates & Failures)")
+        print(Fore.WHITE + "[0] Exit")
+        print("\n" + Fore.YELLOW + "[+] Select option: ", end="")
+        
+        choice = input().strip()
+        
+        if choice == '1':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+            if langs.lower() == 'all':
+                langs_list = list(LANGUAGES.keys())
+            else:
+                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+            if langs_list:
+                translate_with_changelog(langs_list, with_changelog=True)
+            else:
+                print(Fore.RED + "Invalid languages.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == '2':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+            if langs.lower() == 'all':
+                langs_list = list(LANGUAGES.keys())
+            else:
+                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+            if langs_list:
+                translate_with_changelog(langs_list, with_changelog=False)
+            else:
+                print(Fore.RED + "Invalid languages.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == '3':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+            if langs.lower() == 'all':
+                langs_list = list(LANGUAGES.keys())
+            else:
+                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+            if langs_list:
+                translate_changelog_only(langs_list)
+            else:
+                print(Fore.RED + "Invalid languages.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == '4':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            print(Fore.CYAN + "[1] Remove Specific Languages")
+            print("[2] Remove ALL Translated Languages")
+            sub_choice = input(Fore.YELLOW + "Select option: " + Fore.WHITE).strip()
+            if sub_choice == '1':
+                langs = input(Fore.CYAN + "Enter language codes to remove: " + Fore.WHITE).strip()
+                lang_codes = [l.strip() for l in langs.split(',')]
+                removed = remove_language_files(lang_codes)
+                if removed:
+                    print(Fore.GREEN + f"Removed: {', '.join(removed)}")
+            elif sub_choice == '2':
+                remove_all_language_files()
+                print(Fore.GREEN + "All translated languages removed.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == '5':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            while True:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print(Fore.CYAN + "--- Protection Settings ---")
+                protected = load_protected_phrases()
+                status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
+                color = Fore.GREEN if is_protect_enabled() else Fore.RED
+                print(f"Status: {color}{status}{Fore.WHITE}")
+                print(Fore.GREEN + "[1] Toggle Protection Status")
+                print("[2] Add Protected Phrase")
+                print("[3] Remove Protected Phrase")
+                print("[4] List Protected Phrases")
+                print("[5] Reset to Default")
+                print(Fore.WHITE + "[0] Back")
+                p_choice = input(Fore.YELLOW + "Select option: " + Fore.WHITE).strip()
+                
+                if p_choice == '1':
+                    set_protect_status(not is_protect_enabled())
+                elif p_choice == '2':
+                    phrase = input(Fore.CYAN + "Enter phrase to protect (leave empty to cancel): " + Fore.WHITE).strip()
+                    if phrase:
+                        protected['protected_phrases'].append(phrase)
+                        save_protected_phrases(protected)
+                        print(Fore.GREEN + f"Added: {phrase}")
+                        time.sleep(1)
+                elif p_choice == '3':
+                    phrase = input(Fore.CYAN + "Enter phrase to remove (leave empty to cancel): " + Fore.WHITE).strip()
+                    if phrase:
+                        if phrase in protected['protected_phrases']:
+                            protected['protected_phrases'].remove(phrase)
+                            save_protected_phrases(protected)
+                            print(Fore.GREEN + f"Removed: {phrase}")
+                        else:
+                            print(Fore.RED + "Phrase not found.")
+                        time.sleep(1)
+                elif p_choice == '4':
+                    print("\nProtected Phrases:")
+                    for p in protected['protected_phrases']:
+                        print(f"- {p}")
+                    input("\nPress Enter to continue...")
+                elif p_choice == '5':
+                    save_protected_phrases(DEFAULT_PROTECTED)
+                    print(Fore.GREEN + "Reset to defaults.")
+                    time.sleep(1)
+                elif p_choice == '0':
+                    break
+
+        elif choice == '6':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            if add_changelog_section_to_readme():
+                print(Fore.GREEN + "Changelog setup completed.")
+            else:
+                print(Fore.RED + "Changelog setup failed.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == '7':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            detect_github_url()
+            input("\nPress Enter to continue...")
+            
+        elif choice == '8':
+            if not ask_target_directory():
+                input("\nPress Enter to continue...")
+                continue
+            repair_translations()
+            input("\nPress Enter to continue...")
+            
+        elif choice == '0':
+            print(Fore.GREEN + "Exiting...")
+            break
+
 # ---------------------- MAIN PROGRAM ----------------------
 def main():
-    display_lang = "en"  # default
+    if len(sys.argv) == 1:
+        interactive_menu()
+        return
+
+    display_lang = "en"
     
-    # Cek parameter --display di command line
+    # Check --display parameter
     for i, arg in enumerate(sys.argv):
         if arg == "--display" and i + 1 < len(sys.argv):
             display_lang = sys.argv[i + 1]
@@ -2072,72 +3257,40 @@ def main():
             display_lang = arg.split("=")[1]
             break
     
-    # Gunakan bahasa help yang sesuai
     help_lang = display_lang if display_lang in DISPLAY_LANGUAGES else "en"
     
-    # PERBAIKAN: Gunakan help_lang secara konsisten
     parser = argparse.ArgumentParser(
         description=DISPLAY_LANGUAGES[help_lang]["help_description"],
         epilog=DISPLAY_LANGUAGES[help_lang]["help_epilog"],
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
-    # PERBAIKAN: Gunakan help_lang untuk semua help text
-    parser.add_argument("--lang", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_lang"])
+    # Existing arguments
+    parser.add_argument("--lang", help=DISPLAY_LANGUAGES[help_lang]["help_lang"])
+    parser.add_argument("--remove-lang", help=DISPLAY_LANGUAGES[help_lang]["help_remove_lang"])
+    parser.add_argument("--remove-all-lang", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_remove_all_lang"])
+    parser.add_argument("--add-protect", help=DISPLAY_LANGUAGES[help_lang]["help_add_protect"])
+    parser.add_argument("--remove-protect", help=DISPLAY_LANGUAGES[help_lang]["help_remove_protect"])
+    parser.add_argument("--list-protect", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_list_protect"])
+    parser.add_argument("--init-protect", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_init_protect"])
+    parser.add_argument("--enable-protect", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_enable_protect"])
+    parser.add_argument("--disable-protect", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_disable_protect"])
+    parser.add_argument("--status-protect", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_status_protect"])
+    parser.add_argument("--translate-changelog", help=DISPLAY_LANGUAGES[help_lang]["help_translate_changelog"])
+    parser.add_argument("--auto-setup-changelog", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_auto_setup_changelog"])
+    parser.add_argument("--detect-github-url", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_detect_github_url"])
+    parser.add_argument("--display", help=DISPLAY_LANGUAGES[help_lang]["help_display"], default="en", choices=["en", "id", "jp", "de", "es", "fr", "kr", "pl", "pt", "ru", "zh"])
     
-    parser.add_argument("--remove-lang", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_remove_lang"])
-    
-    parser.add_argument("--remove-all-lang", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_remove_all_lang"])
-    
-    parser.add_argument("--add-protect", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_add_protect"])
-    
-    parser.add_argument("--remove-protect", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_remove_protect"])
-    
-    parser.add_argument("--list-protect", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_list_protect"])
-    
-    parser.add_argument("--init-protect", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_init_protect"])
-    
-    parser.add_argument("--enable-protect", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_enable_protect"])
-    
-    parser.add_argument("--disable-protect", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_disable_protect"])
-    
-    parser.add_argument("--status-protect", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_status_protect"])
-    
-    parser.add_argument("--translate-changelog", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_translate_changelog"])
-    
-    parser.add_argument("--auto-setup-changelog", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_auto_setup_changelog"])
-    
-    parser.add_argument("--detect-github-url", 
-                       action="store_true", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_detect_github_url"])
-    
-    parser.add_argument("--display", 
-                       help=DISPLAY_LANGUAGES[help_lang]["help_display"], 
-                       default="en",
-                       choices=["en", "id", "jp", "de", "es", "fr", "kr", "pl", "pt", "ru", "zh"])
+    # NEW: CHANGELOG Only arguments
+    parser.add_argument("--generate-changelog-only", help=DISPLAY_LANGUAGES[help_lang]["help_generate_changelog_only"])
+    parser.add_argument("--remove-changelog-selected", help=DISPLAY_LANGUAGES[help_lang]["help_remove_changelog_selected"])
+    parser.add_argument("--remove-changelog-only", action="store_true", help=DISPLAY_LANGUAGES[help_lang]["help_remove_changelog_only"])
+    parser.add_argument("--with-changelog", action="store_true", default=True, help=DISPLAY_LANGUAGES[help_lang]["help_with_changelog"])
+    parser.add_argument("--without-changelog", action="store_true", help="Translate only README files (no CHANGELOG)")
     
     args = parser.parse_args()
 
-    # Set display language untuk notifikasi
+    # Set display language for notifications
     set_display_language(args.display)
 
     protected = load_protected_phrases()
@@ -2147,7 +3300,7 @@ def main():
         detect_github_url()
         return
 
-    # Handle protection commands
+    # Handle protection commands (existing)
     if args.init_protect:
         save_protected_phrases(DEFAULT_PROTECTED)
         print(t("protection_reset"))
@@ -2180,7 +3333,37 @@ def main():
         print(t("protection_status", status=status))
         return
 
-    # Handle CHANGELOG commands
+    # Handle NEW CHANGELOG Only commands
+    if args.generate_changelog_only:
+        if args.generate_changelog_only.lower() == 'all':
+            lang_codes = list(LANGUAGES.keys())
+        else:
+            lang_codes = [lang.strip().lower() for lang in args.generate_changelog_only.split(',')]
+            lang_codes = [code for code in lang_codes if code in LANGUAGES]
+        
+        if not lang_codes:
+            print(t("no_valid_language"))
+            return
+        
+        generate_changelog_only(lang_codes)
+        return
+    
+    if args.remove_changelog_selected:
+        lang_codes = [lang.strip().lower() for lang in args.remove_changelog_selected.split(',')]
+        lang_codes = [code for code in lang_codes if code in LANGUAGES]
+        
+        if not lang_codes:
+            print(t("no_valid_language"))
+            return
+        
+        remove_changelog_selected(lang_codes)
+        return
+    
+    if args.remove_changelog_only:
+        remove_changelog_only()
+        return
+
+    # Handle existing CHANGELOG commands
     if args.auto_setup_changelog:
         if add_changelog_section_to_readme():
             print(t("changelog_setup_completed"))
@@ -2194,10 +3377,9 @@ def main():
             return
         
         if args.translate_changelog.lower() == 'all':
-            lang_codes = None  # Translate all languages
+            lang_codes = None
         else:
             lang_codes = [lang.strip().lower() for lang in args.translate_changelog.split(',')]
-            # Validate language codes
             lang_codes = [code for code in lang_codes if code in LANGUAGES]
             
             if not lang_codes:
@@ -2207,7 +3389,7 @@ def main():
         translate_changelog_only(lang_codes)
         return
 
-    # Handle language file removal
+    # Handle language file removal (existing)
     if args.remove_lang:
         lang_codes = [lang.strip() for lang in args.remove_lang.split(',')]
         removed = remove_language_files(lang_codes)
@@ -2220,15 +3402,17 @@ def main():
         print(t("all_languages_removed"))
         return
 
-    # Run translate (README + CHANGELOG automatically)
+    # Run translate with CHANGELOG option
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     
-    # Auto setup changelog if CHANGELOG file exists but section not in README
-    if has_changelog_file() and not has_changelog_section_in_readme():
+    # Determine CHANGELOG option
+    with_changelog = args.with_changelog and not args.without_changelog
+    
+    # Auto setup changelog only if with_changelog is True AND CHANGELOG file exists
+    if with_changelog and has_changelog_file() and not has_changelog_section_in_readme():
         print(t("auto_setup_changelog"))
         add_changelog_section_to_readme()
-    elif has_changelog_section_in_readme():
-        # Fix spacing for existing section
+    elif with_changelog and has_changelog_section_in_readme():
         print(t("checking_changelog_spacing"))
         fix_existing_changelog_spacing()
     
@@ -2244,23 +3428,14 @@ def main():
                 print(t("language_not_recognized", code=lang_code))
         
         if valid_langs:
-            # Translate selected languages
-            for code in valid_langs:
-                translate_readme(code, LANGUAGES[code], protected)
-                time.sleep(1)
-            
-            # Update language switcher for ALL existing languages (including new ones)
-            update_language_switcher(valid_langs)
+            # Translate selected languages with CHANGELOG option
+            translate_with_changelog(valid_langs, with_changelog)
         else:
             print(t("no_valid_language"))
     else:
-        # Translate all languages
-        for code, info in tqdm(LANGUAGES.items(), desc="Translating all READMEs"):
-            translate_readme(code, info, protected)
-            time.sleep(1)
-        
-        # Update language switcher for all languages
-        update_language_switcher()
+        # Translate all languages with CHANGELOG option
+        all_langs = list(LANGUAGES.keys())
+        translate_with_changelog(all_langs, with_changelog)
     
     print("\n" + t("all_translated") + "\n")
 

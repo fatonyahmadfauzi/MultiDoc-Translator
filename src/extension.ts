@@ -40,6 +40,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand("multi-doc-translator.removeAll", () =>
             provider.removeAllLanguages()
         ),
+        // NEW: Remove Changelog Only command
+        vscode.commands.registerCommand("multi-doc-translator.removeChangelogOnly", () =>
+            provider.removeChangelogOnly()
+        ),
         vscode.commands.registerCommand("multi-doc-translator.addProtect", () =>
             provider.addProtectPhrase()
         ),
@@ -74,6 +78,13 @@ export function activate(context: vscode.ExtensionContext) {
         // NEW: GitHub URL detection command
         vscode.commands.registerCommand("multi-doc-translator.detectGitHubUrl", () =>
             provider.detectGitHubUrl()
+        ),
+        // ✅ NEW: CHANGELOG Only commands
+        vscode.commands.registerCommand("multi-doc-translator.generateChangelogOnly", () =>
+            provider.generateChangelogOnly()
+        ),
+        vscode.commands.registerCommand("multi-doc-translator.removeChangelogSelected", () =>
+            provider.removeChangelogSelected()
         ),
         // Register output channels untuk proper disposal
         provider.output,
