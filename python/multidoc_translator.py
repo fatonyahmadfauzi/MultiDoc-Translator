@@ -3599,7 +3599,6 @@ def interactive_menu():
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
-                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
                 langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
@@ -3616,7 +3615,6 @@ def interactive_menu():
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
-                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
                 langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
@@ -3633,7 +3631,6 @@ def interactive_menu():
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
-                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
                 langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
