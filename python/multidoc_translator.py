@@ -3048,14 +3048,9 @@ def translate_with_changelog(lang_codes, with_changelog=True):
         
         try:
             # Translate README first
-            translate_readme(lang_code, LANGUAGES[lang_code], protected)
-            
-            # Translate CHANGELOG only if option is enabled AND CHANGELOG file exists
-            if with_changelog and has_changelog_file():
-                print(t("changelog.translating", lang_name=lang_name))
-                translate_changelog(lang_code, LANGUAGES[lang_code], protected)
-                print(t("progress.changelogTranslated", lang_name=lang_name))
-            elif with_changelog and not has_changelog_file():
+            translate_readme(lang_code, LANGUAGES[lang_code], protected, include_changelog=with_changelog)
+
+            if with_changelog and not has_changelog_file():
                 print(t("info.noChangelogFileSkipping"))
             
             success_count += 1
@@ -3086,7 +3081,7 @@ def translate_with_changelog(lang_codes, with_changelog=True):
     return success_count > 0
 
 # ---------------------- MAIN README TRANSLATION FUNCTION ----------------------
-def translate_readme(lang_code, lang_info, protected):
+def translate_readme(lang_code, lang_info, protected, include_changelog=True):
     lang_name, translate_code, intro_text = lang_info
     
     # Special filename format for jp, zh, kr
@@ -3281,8 +3276,8 @@ def translate_readme(lang_code, lang_info, protected):
 
     print(t("readme_created", path=dest_path))
 
-    # After successfully translating README, handle CHANGELOG
-    if has_changelog_file() and has_changelog_section_in_readme():
+    # After successfully translating README, handle CHANGELOG only when requested
+    if include_changelog and has_changelog_file() and has_changelog_section_in_readme():
         # Translate CHANGELOG
         translate_changelog(lang_code, lang_info, protected)
         
