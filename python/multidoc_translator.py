@@ -2592,38 +2592,37 @@ def remove_readme_files(lang_codes):
 
 def remove_all_language_files():
     """Remove all translated README files and docs/lang folder and docs if empty"""
-    existing_langs = get_existing_translated_languages()
-    
-    if not existing_langs:
+    if not os.path.exists(OUTPUT_DIR):
         print(t("no_translation_files"))
         return
-    
-    # Remove all README and CHANGELOG files
-    for lang_code in existing_langs:
-        # Special filename format for jp, zh, kr
-        if lang_code == "jp":
-            readme_path = os.path.join(OUTPUT_DIR, "README-JP.md")
-            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-JP.md")
-        elif lang_code == "zh":
-            readme_path = os.path.join(OUTPUT_DIR, "README-ZH.md")
-            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-ZH.md")
-        elif lang_code == "kr":
-            readme_path = os.path.join(OUTPUT_DIR, "README-KR.md")
-            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-KR.md")
-        else:
-            readme_path = os.path.join(OUTPUT_DIR, f"README-{lang_code.upper()}.md")
-            changelog_path = os.path.join(OUTPUT_DIR, f"CHANGELOG-{lang_code.upper()}.md")
-        
+
+    translation_files = [
+        filename for filename in os.listdir(OUTPUT_DIR)
+        if (
+            (filename.startswith("README-") or filename.startswith("CHANGELOG-"))
+            and filename.endswith(".md")
+        )
+    ]
+
+    if not translation_files:
+        print(t("no_translation_files"))
+        return
+
+    removed_readme_langs = []
+
+    for filename in translation_files:
+        file_path = os.path.join(OUTPUT_DIR, filename)
         try:
-            if os.path.exists(readme_path):
-                os.remove(readme_path)
-                print(t("file_deleted", filename=os.path.basename(readme_path)))
-            
-            if os.path.exists(changelog_path):
-                os.remove(changelog_path)
-                print(t("file_deleted", filename=os.path.basename(changelog_path)))
+            os.remove(file_path)
+            print(t("file_deleted", filename=filename))
+
+            if filename.startswith("README-"):
+                lang_code = filename.replace("README-", "").replace(".md", "").lower()
+                lang_code = {"jp": "jp", "zh": "zh", "kr": "kr"}.get(lang_code, lang_code)
+                if lang_code in LANGUAGES:
+                    removed_readme_langs.append(lang_code)
         except Exception as e:
-            print(t("failed_delete_file", filename=f"for {lang_code}", error=e))
+            print(t("failed_delete_file", filename=filename, error=e))
     
     # Remove docs/lang folder if empty, then docs if also empty
     try:
@@ -2642,14 +2641,17 @@ def remove_all_language_files():
     except Exception as e:
         print(t("failed_delete_folder", error=e))
     
+    if removed_readme_langs:
+        update_language_switcher(removed_languages=removed_readme_langs)
+
     # Update main README to remove language switcher and clean up empty lines
     try:
         with open(SOURCE_FILE, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         # Remove language switcher
         content = re.sub(r'> 🌐 Available in other languages:.*\n', '', content)
-        
+
         # Clean up excess empty lines
         content = re.sub(r'\n\n\n', '\n\n', content)
         content = re.sub(r'\n\n\n', '\n\n', content)
