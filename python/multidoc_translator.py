@@ -28,6 +28,8 @@ PACKAGE_JSON = "package.json"
 OUTPUT_DIR = "docs/lang"
 PROTECTED_FILE = "protected_phrases.json"
 PROTECT_STATUS_FILE = ".protect_status"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PATH_CONFIG_FILE = os.path.join(PROJECT_ROOT, ".path_config")
 
 # ---------------------- DISPLAY LANGUAGE SETTINGS ----------------------
 DISPLAY_LANGUAGES = {
@@ -1869,7 +1871,7 @@ def create_translation_status_table(base_output_dir=None, target_dir=None, inclu
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
     console = Console(width=90)
-    config_file = ".path_config"
+    config_file = PATH_CONFIG_FILE
     
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -3491,7 +3493,7 @@ def interactive_menu():
         os.system('cls' if os.name == 'nt' else 'clear')
 
         # Load configuration from .path_config
-        config_file = ".path_config"
+        config_file = PATH_CONFIG_FILE
         if os.path.exists(config_file):
             with open(config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
