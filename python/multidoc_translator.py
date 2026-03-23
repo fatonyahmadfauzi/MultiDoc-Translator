@@ -3623,9 +3623,19 @@ def interactive_menu():
             
         elif choice == '2':
             # Remove Translated Languages (was option 4)
-            if not ask_target_directory():
-                input("\nPress Enter to continue...")
-                continue
+            os.system('cls' if os.name == 'nt' else 'clear')
+            remove_status_table = create_translation_status_table(
+                output_base_dir,
+                target_dir,
+                include_readme=readme_exists,
+                include_changelog=changelog_exists
+            )
+            console.print(
+                create_square_panel(
+                    remove_status_table,
+                    title="Translation Status"
+                )
+            )
             remove_menu = Text()
             remove_menu.append("[1] Remove Specific Languages\n", style="green")
             remove_menu.append("[2] Remove ALL Translated Languages\n", style="red")
@@ -3634,12 +3644,18 @@ def interactive_menu():
 
             sub_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
             if sub_choice == '1':
+                if not configure_runtime_paths(target_dir, output_base_dir):
+                    input("\nPress Enter to continue...")
+                    continue
                 langs = input(Fore.CYAN + "Enter language codes to remove: " + Fore.WHITE).strip()
                 lang_codes = [l.strip() for l in langs.split(',')]
                 removed = remove_language_files(lang_codes)
                 if removed:
                     print(Fore.GREEN + f"Removed: {', '.join(removed)}")
             elif sub_choice == '2':
+                if not configure_runtime_paths(target_dir, output_base_dir):
+                    input("\nPress Enter to continue...")
+                    continue
                 remove_all_language_files()
                 print(Fore.GREEN + "All translated languages removed.")
             input("\nPress Enter to continue...")
