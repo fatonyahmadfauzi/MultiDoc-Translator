@@ -3509,20 +3509,32 @@ def interactive_menu():
             warning_text.append("Please use option [7] Setup Paths first.", style="yellow")
             console.print(create_square_panel(warning_text, title="Warning"))
 
+        actions_locked = not output_base_dir
+
         # Main Menu Panel
         menu_text = Text()
-        menu_text.append("[1] Translate\n", style="green")
-        menu_text.append("[2] Remove Translated Languages\n", style="green")
-        menu_text.append("[3] Protection Settings (Phrases)\n", style="green")
-        menu_text.append("[4] Auto Setup Changelog Section\n", style="green")
-        menu_text.append("[5] Detect GitHub URL\n", style="green")
-        menu_text.append("[6] Repair Translations (Fix Duplicates & Failures)\n", style="red")
+        locked_style = "dim"
+        menu_text.append("[1] Translate\n", style=locked_style if actions_locked else "green")
+        menu_text.append("[2] Remove Translated Languages\n", style=locked_style if actions_locked else "green")
+        menu_text.append("[3] Protection Settings (Phrases)\n", style=locked_style if actions_locked else "green")
+        menu_text.append("[4] Auto Setup Changelog Section\n", style=locked_style if actions_locked else "green")
+        menu_text.append("[5] Detect GitHub URL\n", style=locked_style if actions_locked else "green")
+        menu_text.append("[6] Repair Translations (Fix Duplicates & Failures)\n", style=locked_style if actions_locked else "red")
         menu_text.append("[7] Setup Paths\n", style="green")
         menu_text.append("[0] Exit", style="white")
         console.print(create_square_panel(menu_text, title="Main Menu"))
 
         # Get user input
         choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
+        if actions_locked and choice in {'1', '2', '3', '4', '5', '6'}:
+            fallback_text = Text()
+            fallback_text.append("⚠️ ", style="bold yellow")
+            fallback_text.append("This action is locked because Output Directory is not set.\n", style="bold yellow")
+            fallback_text.append("Please use [7] Setup Paths first, then return to the main menu.", style="yellow")
+            console.print(create_square_panel(fallback_text, title="Action Locked"))
+            input("\nPress Enter to continue...")
+            continue
+
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
