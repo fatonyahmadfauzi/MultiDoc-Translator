@@ -3701,7 +3701,7 @@ def interactive_menu():
             
         elif choice == '3':
             # Protection Settings (was option 5)
-            if not ask_target_directory():
+            if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
             while True:
@@ -3756,7 +3756,7 @@ def interactive_menu():
 
         elif choice == '4':
             # Auto Setup Changelog Section (was option 6)
-            if not ask_target_directory():
+            if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
             if add_changelog_section_to_readme():
@@ -3767,7 +3767,7 @@ def interactive_menu():
             
         elif choice == '5':
             # Detect GitHub URL (was option 7)
-            if not ask_target_directory():
+            if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
             detect_github_url()
@@ -3775,7 +3775,7 @@ def interactive_menu():
             
         elif choice == '6':
             # Repair Translations (was option 8)
-            if not ask_target_directory():
+            if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
             repair_translations()
