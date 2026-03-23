@@ -1823,17 +1823,21 @@ def create_translation_status_table(base_output_dir=None, target_dir=None):
     table.add_column("CHANGELOG", justify="center", ratio=2)
 
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
+    has_missing_translations = False
 
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
         readme_name, changelog_name = get_translation_file_names(lang_code)
         readme_available = any(os.path.exists(os.path.join(output_dir, readme_name)) for output_dir in output_dirs)
         changelog_available = any(os.path.exists(os.path.join(output_dir, changelog_name)) for output_dir in output_dirs)
 
+        if not readme_available or not changelog_available:
+            has_missing_translations = True
+
         readme_status = "[bold green]AVAILABLE[/bold green]" if readme_available else "[bold red]MISSING[/bold red]"
         changelog_status = "[bold green]AVAILABLE[/bold green]" if changelog_available else "[bold red]MISSING[/bold red]"
         table.add_row(f"{lang_code.upper()} | {lang_name}", readme_status, changelog_status)
 
-    return table
+    return table, has_missing_translations
 
 
 def setup_paths_menu():
@@ -3501,12 +3505,22 @@ def interactive_menu():
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
+            translation_status_table, has_missing_translations = create_translation_status_table(output_base_dir, target_dir)
             console.print(
                 create_square_panel(
-                    create_translation_status_table(output_base_dir, target_dir),
+                    translation_status_table,
                     title="Translation Status"
                 )
             )
+            if has_missing_translations:
+                fallback_text = Text()
+                fallback_text.append("⚠️ ", style="bold yellow")
+                fallback_text.append("Some translations are still missing.\n", style="bold yellow")
+                fallback_text.append(
+                    "Use [1], [2], or [3] below to generate the missing README / CHANGELOG files.",
+                    style="yellow"
+                )
+                console.print(create_square_panel(fallback_text, title="Fallback Info"))
 
             translate_menu = Text()
             translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
