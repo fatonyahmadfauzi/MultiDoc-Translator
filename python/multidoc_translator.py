@@ -1883,6 +1883,23 @@ def has_translation_output_files(base_output_dir=None, target_dir=None):
     return False
 
 
+def cleanup_output_dirs_if_empty():
+    try:
+        if os.path.exists(OUTPUT_DIR) and not os.listdir(OUTPUT_DIR):
+            shutil.rmtree(OUTPUT_DIR)
+            print(t("folder_deleted", folder=OUTPUT_DIR))
+
+            docs_dir = os.path.dirname(OUTPUT_DIR)
+            if os.path.exists(docs_dir) and not os.listdir(docs_dir):
+                shutil.rmtree(docs_dir)
+                print(t("folder_deleted", folder=docs_dir))
+            return True
+    except Exception as e:
+        print(t("failed_delete_folder", error=e))
+
+    return False
+
+
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
     console = Console(width=90)
@@ -2587,6 +2604,7 @@ def remove_readme_files(lang_codes):
 
     if removed_langs:
         update_language_switcher(removed_languages=removed_langs)
+        cleanup_output_dirs_if_empty()
 
     return removed_langs
 
@@ -2995,6 +3013,7 @@ def remove_changelog_selected(lang_codes):
             print(t("info.noChangelogFiles"))
     
     if removed_count > 0:
+        cleanup_output_dirs_if_empty()
         print(t("success.changelogRemovedSelected", count=removed_count))
         return True
     else:
