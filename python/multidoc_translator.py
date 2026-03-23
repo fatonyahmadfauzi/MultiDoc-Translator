@@ -3374,12 +3374,23 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
-    console = Console()
-    
+    console = Console(width=90)
+
+    def create_square_panel(content, title=None, align_center=False, expand=True):
+        panel_content = Align.center(content) if align_center else content
+        return Panel(
+            panel_content,
+            title=title,
+            title_align="left",
+            border_style="cyan",
+            box=box.SQUARE,
+            expand=expand
+        )
+
     while True:
         # Clear screen
         os.system('cls' if os.name == 'nt' else 'clear')
-        
+
         # Load configuration from .path_config
         config_file = ".path_config"
         if os.path.exists(config_file):
@@ -3390,25 +3401,17 @@ def interactive_menu():
         else:
             target_dir = os.getcwd()
             output_base_dir = None
-        
+
         # Check project status
         readme_exists = os.path.isfile(SOURCE_FILE)
         changelog_exists = os.path.isfile(CHANGELOG_FILE)
-        
+
         # Header Panel
         header_text = Text()
         header_text.append("🌍 MultiDoc Translator - CLI Menu\n", style="bold green")
         header_text.append("Developer: Fatony Ahmad Fauzi", style="green")
-        
-        header_panel = Panel(
-            Align.center(header_text),
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=False
-        )
-        console.print(header_panel)
-        
+        console.print(create_square_panel(header_text, align_center=True, expand=True))
+
         # Current Status Panel
         status_text = Text()
         status_text.append("✅ ", style="bold green")
@@ -3416,41 +3419,24 @@ def interactive_menu():
         output_display = output_base_dir if output_base_dir else 'Not set'
         status_text.append("📁 ", style="yellow")
         status_text.append(f"Output Directory: {output_display}", style="white")
-        
-        status_panel = Panel(
-            status_text,
-            title="Current Status",
-            title_align="left",
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=True
-        )
-        console.print(status_panel)
-        
+        console.print(create_square_panel(status_text, title="Current Status"))
+
         # Source Files Panel
         files_text = Text()
-        files_text.append("✅ ", style="bold green")
+        files_text.append("✅ " if readme_exists else "❌ ", style="bold green" if readme_exists else "red")
         files_text.append(f"README.md: {'AVAILABLE' if readme_exists else 'NOT FOUND'}\n", style="white")
         files_text.append("✅ " if changelog_exists else "❌ ", style="bold green" if changelog_exists else "red")
         files_text.append(f"CHANGELOG.md: {'AVAILABLE' if changelog_exists else 'NOT FOUND'}", style="white")
-        
-        files_panel = Panel(
-            files_text,
-            title="Source Files",
-            title_align="left",
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=True
-        )
-        console.print(files_panel)
-        
+        console.print(create_square_panel(files_text, title="Source Files"))
+
         # Warning message if output directory not set
         if not output_base_dir:
-            console.print("\n[bold yellow]⚠️  Output directory not set![/bold yellow]")
-            console.print("[yellow]Please use option [7] Setup Paths first.[/yellow]\n")
-        
+            warning_text = Text()
+            warning_text.append("⚠️ ", style="bold yellow")
+            warning_text.append("Output directory not set!\n", style="bold yellow")
+            warning_text.append("Please use option [7] Setup Paths first.", style="yellow")
+            console.print(create_square_panel(warning_text, title="Warning"))
+
         # Main Menu Panel
         menu_text = Text()
         menu_text.append("[1] Translate\n", style="green")
@@ -3461,21 +3447,10 @@ def interactive_menu():
         menu_text.append("[6] Repair Translations (Fix Duplicates & Failures)\n", style="red")
         menu_text.append("[7] Setup Paths\n", style="green")
         menu_text.append("[0] Exit", style="white")
-        
-        menu_panel = Panel(
-            menu_text,
-            title="Main Menu",
-            title_align="left",
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=True
-        )
-        console.print(menu_panel)
-        
+        console.print(create_square_panel(menu_text, title="Main Menu"))
+
         # Get user input
-        choice = console.input("[bold yellow][+] Select option: [/bold yellow]").strip()
-        
+        choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
