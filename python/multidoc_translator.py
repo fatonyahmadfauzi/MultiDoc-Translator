@@ -3714,11 +3714,17 @@ def interactive_menu():
                     f"{status}\n",
                     style="bold green" if is_protect_enabled() else "bold red"
                 )
+                protection_text.append("\nProtected Phrases:\n", style="bold cyan")
+                if protected['protected_phrases']:
+                    for phrase in protected['protected_phrases']:
+                        protection_text.append(f"- {phrase}\n", style="white")
+                else:
+                    protection_text.append("- No protected phrases configured.\n", style="dim")
+                protection_text.append("\n", style="white")
                 protection_text.append("[1] Toggle Protection Status\n", style="green")
                 protection_text.append("[2] Add Protected Phrase\n", style="green")
                 protection_text.append("[3] Remove Protected Phrase\n", style="green")
-                protection_text.append("[4] List Protected Phrases\n", style="green")
-                protection_text.append("[5] Reset to Default\n", style="yellow")
+                protection_text.append("[4] Reset to Default\n", style="yellow")
                 protection_text.append("[0] Back", style="white")
                 console.print(create_square_panel(protection_text, title="Protection Settings"))
                 p_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
@@ -3743,11 +3749,6 @@ def interactive_menu():
                             print(Fore.RED + "Phrase not found.")
                         time.sleep(1)
                 elif p_choice == '4':
-                    print("\nProtected Phrases:")
-                    for p in protected['protected_phrases']:
-                        print(f"- {p}")
-                    input("\nPress Enter to continue...")
-                elif p_choice == '5':
                     save_protected_phrases(DEFAULT_PROTECTED)
                     print(Fore.GREEN + "Reset to defaults.")
                     time.sleep(1)
