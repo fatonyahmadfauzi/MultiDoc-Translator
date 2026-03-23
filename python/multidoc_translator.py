@@ -1881,8 +1881,8 @@ def setup_paths_menu():
         else:
             config = {'target_dir': os.getcwd(), 'output_base_dir': None}
         
-        target_dir = config.get('target_dir', os.getcwd())
-        output_base_dir = config.get('output_base_dir')
+        target_dir = config.get('target_dir') or os.getcwd()
+        output_base_dir = config.get('output_base_dir') or None
         
         # Header Panel
         header_text = Text("Setup Paths", style="bold green")
@@ -3468,8 +3468,8 @@ def interactive_menu():
         if os.path.exists(config_file):
             with open(config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-            target_dir = config.get('target_dir', os.getcwd())
-            output_base_dir = config.get('output_base_dir')
+            target_dir = config.get('target_dir') or os.getcwd()
+            output_base_dir = config.get('output_base_dir') or None
         else:
             target_dir = os.getcwd()
             output_base_dir = None
