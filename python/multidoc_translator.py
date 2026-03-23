@@ -1763,9 +1763,21 @@ def detect_github_url():
         print("• Or add GitHub URL manually to README")
         return False
 
+def create_square_panel(content, title=None, align_center=False, expand=True):
+    panel_content = Align.center(content) if align_center else content
+    return Panel(
+        panel_content,
+        title=title,
+        title_align="left",
+        border_style="cyan",
+        box=box.SQUARE,
+        expand=expand
+    )
+
+
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
-    console = Console()
+    console = Console(width=90)
     config_file = ".path_config"
     
     while True:
@@ -1783,14 +1795,7 @@ def setup_paths_menu():
         
         # Header Panel
         header_text = Text("Setup Paths", style="bold green")
-        header_panel = Panel(
-            Align.center(header_text),
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=True
-        )
-        console.print(header_panel)
+        console.print(create_square_panel(header_text, align_center=True))
         
         # Menu Panel
         menu_text = Text()
@@ -1799,18 +1804,10 @@ def setup_paths_menu():
         menu_text.append("[2] Set Output Base Directory\n", style="green")
         menu_text.append(f"    Current: {output_base_dir if output_base_dir else 'Not set'}\n\n", style="dim")
         menu_text.append("[3] View Current Config\n", style="green")
-        menu_text.append("\n[0] Back", style="white")
-        
-        menu_panel = Panel(
-            menu_text,
-            border_style="bright_cyan",
-            box=box.SQUARE,
-            padding=(0, 1),
-            expand=True
-        )
-        console.print(menu_panel)
-        
-        choice = console.input("[bold yellow]Select option: [/bold yellow]").strip()
+        menu_text.append("[0] Back", style="white")
+        console.print(create_square_panel(menu_text, title="Setup Paths"))
+
+        choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
         
         if choice == '1':
             print(Fore.CYAN + "Enter target directory path:")
@@ -3376,17 +3373,6 @@ def ask_target_directory():
 def interactive_menu():
     console = Console(width=90)
 
-    def create_square_panel(content, title=None, align_center=False, expand=True):
-        panel_content = Align.center(content) if align_center else content
-        return Panel(
-            panel_content,
-            title=title,
-            title_align="left",
-            border_style="cyan",
-            box=box.SQUARE,
-            expand=expand
-        )
-
     while True:
         # Clear screen
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -3454,15 +3440,14 @@ def interactive_menu():
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
-            print(Fore.CYAN + "┌─ Translation Options ─" + "─" * 53 + "┐")
-            print(Fore.GREEN + "│  [1] Translate README & CHANGELOG" + " " * 39 + "│")
-            print(Fore.GREEN + "│  [2] Translate README Only" + " " * 47 + "│")
-            print(Fore.GREEN + "│  [3] Translate CHANGELOG Only" + " " * 44 + "│")
-            print(Fore.WHITE + "│  [0] Back" + " " * 65 + "│")
-            print(Fore.CYAN + "└" + "─" * 76 + "┘\n")
-            
-            print(Fore.YELLOW + "[+] Select option: ", end="")
-            trans_choice = input().strip()
+            translate_menu = Text()
+            translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
+            translate_menu.append("[2] Translate README Only\n", style="green")
+            translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
+            translate_menu.append("[0] Back", style="white")
+            console.print(create_square_panel(translate_menu, title="Translation Options"))
+
+            trans_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
             
             if trans_choice == '1':
                 # Translate README & CHANGELOG
@@ -3520,9 +3505,13 @@ def interactive_menu():
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
-            print(Fore.CYAN + "[1] Remove Specific Languages")
-            print("[2] Remove ALL Translated Languages")
-            sub_choice = input(Fore.YELLOW + "Select option: " + Fore.WHITE).strip()
+            remove_menu = Text()
+            remove_menu.append("[1] Remove Specific Languages\n", style="green")
+            remove_menu.append("[2] Remove ALL Translated Languages\n", style="red")
+            remove_menu.append("[0] Back", style="white")
+            console.print(create_square_panel(remove_menu, title="Remove Translations"))
+
+            sub_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
             if sub_choice == '1':
                 langs = input(Fore.CYAN + "Enter language codes to remove: " + Fore.WHITE).strip()
                 lang_codes = [l.strip() for l in langs.split(',')]
@@ -3541,18 +3530,22 @@ def interactive_menu():
                 continue
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
-                print(Fore.CYAN + "--- Protection Settings ---")
                 protected = load_protected_phrases()
                 status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
-                color = Fore.GREEN if is_protect_enabled() else Fore.RED
-                print(f"Status: {color}{status}{Fore.WHITE}")
-                print(Fore.GREEN + "[1] Toggle Protection Status")
-                print("[2] Add Protected Phrase")
-                print("[3] Remove Protected Phrase")
-                print("[4] List Protected Phrases")
-                print("[5] Reset to Default")
-                print(Fore.WHITE + "[0] Back")
-                p_choice = input(Fore.YELLOW + "Select option: " + Fore.WHITE).strip()
+                protection_text = Text()
+                protection_text.append("Status: ", style="white")
+                protection_text.append(
+                    f"{status}\n",
+                    style="bold green" if is_protect_enabled() else "bold red"
+                )
+                protection_text.append("[1] Toggle Protection Status\n", style="green")
+                protection_text.append("[2] Add Protected Phrase\n", style="green")
+                protection_text.append("[3] Remove Protected Phrase\n", style="green")
+                protection_text.append("[4] List Protected Phrases\n", style="green")
+                protection_text.append("[5] Reset to Default\n", style="yellow")
+                protection_text.append("[0] Back", style="white")
+                console.print(create_square_panel(protection_text, title="Protection Settings"))
+                p_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
                 
                 if p_choice == '1':
                     set_protect_status(not is_protect_enabled())
