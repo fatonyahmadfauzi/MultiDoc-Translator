@@ -1868,6 +1868,21 @@ def create_translation_status_table(base_output_dir=None, target_dir=None, inclu
     return table
 
 
+def has_translation_output_files(base_output_dir=None, target_dir=None):
+    for output_dir in resolve_translation_output_dirs(base_output_dir, target_dir):
+        if not os.path.isdir(output_dir):
+            continue
+
+        for filename in os.listdir(output_dir):
+            if (
+                (filename.startswith("README-") or filename.startswith("CHANGELOG-"))
+                and filename.endswith(".md")
+            ):
+                return True
+
+    return False
+
+
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
     console = Console(width=90)
@@ -3649,6 +3664,15 @@ def interactive_menu():
             
         elif choice == '2':
             # Remove Translated Languages (was option 4)
+            if not has_translation_output_files(output_base_dir, target_dir):
+                empty_remove_text = Text()
+                empty_remove_text.append("⚠️ ", style="bold yellow")
+                empty_remove_text.append("No translated files found.\n", style="bold yellow")
+                empty_remove_text.append("The docs/lang folder is empty or no translation results exist yet.", style="yellow")
+                console.print(create_square_panel(empty_remove_text, title="Remove Translations"))
+                input("\nPress Enter to continue...")
+                continue
+
             os.system('cls' if os.name == 'nt' else 'clear')
             remove_status_table = create_translation_status_table(
                 output_base_dir,
@@ -3675,10 +3699,14 @@ def interactive_menu():
                     input("\nPress Enter to continue...")
                     continue
                 langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
-                removed = remove_language_files(lang_codes)
-                if removed:
-                    print(Fore.GREEN + f"Removed: {', '.join(removed)}")
+                if langs.lower() == 'all':
+                    remove_all_language_files()
+                    print(Fore.GREEN + "All translated languages removed.")
+                else:
+                    lang_codes = [l.strip() for l in langs.split(',')]
+                    removed = remove_language_files(lang_codes)
+                    if removed:
+                        print(Fore.GREEN + f"Removed: {', '.join(removed)}")
             elif sub_choice == '2':
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
