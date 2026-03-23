@@ -19,6 +19,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from rich.align import Align
+from rich.table import Table
 from rich import box
 
 SOURCE_FILE = "README.md"
@@ -1775,6 +1776,48 @@ def create_square_panel(content, title=None, align_center=False, expand=True):
     )
 
 
+def get_translation_file_paths(lang_code, base_output_dir):
+    if lang_code == "jp":
+        readme_name = "README-JP.md"
+        changelog_name = "CHANGELOG-JP.md"
+    elif lang_code == "zh":
+        readme_name = "README-ZH.md"
+        changelog_name = "CHANGELOG-ZH.md"
+    elif lang_code == "kr":
+        readme_name = "README-KR.md"
+        changelog_name = "CHANGELOG-KR.md"
+    else:
+        uppercase_code = lang_code.upper()
+        readme_name = f"README-{uppercase_code}.md"
+        changelog_name = f"CHANGELOG-{uppercase_code}.md"
+
+    return (
+        os.path.join(base_output_dir, readme_name),
+        os.path.join(base_output_dir, changelog_name)
+    )
+
+
+def create_translation_status_table(base_output_dir):
+    table = Table(
+        show_header=True,
+        header_style="bold cyan",
+        box=box.SIMPLE_HEAVY,
+        expand=True,
+        pad_edge=False
+    )
+    table.add_column("Language", style="cyan", ratio=3)
+    table.add_column("README", justify="center", ratio=2)
+    table.add_column("CHANGELOG", justify="center", ratio=2)
+
+    for lang_code, (lang_name, _, _) in LANGUAGES.items():
+        readme_path, changelog_path = get_translation_file_paths(lang_code, base_output_dir)
+        readme_status = "[bold green]AVAILABLE[/bold green]" if os.path.exists(readme_path) else "[bold red]MISSING[/bold red]"
+        changelog_status = "[bold green]AVAILABLE[/bold green]" if os.path.exists(changelog_path) else "[bold red]MISSING[/bold red]"
+        table.add_row(lang_name, readme_status, changelog_status)
+
+    return table
+
+
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
     console = Console(width=90)
@@ -3440,6 +3483,9 @@ def interactive_menu():
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
+            translation_output_dir = output_base_dir if output_base_dir else os.path.join(target_dir, OUTPUT_DIR)
+            console.print(create_square_panel(create_translation_status_table(translation_output_dir), title="Translation Status"))
+
             translate_menu = Text()
             translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
             translate_menu.append("[2] Translate README Only\n", style="green")
