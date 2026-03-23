@@ -1810,6 +1810,30 @@ def resolve_translation_output_dirs(base_output_dir=None, target_dir=None):
     return candidate_dirs
 
 
+def get_runtime_output_dir(target_dir, output_base_dir=None):
+    base_dir = output_base_dir if output_base_dir else target_dir
+    return os.path.join(base_dir, OUTPUT_DIR)
+
+
+def configure_runtime_paths(target_dir, output_base_dir=None):
+    global OUTPUT_DIR
+
+    if not target_dir or not os.path.isdir(target_dir):
+        print(Fore.RED + "Configured project path is invalid. Please update it in Setup Paths.")
+        return False
+
+    try:
+        os.chdir(target_dir)
+    except Exception as e:
+        print(Fore.RED + f"Failed to change directory: {e}")
+        return False
+
+    runtime_output_dir = get_runtime_output_dir(target_dir, output_base_dir)
+    os.makedirs(runtime_output_dir, exist_ok=True)
+    OUTPUT_DIR = runtime_output_dir
+    return True
+
+
 def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
     table = Table(
         show_header=True,
@@ -3456,8 +3480,8 @@ def interactive_menu():
             output_base_dir = None
 
         # Check project status
-        readme_exists = os.path.isfile(SOURCE_FILE)
-        changelog_exists = os.path.isfile(CHANGELOG_FILE)
+        readme_exists = os.path.isfile(os.path.join(target_dir, SOURCE_FILE))
+        changelog_exists = os.path.isfile(os.path.join(target_dir, CHANGELOG_FILE))
 
         # Header Panel
         header_text = Text()
@@ -3538,7 +3562,7 @@ def interactive_menu():
             
             if trans_choice == '1' and readme_exists and changelog_exists:
                 # Translate README & CHANGELOG
-                if not ask_target_directory():
+                if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
                 print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
@@ -3555,7 +3579,7 @@ def interactive_menu():
                 
             elif trans_choice == '2' and readme_exists:
                 # Translate README Only
-                if not ask_target_directory():
+                if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
                 print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
@@ -3572,7 +3596,7 @@ def interactive_menu():
                 
             elif trans_choice == '3' and changelog_exists:
                 # Translate CHANGELOG Only
-                if not ask_target_directory():
+                if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
                 print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
