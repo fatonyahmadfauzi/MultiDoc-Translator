@@ -1794,7 +1794,7 @@ def get_translation_file_names(lang_code):
     return readme_name, changelog_name
 
 
-def resolve_translation_output_dirs(base_output_dir):
+def resolve_translation_output_dirs(base_output_dir=None, target_dir=None):
     candidate_dirs = []
 
     if base_output_dir:
@@ -1802,15 +1802,15 @@ def resolve_translation_output_dirs(base_output_dir):
         nested_output_dir = os.path.join(base_output_dir, OUTPUT_DIR)
         if nested_output_dir not in candidate_dirs:
             candidate_dirs.append(nested_output_dir)
-
-    default_output_dir = os.path.abspath(OUTPUT_DIR)
-    if default_output_dir not in candidate_dirs:
-        candidate_dirs.append(default_output_dir)
+    elif target_dir:
+        candidate_dirs.append(os.path.join(target_dir, OUTPUT_DIR))
+    else:
+        candidate_dirs.append(os.path.abspath(OUTPUT_DIR))
 
     return candidate_dirs
 
 
-def create_translation_status_table(base_output_dir):
+def create_translation_status_table(base_output_dir=None, target_dir=None):
     table = Table(
         show_header=True,
         header_style="bold cyan",
@@ -1822,7 +1822,7 @@ def create_translation_status_table(base_output_dir):
     table.add_column("README", justify="center", ratio=2)
     table.add_column("CHANGELOG", justify="center", ratio=2)
 
-    output_dirs = resolve_translation_output_dirs(base_output_dir)
+    output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
 
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
         readme_name, changelog_name = get_translation_file_names(lang_code)
@@ -3501,8 +3501,12 @@ def interactive_menu():
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
-            translation_output_dir = output_base_dir if output_base_dir else os.path.join(target_dir, OUTPUT_DIR)
-            console.print(create_square_panel(create_translation_status_table(translation_output_dir), title="Translation Status"))
+            console.print(
+                create_square_panel(
+                    create_translation_status_table(output_base_dir, target_dir),
+                    title="Translation Status"
+                )
+            )
 
             translate_menu = Text()
             translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
