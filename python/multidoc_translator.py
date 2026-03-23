@@ -2546,6 +2546,33 @@ def remove_language_files(lang_codes):
     
     return removed_langs
 
+
+def remove_readme_files(lang_codes):
+    """Remove README files only for specific languages and update language switcher"""
+    removed_langs = []
+
+    for lang_code in lang_codes:
+        if lang_code in LANGUAGES:
+            readme_name, _ = get_translation_file_names(lang_code)
+            readme_path = os.path.join(OUTPUT_DIR, readme_name)
+
+            if os.path.exists(readme_path):
+                try:
+                    os.remove(readme_path)
+                    removed_langs.append(lang_code)
+                    print(t("file_deleted", filename=os.path.basename(readme_path)))
+                except Exception as e:
+                    print(t("failed_delete_file", filename=os.path.basename(readme_path), error=e))
+            else:
+                print(t("file_not_found", filename=os.path.basename(readme_path)))
+        else:
+            print(t("language_not_recognized", code=lang_code))
+
+    if removed_langs:
+        update_language_switcher(removed_languages=removed_langs)
+
+    return removed_langs
+
 def remove_all_language_files():
     """Remove all translated README files and docs/lang folder and docs if empty"""
     existing_langs = get_existing_translated_languages()
@@ -3637,8 +3664,9 @@ def interactive_menu():
                 )
             )
             remove_menu = Text()
-            remove_menu.append("[1] Remove Specific Languages\n", style="green")
-            remove_menu.append("[2] Remove ALL Translated Languages\n", style="red")
+            remove_menu.append("[1] Remove README & CHANGELOG\n", style="green")
+            remove_menu.append("[2] Remove README Only\n", style="green")
+            remove_menu.append("[3] Remove CHANGELOG Only\n", style="green")
             remove_menu.append("[0] Back", style="white")
             console.print(create_square_panel(remove_menu, title="Remove Translations"))
 
@@ -3647,8 +3675,8 @@ def interactive_menu():
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
-                langs = input(Fore.CYAN + "Enter language codes to remove: " + Fore.WHITE).strip()
-                lang_codes = [l.strip() for l in langs.split(',')]
+                langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
                 removed = remove_language_files(lang_codes)
                 if removed:
                     print(Fore.GREEN + f"Removed: {', '.join(removed)}")
@@ -3656,8 +3684,20 @@ def interactive_menu():
                 if not configure_runtime_paths(target_dir, output_base_dir):
                     input("\nPress Enter to continue...")
                     continue
-                remove_all_language_files()
-                print(Fore.GREEN + "All translated languages removed.")
+                langs = input(Fore.CYAN + "Enter README language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
+                removed = remove_readme_files(lang_codes)
+                if removed:
+                    print(Fore.GREEN + f"Removed README: {', '.join(removed)}")
+            elif sub_choice == '3':
+                if not configure_runtime_paths(target_dir, output_base_dir):
+                    input("\nPress Enter to continue...")
+                    continue
+                langs = input(Fore.CYAN + "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
+                removed = remove_changelog_selected(lang_codes)
+                if removed:
+                    print(Fore.GREEN + "Selected CHANGELOG files removed.")
             input("\nPress Enter to continue...")
             
         elif choice == '3':
