@@ -1810,7 +1810,7 @@ def resolve_translation_output_dirs(base_output_dir=None, target_dir=None):
     return candidate_dirs
 
 
-def create_translation_status_table(base_output_dir=None, target_dir=None):
+def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
     table = Table(
         show_header=True,
         header_style="bold cyan",
@@ -1819,25 +1819,27 @@ def create_translation_status_table(base_output_dir=None, target_dir=None):
         pad_edge=False
     )
     table.add_column("Code / Language", style="cyan", ratio=3)
-    table.add_column("README", justify="center", ratio=2)
-    table.add_column("CHANGELOG", justify="center", ratio=2)
+    if include_readme:
+        table.add_column("README", justify="center", ratio=2)
+    if include_changelog:
+        table.add_column("CHANGELOG", justify="center", ratio=2)
 
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
-    has_missing_translations = False
 
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
         readme_name, changelog_name = get_translation_file_names(lang_code)
         readme_available = any(os.path.exists(os.path.join(output_dir, readme_name)) for output_dir in output_dirs)
         changelog_available = any(os.path.exists(os.path.join(output_dir, changelog_name)) for output_dir in output_dirs)
+        row = [f"{lang_code.upper()} | {lang_name}"]
 
-        if not readme_available or not changelog_available:
-            has_missing_translations = True
+        if include_readme:
+            row.append("[bold green]AVAILABLE[/bold green]" if readme_available else "[bold red]MISSING[/bold red]")
+        if include_changelog:
+            row.append("[bold green]AVAILABLE[/bold green]" if changelog_available else "[bold red]MISSING[/bold red]")
 
-        readme_status = "[bold green]AVAILABLE[/bold green]" if readme_available else "[bold red]MISSING[/bold red]"
-        changelog_status = "[bold green]AVAILABLE[/bold green]" if changelog_available else "[bold red]MISSING[/bold red]"
-        table.add_row(f"{lang_code.upper()} | {lang_name}", readme_status, changelog_status)
+        table.add_row(*row)
 
-    return table, has_missing_translations
+    return table
 
 
 def setup_paths_menu():
@@ -3505,33 +3507,36 @@ def interactive_menu():
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
-            translation_status_table, has_missing_translations = create_translation_status_table(output_base_dir, target_dir)
+            translation_status_table = create_translation_status_table(
+                output_base_dir,
+                target_dir,
+                include_readme=readme_exists,
+                include_changelog=changelog_exists
+            )
             console.print(
                 create_square_panel(
                     translation_status_table,
                     title="Translation Status"
                 )
             )
-            if has_missing_translations:
-                fallback_text = Text()
-                fallback_text.append("⚠️ ", style="bold yellow")
-                fallback_text.append("Some translations are still missing.\n", style="bold yellow")
-                fallback_text.append(
-                    "Use [1], [2], or [3] below to generate the missing README / CHANGELOG files.",
-                    style="yellow"
-                )
-                console.print(create_square_panel(fallback_text, title="Fallback Info"))
 
             translate_menu = Text()
-            translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
-            translate_menu.append("[2] Translate README Only\n", style="green")
-            translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
+            if readme_exists and changelog_exists:
+                translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
+                translate_menu.append("[2] Translate README Only\n", style="green")
+                translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
+            elif readme_exists:
+                translate_menu.append("[2] Translate README Only\n", style="green")
+            elif changelog_exists:
+                translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
+            else:
+                translate_menu.append("No source files available for translation.\n", style="red")
             translate_menu.append("[0] Back", style="white")
             console.print(create_square_panel(translate_menu, title="Translation Options"))
 
             trans_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
             
-            if trans_choice == '1':
+            if trans_choice == '1' and readme_exists and changelog_exists:
                 # Translate README & CHANGELOG
                 if not ask_target_directory():
                     input("\nPress Enter to continue...")
@@ -3548,7 +3553,7 @@ def interactive_menu():
                     print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
                 
-            elif trans_choice == '2':
+            elif trans_choice == '2' and readme_exists:
                 # Translate README Only
                 if not ask_target_directory():
                     input("\nPress Enter to continue...")
@@ -3565,7 +3570,7 @@ def interactive_menu():
                     print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
                 
-            elif trans_choice == '3':
+            elif trans_choice == '3' and changelog_exists:
                 # Translate CHANGELOG Only
                 if not ask_target_directory():
                     input("\nPress Enter to continue...")
@@ -3580,6 +3585,9 @@ def interactive_menu():
                     translate_changelog_only(langs_list)
                 else:
                     print(Fore.RED + "Invalid languages.")
+                input("\nPress Enter to continue...")
+            elif trans_choice != '0':
+                print(Fore.RED + "Selected option is not available for the current source files.")
                 input("\nPress Enter to continue...")
             
         elif choice == '2':
