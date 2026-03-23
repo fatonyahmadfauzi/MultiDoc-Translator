@@ -10,6 +10,9 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
+> 🌐 Available in other languages: [Polski](docs/lang/README-PL.md) | [中文](docs/lang/README-ZH.md) | [日本語](docs/lang/README-JP.md) | [Deutsch](docs/lang/README-DE.md) | [Français](docs/lang/README-FR.md) | [Español](docs/lang/README-ES.md) | [Русский](docs/lang/README-RU.md) | [Português](docs/lang/README-PT.md) | [Bahasa Indonesia](docs/lang/README-ID.md) | [한국어](docs/lang/README-KR.md)
+
 ---
 
 A Visual Studio Code extension that automatically generates multilingual documentation files (`README.md` and `CHANGELOG.md`) using the **free Google Translate API** — no API key required.
@@ -22,8 +25,7 @@ A Visual Studio Code extension that automatically generates multilingual documen
 - ⚙️ **Automatic Changelog Management** — Detects `CHANGELOG.md`, adds a changelog section to `README.md` if missing, and translates it.
 - 🔗 **Automatic GitHub URL Detection** — Retrieves your repository URL from `package.json` or `.git/config` to create accurate release links.
 - 🔒 **Advanced Phrase Protection** — Protects code blocks, inline code, URLs, technical terms, brand names, and custom phrases (supports regex). You can add, remove, list, or reset protected phrases from the sidebar.
-- 💬 Adds a language switcher block to each generated README (e.g., `> 🌐 Available in other languages: [Polski](docs/lang/README-PL.md) | [中文](docs/lang/README-ZH.md) | [日本語](docs/lang/README-JP.md) | [Deutsch](docs/lang/README-DE.md) | [Français](docs/lang/README-FR.md) | [Español](docs/lang/README-ES.md) | [Русский](docs/lang/README-RU.md) | [Português](docs/lang/README-PT.md) | [Bahasa Indonesia](docs/lang/README-ID.md) | [한국어](docs/lang/README-KR.md)
-- 🧠 Uses built-in Google Translate — no account or custom API key required.
+- 💬 Adds a language switcher block to each generated README (e.g., `- 🧠 Uses built-in Google Translate — no account or custom API key required.
 - 🖱️ User-friendly sidebar interface to select languages, manage protection, and run translations.
 - 📊 Displays detailed translation progress output.
 

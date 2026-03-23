@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 Disponible dans d'autres langues : [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@ Une extension Visual Studio Code qui génère automatiquement des fichiers de do
 - ⚙️ **Gestion automatique du journal des modifications** — Détecte `CHANGELOG.md`, ajoute une section du journal des modifications à `README.md` s'il est manquant et la traduit.
 - 🔗 **Détection automatique d'URL GitHub** — Récupère l'URL de votre référentiel à partir de `package.json` ou `.git/config` pour créer des liens de version précis.
 - 🔒 **Protection avancée des expressions** — Protège les blocs de code, le code en ligne, les URL, les termes techniques, les noms de marque et les expressions personnalisées (prend en charge les expressions régulières). Vous pouvez ajouter, supprimer, répertorier ou réinitialiser des phrases protégées à partir de la barre latérale.
-- 💬 Ajoute un bloc de changement de langue à chaque README généré (par exemple, `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Utilise Google Translate intégré — aucun compte ni clé API personnalisée requis.
+- 💬 Ajoute un bloc de changement de langue à chaque README généré (par exemple, `- 🧠 Utilise Google Translate intégré — aucun compte ni clé API personnalisée requis.
 - 🖱️ Interface de barre latérale conviviale pour sélectionner les langues, gérer la protection et exécuter des traductions.
 - 📊 Affiche la sortie détaillée de la progression de la traduction.
 
@@ -111,8 +111,6 @@ MIT License © [Your Name](../../LICENSE)
 
 ```markdown
 # My Awesome Extension
-
-> 🌐 Disponible dans d'autres langues : [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
 

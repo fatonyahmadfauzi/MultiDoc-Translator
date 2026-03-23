@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 다른 언어로도 사용 가능: [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Français](README-FR.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md)
 
 ---
@@ -24,8 +25,7 @@
 - ⚙️ **자동 변경 로그 관리** — `CHANGELOG.md`을 감지하고 누락된 경우 `README.md`에 변경 로그 섹션을 추가하고 번역합니다.
 - 🔗 **자동 GitHub URL 감지** — `package.json` 또는 `.git/config`에서 저장소 URL을 검색하여 정확한 릴리스 링크를 생성합니다.
 - 🔒 **고급 문구 보호** — 코드 블록, 인라인 코드, URL, 기술 용어, 브랜드 이름 및 사용자 정의 문구를 보호합니다(정규식 지원). 사이드바에서 보호된 문구를 추가, 제거, 나열 또는 재설정할 수 있습니다.
-- 💬 생성된 각 README(예: `> 🌐 Available in other languages: [English](../../README.md) | ...`)에 언어 전환기 블록을 추가합니다.
-- 🧠 내장된 Google 번역을 사용합니다. 계정이나 맞춤 API 키가 필요하지 않습니다.
+- 💬 생성된 각 README(예: `- 🧠 내장된 Google 번역을 사용합니다. 계정이나 맞춤 API 키가 필요하지 않습니다.
 - 🖱️ 언어 선택, 보호 관리 및 번역 실행을 위한 사용자 친화적인 사이드바 인터페이스.
 - 📊 자세한 번역 진행 상황 출력을 표시합니다.
 

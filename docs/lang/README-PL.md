@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 Dostępne w innych językach: [English](../../README.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Français](README-FR.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@ Rozszerzenie Visual Studio Code, które automatycznie generuje wielojęzyczne pl
 - ⚙️ **Automatyczne zarządzanie dziennikiem zmian** — wykrywa `CHANGELOG.md`, dodaje sekcję dziennika zmian do `README.md`, jeśli jej brakuje, i tłumaczy ją.
 - 🔗 **Automatyczne wykrywanie adresu URL GitHub** — pobiera adres URL repozytorium z `package.json` lub `.git/config` w celu utworzenia dokładnych linków do wersji.
 - 🔒 **Zaawansowana ochrona fraz** — Chroni bloki kodu, kod wbudowany, adresy URL, terminy techniczne, nazwy marek i niestandardowe frazy (obsługuje regex). Możesz dodawać, usuwać, wyświetlać listę lub resetować chronione frazy na pasku bocznym.
-- 💬 Dodaje blok zmiany języka do każdego wygenerowanego pliku README (np. `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Korzysta z wbudowanego Tłumacza Google — nie jest wymagane żadne konto ani niestandardowy klucz API.
+- 💬 Dodaje blok zmiany języka do każdego wygenerowanego pliku README (np. `- 🧠 Korzysta z wbudowanego Tłumacza Google — nie jest wymagane żadne konto ani niestandardowy klucz API.
 - 🖱️ Przyjazny dla użytkownika interfejs paska bocznego do wybierania języków, zarządzania ochroną i uruchamiania tłumaczeń.
 - 📊 Wyświetla szczegółowe wyniki postępu tłumaczenia.
 

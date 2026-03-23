@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "Gdy zaznaczone: Tłumaczy zarówno README jak i pliki CHANGELOG",
   "changelog.uncheckedDescription": "Gdy niezaznaczone: Tłumaczy tylko pliki README",
   
+  "menu.selectOption": "Wybierz typ tłumaczenia",
+  "menu.option1": "Przetłumacz README i CHANGELOG",
+  "menu.option1Desc": "Przetłumacz pliki README i CHANGELOG",
+  "menu.option2": "Przetłumacz tylko README",
+  "menu.option2Desc": "Przetłumacz tylko pliki README",
+  "menu.option3": "Przetłumacz tylko CHANGELOG",
+  "menu.option3Desc": "Przetłumacz tylko pliki CHANGELOG",
+  
   "protection.title": "🛡️ Ustawienia ochrony fraz",
   "protection.status": "Status ochrony",
   "protection.active": "AKTYWNY ✅",

@@ -88,9 +88,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                     case 'toggleLanguage':
                         this.toggleLanguage(msg.language, msg.checked);
                         break;
-                    case 'toggleChangelog':
-                        this.toggleChangelogOption(msg.checked); // ✅ NEW
-                        break;
                     case 'removeSelected':
                         await this.removeSelectedLanguages();
                         break;
@@ -427,43 +424,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                     font-size: 11px;
                     line-height: 1.4;
                 }
-                .changelog-option {
-                    margin: 12px 0;
-                    padding: 8px 0;
-                    border-top: 1px solid var(--vscode-panel-border);
-                }
-                .changelog-option label {
-                    display: flex;
-                    align-items: center;
-                    cursor: pointer;
-                    font-size: 13px;
-                    font-weight: 500;
-                    line-height: 1.4;
-                }
-                .changelog-option input[type="checkbox"] {
-                    margin-right: 10px;
-                    transform: scale(1.1);
-                }
-                .changelog-description {
-                    font-size: 11px;
-                    color: var(--vscode-descriptionForeground);
-                    margin-left: 24px;
-                    margin-top: 4px;
-                    line-height: 1.3;
-                }
-                .changelog-only-section {
-                    background: var(--vscode-textBlockQuote-background);
-                    border: 1px solid var(--vscode-inputOption-activeBorder);
-                    border-radius: 4px;
-                    padding: 12px;
-                    margin: 12px 0;
-                }
-                .changelog-only-title {
-                    font-weight: bold;
-                    margin-bottom: 8px;
-                    color: var(--vscode-inputOption-activeForeground);
-                    font-size: 12px;
-                }
             </style>
         </head>
         <body>
@@ -514,32 +474,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 <div class="info-box">
                     <strong>${t('changelog.githubDetection')}</strong><br>
                     ${t('changelog.githubSources')}
-                </div>
-            </div>
-
-            <!-- NEW: CHANGELOG ONLY ACTIONS SECTION -->
-            <div class="section">
-                <div class="section-title">${t('changelog.onlyActions')}</div>
-                
-                <div class="changelog-only-section">
-                    <div class="changelog-only-title">${t('changelog.generateRemoveOnly')}</div>
-                    <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-bottom: 12px; line-height: 1.3;">
-                        ${t('changelog.onlyDescription')}
-                    </div>
-
-                    <button class="button small-button" id="generateChangelogBtn" ${selectedCount === 0 ? 'disabled' : ''} 
-                            onclick="vscodePostMessage('generateChangelogOnly')">
-                        ${t('changelog.generateOnly')}
-                    </button>
-                    
-                    <button class="button small-button remove-changelog" id="removeChangelogSelectedBtn" ${selectedCount === 0 ? 'disabled' : ''} 
-                            onclick="vscodePostMessage('removeChangelogSelected')">
-                        ${t('changelog.removeSelected')}
-                    </button>
-
-                    <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-top: 8px; text-align: center;">
-                        ${t('changelog.affectsSelected', selectedCount.toString())}
-                    </div>
                 </div>
             </div>
 
@@ -596,19 +530,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 <div class="stats">
                     ${t('languages.selectedCount', selectedCount.toString(), availableLanguages.toString())}
                 </div>
-
-                <!-- ✅ NEW: Changelog Option -->
-                <div class="changelog-option">
-                    <label>
-                        <input type="checkbox" id="changelogOption" ${changelogChecked} 
-                            onchange="toggleChangelogOption(this.checked)">
-                        ${t('changelog.generateWith')}
-                    </label>
-                    <div class="changelog-description">
-                        ${t('changelog.checkedDescription')}<br>
-                        ${t('changelog.uncheckedDescription')}
-                    </div>
-                </div>
             </div>
 
             <button class="button" id="runBtn" ${selectedCount === 0 ? 'disabled' : ''} onclick="vscodePostMessage('run')">
@@ -660,13 +581,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                     updateButtonStates();
                 }
 
-                function toggleChangelogOption(checked) {
-                    vscode.postMessage({
-                        command: 'toggleChangelog',
-                        checked: checked
-                    });
-                }
-
                 function updateButtonStates() {
                     const selectedCount = document.querySelectorAll('.language-checkbox:checked').length;
                     const totalLanguages = document.querySelectorAll('.language-checkbox').length;
@@ -683,27 +597,12 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                     // Update buttons
                     const runBtn = document.getElementById('runBtn');
                     const removeSelectedBtn = document.getElementById('removeSelectedBtn');
-                    const generateChangelogBtn = document.getElementById('generateChangelogBtn');
-                    const removeChangelogSelectedBtn = document.getElementById('removeChangelogSelectedBtn');
                     
                     if (runBtn) {
                         runBtn.disabled = selectedCount === 0;
                     }
                     if (removeSelectedBtn) {
                         removeSelectedBtn.disabled = selectedCount === 0;
-                    }
-                    if (generateChangelogBtn) {
-                        generateChangelogBtn.disabled = selectedCount === 0;
-                    }
-                    if (removeChangelogSelectedBtn) {
-                        removeChangelogSelectedBtn.disabled = selectedCount === 0;
-                    }
-                    
-                    // Update selected count in CHANGELOG Only section - GUNAKAN TRANSLATIONS
-                    const selectedCountElement = document.querySelector('.changelog-only-section div:last-child');
-                    if (selectedCountElement) {
-                        const text = translations.affectsSelected.replace('{0}', selectedCount);
-                        selectedCountElement.textContent = text;
                     }
                     
                     // Update select all checkbox
@@ -776,12 +675,6 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
         }
         
         this.updateWebview();
-    }
-
-    // ✅ NEW: Toggle changelog option
-    private toggleChangelogOption(checked: boolean) {
-        this.generateWithChangelog = checked;
-        console.log(`Generate with CHANGELOG: ${checked}`);
     }
 
     private updateWebview() {
@@ -984,6 +877,40 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
             vscode.window.showErrorMessage(this.l10n.t('errors.noLanguagesSelected'));
             return;
         }
+
+        // ✅ NEW: Show menu dengan 3 opsi
+        const selectedOption = await vscode.window.showQuickPick([
+            {
+                label: `[1] ${this.l10n.t('menu.option1')}`,
+                description: this.l10n.t('menu.option1Desc'),
+                value: 'both'
+            },
+            {
+                label: `[2] ${this.l10n.t('menu.option2')}`,
+                description: this.l10n.t('menu.option2Desc'),
+                value: 'readmeOnly'
+            },
+            {
+                label: `[3] ${this.l10n.t('menu.option3')}`,
+                description: this.l10n.t('menu.option3Desc'),
+                value: 'changelogOnly'
+            }
+        ], {
+            placeHolder: this.l10n.t('menu.selectOption')
+        });
+
+        if (!selectedOption) {
+            return; // User cancelled
+        }
+
+        // ✅ NEW: Route to appropriate handler
+        if (selectedOption.value === 'changelogOnly') {
+            await this.generateChangelogOnly();
+            return;
+        }
+
+        // ✅ NEW: Set the flag based on selection
+        this.generateWithChangelog = selectedOption.value === 'both';
 
         // ✅ NEW: Auto setup changelog hanya jika generateWithChangelog aktif DAN file CHANGELOG ada
         if (this.generateWithChangelog && hasChangelogFile(workspace) && !hasChangelogSectionInReadme(workspace)) {

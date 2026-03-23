@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "チェック時: READMEとCHANGELOGの両方を翻訳",
   "changelog.uncheckedDescription": "未チェック時: READMEのみ翻訳",
   
+  "menu.selectOption": "翻訳タイプを選択",
+  "menu.option1": "README & CHANGELOGを翻訳",
+  "menu.option1Desc": "READMEとCHANGELOGファイルの両方を翻訳",
+  "menu.option2": "READMEのみ翻訳",
+  "menu.option2Desc": "READMEファイルのみ翻訳",
+  "menu.option3": "CHANGELOGのみ翻訳",
+  "menu.option3Desc": "CHANGELOGファイルのみ翻訳",
+  
   "protection.title": "🛡️ フレーズ保護設定",
   "protection.status": "保護ステータス",
   "protection.active": "有効 ✅",

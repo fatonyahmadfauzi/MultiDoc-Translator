@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 In anderen Sprachen verfügbar: [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Français](README-FR.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@ Eine Visual Studio Code-Erweiterung, die mithilfe der **kostenlosen Google Trans
 - ⚙️ **Automatische Änderungsprotokollverwaltung** – Erkennt `CHANGELOG.md`, fügt einen Änderungsprotokollabschnitt zu `README.md` hinzu, falls dieser fehlt, und übersetzt ihn.
 - 🔗 **Automatische GitHub-URL-Erkennung** – Ruft Ihre Repository-URL von `package.json` oder `.git/config` ab, um genaue Release-Links zu erstellen.
 - 🔒 **Erweiterter Phrasenschutz** – Schützt Codeblöcke, Inline-Code, URLs, technische Begriffe, Markennamen und benutzerdefinierte Phrasen (unterstützt Regex). Sie können geschützte Phrasen in der Seitenleiste hinzufügen, entfernen, auflisten oder zurücksetzen.
-- 💬 Fügt jeder generierten README-Datei einen Sprachumschalterblock hinzu (z. B. `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Verwendet das integrierte Google Translate – kein Konto oder benutzerdefinierter API-Schlüssel erforderlich.
+- 💬 Fügt jeder generierten README-Datei einen Sprachumschalterblock hinzu (z. B. `- 🧠 Verwendet das integrierte Google Translate – kein Konto oder benutzerdefinierter API-Schlüssel erforderlich.
 - 🖱️ Benutzerfreundliche Seitenleistenoberfläche zum Auswählen von Sprachen, Verwalten des Schutzes und Ausführen von Übersetzungen.
 - 📊 Zeigt eine detaillierte Ausgabe des Übersetzungsfortschritts an.
 

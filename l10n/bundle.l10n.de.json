@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "Wenn aktiviert: Übersetzt sowohl README als auch CHANGELOG Dateien",
   "changelog.uncheckedDescription": "Wenn deaktiviert: Übersetzt nur README Dateien",
   
+  "menu.selectOption": "Übersetzungstyp wählen",
+  "menu.option1": "README und CHANGELOG übersetzen",
+  "menu.option1Desc": "Beide README- und CHANGELOG-Dateien übersetzen",
+  "menu.option2": "Nur README übersetzen",
+  "menu.option2Desc": "Nur README-Dateien übersetzen",
+  "menu.option3": "Nur CHANGELOG übersetzen",
+  "menu.option3Desc": "Nur CHANGELOG-Dateien übersetzen",
+  
   "protection.title": "🛡️ Phrasenschutz Einstellungen",
   "protection.status": "Schutzstatus",
   "protection.active": "AKTIV ✅",

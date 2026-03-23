@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "When checked: Translates both README and CHANGELOG files",
   "changelog.uncheckedDescription": "When unchecked: Translates only README files",
   
+  "menu.selectOption": "Select translation type",
+  "menu.option1": "Translate README & CHANGELOG",
+  "menu.option1Desc": "Translate both README and CHANGELOG files",
+  "menu.option2": "Translate README Only",
+  "menu.option2Desc": "Translate only README files",
+  "menu.option3": "Translate CHANGELOG Only",
+  "menu.option3Desc": "Translate only CHANGELOG files",
+  
   "protection.title": "🛡️ Phrase Protection Settings",
   "protection.status": "Protection Status",
   "protection.active": "ACTIVE ✅",

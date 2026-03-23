@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "Когда отмечено: Переводит и README и файлы CHANGELOG",
   "changelog.uncheckedDescription": "Когда не отмечено: Переводит только файлы README",
   
+  "menu.selectOption": "Выберите тип перевода",
+  "menu.option1": "Перевести README и CHANGELOG",
+  "menu.option1Desc": "Перевести файлы README и CHANGELOG",
+  "menu.option2": "Перевести только README",
+  "menu.option2Desc": "Перевести только файлы README",
+  "menu.option3": "Перевести только CHANGELOG",
+  "menu.option3Desc": "Перевести только файлы CHANGELOG",
+  
   "protection.title": "🛡️ Настройки защиты фраз",
   "protection.status": "Статус защиты",
   "protection.active": "АКТИВЕН ✅",

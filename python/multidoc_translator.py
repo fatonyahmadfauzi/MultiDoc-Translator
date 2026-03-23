@@ -15,6 +15,11 @@ from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import colorama
 from colorama import Fore, Style, init
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from rich.align import Align
+from rich import box
 
 SOURCE_FILE = "README.md"
 CHANGELOG_FILE = "CHANGELOG.md"
@@ -165,6 +170,11 @@ Examples:
         "info.noChangelogFiles": "ℹ️ No CHANGELOG files found",
         "success.changelogRemoved": "✅ {count} CHANGELOG files successfully removed",
         "confirmation.removeChangelog": "Are you sure you want to remove ALL CHANGELOG files? README files will not be affected."
+,
+        "menu_debug": "Toggle Debug Mode",
+        "debug_enabled": "Debug mode is now ENABLED.",
+        "debug_disabled": "Debug mode is now DISABLED.",
+        "debug_current": "Current"
     },
     "id": {
         "translating_readme": "📘 Menerjemahkan README ke {lang_name} ({lang_code})...",
@@ -302,6 +312,11 @@ Contoh:
         "info.noChangelogFiles": "ℹ️ Tidak ada file CHANGELOG ditemukan",
         "success.changelogRemoved": "✅ {count} file CHANGELOG berhasil dihapus",
         "confirmation.removeChangelog": "Apakah Anda yakin ingin menghapus SEMUA file CHANGELOG? File README tidak akan terpengaruh."
+,
+        "menu_debug": "Alihkan Mode Debug",
+        "debug_enabled": "Mode debug sekarang DIAKTIFKAN.",
+        "debug_disabled": "Mode debug sekarang DINONAKTIFKAN.",
+        "debug_current": "Saat ini"
     },
     "jp": {
         "translating_readme": "📘 READMEを{lang_name}に翻訳中 ({lang_code})...",
@@ -439,6 +454,11 @@ Contoh:
         "info.noChangelogFiles": "ℹ️ CHANGELOGファイルが見つかりません",
         "success.changelogRemoved": "✅ {count}個のCHANGELOGファイルを削除しました",
         "confirmation.removeChangelog": "すべてのCHANGELOGファイルを削除してもよろしいですか？READMEファイルは影響を受けません。"
+,
+        "menu_debug": "デバッグモードの切り替え",
+        "debug_enabled": "デバッグモードが【有効】になりました。",
+        "debug_disabled": "デバッグモードが【無効】になりました。",
+        "debug_current": "現在"
     },
     "de": {
         "translating_readme": "📘 Übersetze README in {lang_name} ({lang_code})...",
@@ -576,6 +596,11 @@ Beispiele:
         "info.noChangelogFiles": "ℹ️ Keine CHANGELOG-Dateien gefunden",
         "success.changelogRemoved": "✅ {count} CHANGELOG-Dateien erfolgreich entfernt",
         "confirmation.removeChangelog": "Sind Sie sicher, dass Sie ALLE CHANGELOG-Dateien entfernen möchten? README-Dateien werden nicht beeinflusst."
+,
+        "menu_debug": "Debug-Modus umschalten",
+        "debug_enabled": "Debug-Modus ist jetzt AKTIVIERT.",
+        "debug_disabled": "Debug-Modus ist jetzt DEAKTIVIERT.",
+        "debug_current": "Aktuell"
     },
     "es": {
         "translating_readme": "📘 Traduciendo README a {lang_name} ({lang_code})...",
@@ -713,6 +738,11 @@ Ejemplos:
         "info.noChangelogFiles": "ℹ️ No se encontraron archivos CHANGELOG",
         "success.changelogRemoved": "✅ {count} archivos CHANGELOG eliminados exitosamente",
         "confirmation.removeChangelog": "¿Está seguro de que desea eliminar TODOS los archivos CHANGELOG? Los archivos README no se verán afectados."
+,
+        "menu_debug": "Alternar Modo Depuración",
+        "debug_enabled": "El modo de depuración ahora está ACTIVADO.",
+        "debug_disabled": "El modo de depuración ahora está DESACTIVADO.",
+        "debug_current": "Actual"
     },
     "fr": {
         "translating_readme": "📘 Traduction du README en {lang_name} ({lang_code})...",
@@ -850,6 +880,11 @@ Exemples :
         "info.noChangelogFiles": "ℹ️ Aucun fichier CHANGELOG trouvé",
         "success.changelogRemoved": "✅ {count} fichiers CHANGELOG supprimés avec succès",
         "confirmation.removeChangelog": "Êtes-vous sûr de vouloir supprimer TOUS les fichiers CHANGELOG ? Les fichiers README ne seront pas affectés."
+,
+        "menu_debug": "Basculer le mode débogage",
+        "debug_enabled": "Le mode débogage est maintenant ACTIVÉ.",
+        "debug_disabled": "Le mode débogage est maintenant DÉSACTIVÉ.",
+        "debug_current": "Actuel"
     },
     "kr": {
         "translating_readme": "📘 README를 {lang_name}({lang_code})로 번역 중...",
@@ -987,6 +1022,11 @@ Exemples :
         "info.noChangelogFiles": "ℹ️ CHANGELOG 파일을 찾을 수 없습니다",
         "success.changelogRemoved": "✅ {count}개 CHANGELOG 파일 성공적으로 제거됨",
         "confirmation.removeChangelog": "모든 CHANGELOG 파일을 제거하시겠습니까? README 파일은 영향을 받지 않습니다."
+,
+        "menu_debug": "디버그 모드 전환",
+        "debug_enabled": "디버그 모드가 이제 활성화되었습니다.",
+        "debug_disabled": "디버그 모드가 이제 비활성화되었습니다.",
+        "debug_current": "현재"
     },
     "pl": {
         "translating_readme": "📘 Tłumaczenie README na {lang_name} ({lang_code})...",
@@ -1124,6 +1164,11 @@ Przykłady:
         "info.noChangelogFiles": "ℹ️ Nie znaleziono plików CHANGELOG",
         "success.changelogRemoved": "✅ {count} plików CHANGELOG pomyślnie usunięto",
         "confirmation.removeChangelog": "Czy na pewno chcesz usunąć WSZYSTKIE pliki CHANGELOG? Pliki README nie zostaną naruszone."
+,
+        "menu_debug": "Przełącz tryb debugowania",
+        "debug_enabled": "Tryb debugowania jest teraz WŁĄCZONY.",
+        "debug_disabled": "Tryb debugowania jest teraz WYŁĄCZONY.",
+        "debug_current": "Obecny"
     },
     "pt": {
         "translating_readme": "📘 Traduzindo README para {lang_name} ({lang_code})...",
@@ -1261,6 +1306,11 @@ Exemplos:
         "info.noChangelogFiles": "ℹ️ Nenhum arquivo CHANGELOG encontrado",
         "success.changelogRemoved": "✅ {count} arquivos CHANGELOG removidos com sucesso",
         "confirmation.removeChangelog": "Tem certeza de que deseja remover TODOS os arquivos CHANGELOG? Os arquivos README não serão afetados."
+,
+        "menu_debug": "Alternar Modo de Depuração",
+        "debug_enabled": "O modo de depuração agora está ATIVADO.",
+        "debug_disabled": "O modo de depuração agora está DESATIVADO.",
+        "debug_current": "Atual"
     },
     "ru": {
         "translating_readme": "📘 Перевод README на {lang_name} ({lang_code})...",
@@ -1398,6 +1448,11 @@ Exemplos:
         "info.noChangelogFiles": "ℹ️ Файлы CHANGELOG не найдены",
         "success.changelogRemoved": "✅ {count} файлов CHANGELOG успешно удалено",
         "confirmation.removeChangelog": "Вы уверены, что хотите удалить ВСЕ файлы CHANGELOG? Файлы README не будут затронуты."
+,
+        "menu_debug": "Переключить режим отладки",
+        "debug_enabled": "Режим отладки теперь ВКЛЮЧЕН.",
+        "debug_disabled": "Режим отладки теперь ВЫКЛЮЧЕН.",
+        "debug_current": "Текущий"
     },
     "zh": {
         "translating_readme": "📘 正在将 README 翻译为 {lang_name} ({lang_code})...",
@@ -1535,6 +1590,11 @@ Exemplos:
         "info.noChangelogFiles": "ℹ️ 未找到 CHANGELOG 文件",
         "success.changelogRemoved": "✅ {count} 个 CHANGELOG 文件已成功删除",
         "confirmation.removeChangelog": "您确定要删除所有 CHANGELOG 文件吗？README 文件将不受影响。"
+,
+        "menu_debug": "切换调试模式",
+        "debug_enabled": "调试模式现在已启用。",
+        "debug_disabled": "调试模式现在已禁用。",
+        "debug_current": "当前"
     }
 }
 
@@ -1702,6 +1762,252 @@ def detect_github_url():
         print("• .git/config has remote URL") 
         print("• Or add GitHub URL manually to README")
         return False
+
+def setup_paths_menu():
+    """Setup paths for input and output directories using .path_config"""
+    console = Console()
+    config_file = ".path_config"
+    
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        # Load current config from .path_config
+        if os.path.exists(config_file):
+            with open(config_file, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {'target_dir': os.getcwd(), 'output_base_dir': None}
+        
+        target_dir = config.get('target_dir', os.getcwd())
+        output_base_dir = config.get('output_base_dir')
+        
+        # Header Panel
+        header_text = Text("Setup Paths", style="bold green")
+        header_panel = Panel(
+            Align.center(header_text),
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=True
+        )
+        console.print(header_panel)
+        
+        # Menu Panel
+        menu_text = Text()
+        menu_text.append("[1] Set Target Directory\n", style="green")
+        menu_text.append(f"    Current: {target_dir}\n\n", style="dim")
+        menu_text.append("[2] Set Output Base Directory\n", style="green")
+        menu_text.append(f"    Current: {output_base_dir if output_base_dir else 'Not set'}\n\n", style="dim")
+        menu_text.append("[3] View Current Config\n", style="green")
+        menu_text.append("\n[0] Back", style="white")
+        
+        menu_panel = Panel(
+            menu_text,
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=True
+        )
+        console.print(menu_panel)
+        
+        choice = console.input("[bold yellow]Select option: [/bold yellow]").strip()
+        
+        if choice == '1':
+            print(Fore.CYAN + "Enter target directory path:")
+            print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
+            print(Fore.LIGHTBLACK_EX + "  • Type '.' for current directory")
+            print(Fore.LIGHTBLACK_EX + "  • Leave empty to cancel")
+            new_target = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
+            
+            if not new_target:
+                print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                time.sleep(1)
+            elif new_target.lower() == 'root':
+                # Get project root (parent of script directory)
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                # Show confirmation if changing existing directory
+                if target_dir != project_root:
+                    print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
+                    print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
+                    print(Fore.LIGHTBLACK_EX + f"   New: {project_root}")
+                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    if confirm != 'y':
+                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        time.sleep(1)
+                        continue
+                config['target_dir'] = project_root
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+                print(Fore.GREEN + f"✅ Target directory set to project root: {config['target_dir']}")
+                time.sleep(1)
+            elif new_target == '.':
+                current_path = os.getcwd()
+                # Show confirmation if changing existing directory
+                if target_dir != current_path:
+                    print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
+                    print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
+                    print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
+                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    if confirm != 'y':
+                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        time.sleep(1)
+                        continue
+                config['target_dir'] = current_path
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+                print(Fore.GREEN + f"✅ Target directory set to current: {config['target_dir']}")
+                time.sleep(1)
+            else:
+                # Validate path exists - check if it's a file or directory
+                if os.path.isfile(new_target):
+                    # If it's a file, extract the directory
+                    abs_path = os.path.dirname(os.path.abspath(new_target))
+                    print(Fore.CYAN + f"📄 File path detected. Using parent directory: {abs_path}")
+                    # Show confirmation if changing existing directory
+                    if target_dir != abs_path:
+                        print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
+                        print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
+                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
+                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        if confirm != 'y':
+                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            time.sleep(1)
+                            continue
+                    config['target_dir'] = abs_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
+                    time.sleep(1)
+                elif os.path.isdir(new_target):
+                    abs_path = os.path.abspath(new_target)
+                    # Show confirmation if changing existing directory
+                    if target_dir != abs_path:
+                        print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
+                        print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
+                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
+                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        if confirm != 'y':
+                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            time.sleep(1)
+                            continue
+                    config['target_dir'] = abs_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
+                    time.sleep(1)
+                else:
+                    print(Fore.RED + f"❌ Path not found: {new_target}")
+                    print(Fore.LIGHTBLACK_EX + f"   Please check if directory or file exists.")
+                    time.sleep(2)
+        
+        elif choice == '2':
+            print(Fore.CYAN + "Enter output base directory path:")
+            print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
+            print(Fore.LIGHTBLACK_EX + "  • Type '.' for current directory")
+            print(Fore.LIGHTBLACK_EX + "  • Leave empty to unset (use default docs/lang)")
+            new_output = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
+            
+            if not new_output:
+                # Show confirmation if unsetting existing directory
+                if output_base_dir:
+                    print(Fore.YELLOW + f"⚠️  This will unset the output directory:")
+                    print(Fore.LIGHTBLACK_EX + f"   Current: {output_base_dir}")
+                    print(Fore.LIGHTBLACK_EX + f"   Will use default: {OUTPUT_DIR}")
+                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    if confirm != 'y':
+                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        time.sleep(1)
+                        continue
+                config['output_base_dir'] = None
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+                print(Fore.GREEN + f"✅ Output directory unset (will use default: {OUTPUT_DIR})")
+                time.sleep(1)
+            elif new_output.lower() == 'root':
+                # Get project root
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                # Show confirmation if changing existing directory
+                if output_base_dir and output_base_dir != project_root:
+                    print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
+                    print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
+                    print(Fore.LIGHTBLACK_EX + f"   New: {project_root}")
+                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    if confirm != 'y':
+                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        time.sleep(1)
+                        continue
+                config['output_base_dir'] = project_root
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+                print(Fore.GREEN + f"✅ Output directory set to project root: {config['output_base_dir']}")
+                time.sleep(1)
+            elif new_output == '.':
+                current_path = os.getcwd()
+                # Show confirmation if changing existing directory
+                if output_base_dir and output_base_dir != current_path:
+                    print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
+                    print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
+                    print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
+                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    if confirm != 'y':
+                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        time.sleep(1)
+                        continue
+                config['output_base_dir'] = current_path
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+                print(Fore.GREEN + f"✅ Output directory set to current: {config['output_base_dir']}")
+                time.sleep(1)
+            else:
+                # Validate path exists - check if it's a file or directory
+                if os.path.isfile(new_output):
+                    # If it's a file, extract the directory
+                    abs_path = os.path.dirname(os.path.abspath(new_output))
+                    print(Fore.CYAN + f"📄 File path detected. Using parent directory: {abs_path}")
+                    # Show confirmation if changing existing directory
+                    if output_base_dir and output_base_dir != abs_path:
+                        print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
+                        print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
+                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
+                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        if confirm != 'y':
+                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            time.sleep(1)
+                            continue
+                    config['output_base_dir'] = abs_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+                    time.sleep(1)
+                elif os.path.isdir(new_output):
+                    abs_path = os.path.abspath(new_output)
+                    # Show confirmation if changing existing directory
+                    if output_base_dir and output_base_dir != abs_path:
+                        print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
+                        print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
+                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
+                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        if confirm != 'y':
+                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            time.sleep(1)
+                            continue
+                    config['output_base_dir'] = abs_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+                    time.sleep(1)
+                else:
+                    print(Fore.RED + f"❌ Path not found: {new_output}")
+                    print(Fore.LIGHTBLACK_EX + f"   Please check if directory or file exists.")
+                    time.sleep(2)
+        
+        elif choice == '3':
+            print(Fore.CYAN + "\nCurrent Configuration:")
+            print(json.dumps(config, indent=2, ensure_ascii=False))
+            input(Fore.YELLOW + "\nPress Enter to continue...")
+        
+        elif choice == '0':
+            break
 
 # ---------------------- PROTECTION UTILITIES ----------------------
 def load_protected_phrases():
@@ -3068,83 +3374,174 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
-    init(autoreset=True)
+    console = Console()
+    
     while True:
+        # Clear screen
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(Fore.CYAN + "=" * 80)
-        print(Fore.GREEN + r"""
-  __  __       _ _   _ ____            _______                 _       _             
- |  \/  |     | | | (_)  _ \          |__   __|               | |     | |            
- | \  / |_   _| | |_ _| | | | ___   ___  | |_ __ __ _ _ __ ___| | __ _| |_ ___  _ __ 
- | |\/| | | | | | __| | | | |/ _ \ / __| | | '__/ _` | '_ \ __| |/ _` | __/ _ \| '__|
- | |  | | |_| | | |_| | |_| | (_) | (__  | | | | (_| | | | \__ \ | (_| | || (_) | |   
- |_|  |_|\__,_|_|\__|_|____/ \___/ \___| |_|_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   
-        """)
-        print(Style.BRIGHT + Fore.WHITE + " MultiDoc Translator")
-        print(Fore.LIGHTBLACK_EX + " Developer: Fatony Ahmad Fauzi")
-        print(Fore.CYAN + "=" * 80)
-        print(Fore.GREEN + "[1]" + Fore.LIGHTGREEN_EX + " Translate README & CHANGELOG")
-        print(Fore.GREEN + "[2]" + Fore.LIGHTGREEN_EX + " Translate README Only")
-        print(Fore.GREEN + "[3]" + Fore.LIGHTGREEN_EX + " Translate CHANGELOG Only")
-        print(Fore.GREEN + "[4]" + Fore.LIGHTGREEN_EX + " Remove Translated Languages")
-        print(Fore.GREEN + "[5]" + Fore.LIGHTGREEN_EX + " Protection Settings (Phrases)")
-        print(Fore.GREEN + "[6]" + Fore.LIGHTGREEN_EX + " Auto Setup Changelog Section")
-        print(Fore.GREEN + "[7]" + Fore.LIGHTGREEN_EX + " Detect GitHub URL")
-        print(Fore.RED + "[8]" + Fore.LIGHTRED_EX + " Repair Translations (Fix Duplicates & Failures)")
-        print(Fore.WHITE + "[0] Exit")
-        print("\n" + Fore.YELLOW + "[+] Select option: ", end="")
         
-        choice = input().strip()
+        # Load configuration from .path_config
+        config_file = ".path_config"
+        if os.path.exists(config_file):
+            with open(config_file, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            target_dir = config.get('target_dir', os.getcwd())
+            output_base_dir = config.get('output_base_dir')
+        else:
+            target_dir = os.getcwd()
+            output_base_dir = None
+        
+        # Check project status
+        readme_exists = os.path.isfile(SOURCE_FILE)
+        changelog_exists = os.path.isfile(CHANGELOG_FILE)
+        
+        # Header Panel
+        header_text = Text()
+        header_text.append("🌍 MultiDoc Translator - CLI Menu\n", style="bold green")
+        header_text.append("Developer: Fatony Ahmad Fauzi", style="green")
+        
+        header_panel = Panel(
+            Align.center(header_text),
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=False
+        )
+        console.print(header_panel)
+        
+        # Current Status Panel
+        status_text = Text()
+        status_text.append("✅ ", style="bold green")
+        status_text.append(f"Current project path: {target_dir}\n", style="white")
+        output_display = output_base_dir if output_base_dir else 'Not set'
+        status_text.append("📁 ", style="yellow")
+        status_text.append(f"Output Directory: {output_display}", style="white")
+        
+        status_panel = Panel(
+            status_text,
+            title="Current Status",
+            title_align="left",
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=True
+        )
+        console.print(status_panel)
+        
+        # Source Files Panel
+        files_text = Text()
+        files_text.append("✅ ", style="bold green")
+        files_text.append(f"README.md: {'AVAILABLE' if readme_exists else 'NOT FOUND'}\n", style="white")
+        files_text.append("✅ " if changelog_exists else "❌ ", style="bold green" if changelog_exists else "red")
+        files_text.append(f"CHANGELOG.md: {'AVAILABLE' if changelog_exists else 'NOT FOUND'}", style="white")
+        
+        files_panel = Panel(
+            files_text,
+            title="Source Files",
+            title_align="left",
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=True
+        )
+        console.print(files_panel)
+        
+        # Warning message if output directory not set
+        if not output_base_dir:
+            console.print("\n[bold yellow]⚠️  Output directory not set![/bold yellow]")
+            console.print("[yellow]Please use option [7] Setup Paths first.[/yellow]\n")
+        
+        # Main Menu Panel
+        menu_text = Text()
+        menu_text.append("[1] Translate\n", style="green")
+        menu_text.append("[2] Remove Translated Languages\n", style="green")
+        menu_text.append("[3] Protection Settings (Phrases)\n", style="green")
+        menu_text.append("[4] Auto Setup Changelog Section\n", style="green")
+        menu_text.append("[5] Detect GitHub URL\n", style="green")
+        menu_text.append("[6] Repair Translations (Fix Duplicates & Failures)\n", style="red")
+        menu_text.append("[7] Setup Paths\n", style="green")
+        menu_text.append("[0] Exit", style="white")
+        
+        menu_panel = Panel(
+            menu_text,
+            title="Main Menu",
+            title_align="left",
+            border_style="bright_cyan",
+            box=box.SQUARE,
+            padding=(0, 1),
+            expand=True
+        )
+        console.print(menu_panel)
+        
+        # Get user input
+        choice = console.input("[bold yellow][+] Select option: [/bold yellow]").strip()
         
         if choice == '1':
-            if not ask_target_directory():
+            # Show translate submenu
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(Fore.CYAN + "┌─ Translation Options ─" + "─" * 53 + "┐")
+            print(Fore.GREEN + "│  [1] Translate README & CHANGELOG" + " " * 39 + "│")
+            print(Fore.GREEN + "│  [2] Translate README Only" + " " * 47 + "│")
+            print(Fore.GREEN + "│  [3] Translate CHANGELOG Only" + " " * 44 + "│")
+            print(Fore.WHITE + "│  [0] Back" + " " * 65 + "│")
+            print(Fore.CYAN + "└" + "─" * 76 + "┘\n")
+            
+            print(Fore.YELLOW + "[+] Select option: ", end="")
+            trans_choice = input().strip()
+            
+            if trans_choice == '1':
+                # Translate README & CHANGELOG
+                if not ask_target_directory():
+                    input("\nPress Enter to continue...")
+                    continue
+                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                if langs.lower() == 'all':
+                    langs_list = list(LANGUAGES.keys())
+                else:
+                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+                if langs_list:
+                    translate_with_changelog(langs_list, with_changelog=True)
+                else:
+                    print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
-                continue
-            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
-            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-            if langs.lower() == 'all':
-                langs_list = list(LANGUAGES.keys())
-            else:
-                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-            if langs_list:
-                translate_with_changelog(langs_list, with_changelog=True)
-            else:
-                print(Fore.RED + "Invalid languages.")
-            input("\nPress Enter to continue...")
+                
+            elif trans_choice == '2':
+                # Translate README Only
+                if not ask_target_directory():
+                    input("\nPress Enter to continue...")
+                    continue
+                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                if langs.lower() == 'all':
+                    langs_list = list(LANGUAGES.keys())
+                else:
+                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+                if langs_list:
+                    translate_with_changelog(langs_list, with_changelog=False)
+                else:
+                    print(Fore.RED + "Invalid languages.")
+                input("\nPress Enter to continue...")
+                
+            elif trans_choice == '3':
+                # Translate CHANGELOG Only
+                if not ask_target_directory():
+                    input("\nPress Enter to continue...")
+                    continue
+                print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
+                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                if langs.lower() == 'all':
+                    langs_list = list(LANGUAGES.keys())
+                else:
+                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
+                if langs_list:
+                    translate_changelog_only(langs_list)
+                else:
+                    print(Fore.RED + "Invalid languages.")
+                input("\nPress Enter to continue...")
             
         elif choice == '2':
-            if not ask_target_directory():
-                input("\nPress Enter to continue...")
-                continue
-            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
-            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-            if langs.lower() == 'all':
-                langs_list = list(LANGUAGES.keys())
-            else:
-                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-            if langs_list:
-                translate_with_changelog(langs_list, with_changelog=False)
-            else:
-                print(Fore.RED + "Invalid languages.")
-            input("\nPress Enter to continue...")
-            
-        elif choice == '3':
-            if not ask_target_directory():
-                input("\nPress Enter to continue...")
-                continue
-            print(Fore.CYAN + "Supported: pl, zh, jp, de, fr, es, ru, pt, id, kr")
-            langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-            if langs.lower() == 'all':
-                langs_list = list(LANGUAGES.keys())
-            else:
-                langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-            if langs_list:
-                translate_changelog_only(langs_list)
-            else:
-                print(Fore.RED + "Invalid languages.")
-            input("\nPress Enter to continue...")
-            
-        elif choice == '4':
+            # Remove Translated Languages (was option 4)
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
@@ -3162,7 +3559,8 @@ def interactive_menu():
                 print(Fore.GREEN + "All translated languages removed.")
             input("\nPress Enter to continue...")
             
-        elif choice == '5':
+        elif choice == '3':
+            # Protection Settings (was option 5)
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
@@ -3212,7 +3610,8 @@ def interactive_menu():
                 elif p_choice == '0':
                     break
 
-        elif choice == '6':
+        elif choice == '4':
+            # Auto Setup Changelog Section (was option 6)
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
@@ -3222,18 +3621,25 @@ def interactive_menu():
                 print(Fore.RED + "Changelog setup failed.")
             input("\nPress Enter to continue...")
             
-        elif choice == '7':
+        elif choice == '5':
+            # Detect GitHub URL (was option 7)
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
             detect_github_url()
             input("\nPress Enter to continue...")
             
-        elif choice == '8':
+        elif choice == '6':
+            # Repair Translations (was option 8)
             if not ask_target_directory():
                 input("\nPress Enter to continue...")
                 continue
             repair_translations()
+            input("\nPress Enter to continue...")
+            
+        elif choice == '7':
+            # Setup Paths (NEW)
+            setup_paths_menu()
             input("\nPress Enter to continue...")
             
         elif choice == '0':

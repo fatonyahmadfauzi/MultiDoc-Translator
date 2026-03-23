@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 Доступно na innych językach: [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Français](README-FR.md) | [Español](README-ES.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@
 - ⚙️ **Автоматическое управление журналом изменений** — обнаруживает `CHANGELOG.md`, добавляет раздел журнала изменений в `README.md`, если он отсутствует, и переводит его.
 - 🔗 **Автоматическое определение URL-адреса GitHub** — извлекает URL-адрес вашего репозитория из `package.json` или `.git/config` для создания точных ссылок на выпуск.
 - 🔒 **Расширенная защита фраз** — защищает блоки кода, встроенный код, URL-адреса, технические термины, названия брендов и пользовательские фразы (поддерживает регулярные выражения). Вы можете добавлять, удалять, перечислять или сбрасывать защищенные фразы на боковой панели.
-- 💬 Добавляет блок переключения языка в каждый созданный файл README (например, `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Использует встроенный Google Translate — не требуется учетная запись или специальный ключ API.
+- 💬 Добавляет блок переключения языка в каждый созданный файл README (например, `- 🧠 Использует встроенный Google Translate — не требуется учетная запись или специальный ключ API.
 - 🖱️ Удобный интерфейс боковой панели для выбора языков, управления защитой и запуска переводов.
 - 📊 Отображает подробный вывод о ходе перевода.
 

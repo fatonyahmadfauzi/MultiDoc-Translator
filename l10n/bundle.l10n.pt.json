@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "Quando marcado: Traduz README e arquivos CHANGELOG",
   "changelog.uncheckedDescription": "Quando desmarcado: Traduz apenas arquivos README",
   
+  "menu.selectOption": "Selecionar tipo de tradução",
+  "menu.option1": "Traduzir README e CHANGELOG",
+  "menu.option1Desc": "Traduzir arquivos README e CHANGELOG",
+  "menu.option2": "Traduzir apenas README",
+  "menu.option2Desc": "Traduzir apenas arquivos README",
+  "menu.option3": "Traduzir apenas CHANGELOG",
+  "menu.option3Desc": "Traduzir apenas arquivos CHANGELOG",
+  
   "protection.title": "🛡️ Configurações de Proteção de Frases",
   "protection.status": "Status de Proteção",
   "protection.active": "ATIVO ✅",

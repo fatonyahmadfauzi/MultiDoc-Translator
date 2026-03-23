@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 Disponible en otros idiomas: [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Français](README-FR.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [Bahasa Indonesia](README-ID.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@ Una extensión de Visual Studio Code que genera automáticamente archivos de doc
 - ⚙️ **Gestión automática del registro de cambios**: detecta `CHANGELOG.md`, agrega una sección de registro de cambios a `README.md` si falta y la traduce.
 - 🔗 **Detección automática de URL de GitHub**: recupera la URL de su repositorio de `package.json` o `.git/config` para crear enlaces de lanzamiento precisos.
 - 🔒 **Protección avanzada de frases**: protege bloques de código, código en línea, URL, términos técnicos, nombres de marcas y frases personalizadas (admite expresiones regulares). Puede agregar, eliminar, enumerar o restablecer frases protegidas desde la barra lateral.
-- 💬 Agrega un bloque de cambio de idioma a cada archivo README generado (por ejemplo, `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Utiliza el Traductor de Google integrado: no se requiere cuenta ni clave API personalizada.
+- 💬 Agrega un bloque de cambio de idioma a cada archivo README generado (por ejemplo, `- 🧠 Utiliza el Traductor de Google integrado: no se requiere cuenta ni clave API personalizada.
 - 🖱️ Interfaz de barra lateral fácil de usar para seleccionar idiomas, administrar la protección y ejecutar traducciones.
 - 📊 Muestra resultados detallados del progreso de la traducción.
 

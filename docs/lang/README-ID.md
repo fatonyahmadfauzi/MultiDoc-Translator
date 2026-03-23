@@ -10,6 +10,7 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
 > 🌐 Tersedia dalam bahasa lain: [English](../../README.md) | [Polski](README-PL.md) | [中文](README-ZH.md) | [日本語](README-JP.md) | [Deutsch](README-DE.md) | [Français](README-FR.md) | [Español](README-ES.md) | [Русский](README-RU.md) | [Português](README-PT.md) | [한국어](README-KR.md)
 
 ---
@@ -24,8 +25,7 @@ Ekstensi Visual Studio Code yang secara otomatis menghasilkan file dokumentasi m
 - ⚙️ **Manajemen Changelog Otomatis** — Mendeteksi `CHANGELOG.md`, menambahkan bagian changelog ke `README.md` jika hilang, dan menerjemahkannya.
 - 🔗 **Deteksi URL GitHub Otomatis** — Mengambil URL repositori Anda dari `package.json` atau `.git/config` untuk membuat tautan rilis yang akurat.
 - 🔒 **Perlindungan Frasa Tingkat Lanjut** — Melindungi blok kode, kode sebaris, URL, istilah teknis, nama merek, dan frasa khusus (mendukung regex). Anda dapat menambah, menghapus, membuat daftar, atau mengatur ulang frasa yang dilindungi dari sidebar.
-- 💬 Menambahkan blok pengalih bahasa ke setiap README yang dihasilkan (mis., `> 🌐 Available in other languages: [English](../../README.md) | ...`).
-- 🧠 Menggunakan Google Terjemahan bawaan — tidak memerlukan akun atau kunci API khusus.
+- 💬 Menambahkan blok pengalih bahasa ke setiap README yang dihasilkan (mis., `- 🧠 Menggunakan Google Terjemahan bawaan — tidak memerlukan akun atau kunci API khusus.
 - 🖱️ Antarmuka sidebar yang mudah digunakan untuk memilih bahasa, mengelola perlindungan, dan menjalankan terjemahan.
 - 📊 Menampilkan keluaran kemajuan terjemahan secara detail.
 

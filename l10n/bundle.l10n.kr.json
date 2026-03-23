@@ -47,6 +47,14 @@
   "changelog.checkedDescription": "체크 시: README와 CHANGELOG 파일 모두 번역",
   "changelog.uncheckedDescription": "체크 해제 시: README 파일만 번역",
   
+  "menu.selectOption": "번역 유형 선택",
+  "menu.option1": "README 및 CHANGELOG 번역",
+  "menu.option1Desc": "README 및 CHANGELOG 파일 번역",
+  "menu.option2": "README만 번역",
+  "menu.option2Desc": "README 파일만 번역",
+  "menu.option3": "CHANGELOG만 번역",
+  "menu.option3Desc": "CHANGELOG 파일만 번역",
+  
   "protection.title": "🛡️ 구문 보호 설정",
   "protection.status": "보호 상태",
   "protection.active": "활성화 ✅",

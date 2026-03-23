@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "Saat dicentang: Menerjemahkan README dan file CHANGELOG",
   "changelog.uncheckedDescription": "Saat tidak dicentang: Hanya menerjemahkan file README",
   
+  "menu.selectOption": "Pilih jenis terjemahan",
+  "menu.option1": "Terjemahkan README & CHANGELOG",
+  "menu.option1Desc": "Terjemahkan file README dan CHANGELOG",
+  "menu.option2": "Terjemahkan README Saja",
+  "menu.option2Desc": "Terjemahkan hanya file README",
+  "menu.option3": "Terjemahkan CHANGELOG Saja",
+  "menu.option3Desc": "Terjemahkan hanya file CHANGELOG",
+  
   "protection.title": "🛡️ Pengaturan Proteksi Frasa",
   "protection.status": "Status Proteksi",
   "protection.active": "AKTIF ✅",

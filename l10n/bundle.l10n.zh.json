@@ -54,6 +54,14 @@
   "changelog.checkedDescription": "勾选时: 翻译 README 和 CHANGELOG 文件",
   "changelog.uncheckedDescription": "未勾选时: 仅翻译 README 文件",
   
+  "menu.selectOption": "选择翻译类型",
+  "menu.option1": "翻译 README 和 CHANGELOG",
+  "menu.option1Desc": "翻译 README 和 CHANGELOG 文件",
+  "menu.option2": "仅翻译 README",
+  "menu.option2Desc": "仅翻译 README 文件",
+  "menu.option3": "仅翻译 CHANGELOG",
+  "menu.option3Desc": "仅翻译 CHANGELOG 文件",
+  
   "protection.title": "🛡️ 短语保护设置",
   "protection.status": "保护状态",
   "protection.active": "已激活 ✅",
