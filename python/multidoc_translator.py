@@ -1776,7 +1776,7 @@ def create_square_panel(content, title=None, align_center=False, expand=True):
     )
 
 
-def get_translation_file_paths(lang_code, base_output_dir):
+def get_translation_file_names(lang_code):
     if lang_code == "jp":
         readme_name = "README-JP.md"
         changelog_name = "CHANGELOG-JP.md"
@@ -1791,10 +1791,23 @@ def get_translation_file_paths(lang_code, base_output_dir):
         readme_name = f"README-{uppercase_code}.md"
         changelog_name = f"CHANGELOG-{uppercase_code}.md"
 
-    return (
-        os.path.join(base_output_dir, readme_name),
-        os.path.join(base_output_dir, changelog_name)
-    )
+    return readme_name, changelog_name
+
+
+def resolve_translation_output_dirs(base_output_dir):
+    candidate_dirs = []
+
+    if base_output_dir:
+        candidate_dirs.append(base_output_dir)
+        nested_output_dir = os.path.join(base_output_dir, OUTPUT_DIR)
+        if nested_output_dir not in candidate_dirs:
+            candidate_dirs.append(nested_output_dir)
+
+    default_output_dir = os.path.abspath(OUTPUT_DIR)
+    if default_output_dir not in candidate_dirs:
+        candidate_dirs.append(default_output_dir)
+
+    return candidate_dirs
 
 
 def create_translation_status_table(base_output_dir):
@@ -1805,15 +1818,20 @@ def create_translation_status_table(base_output_dir):
         expand=True,
         pad_edge=False
     )
-    table.add_column("Language", style="cyan", ratio=3)
+    table.add_column("Code / Language", style="cyan", ratio=3)
     table.add_column("README", justify="center", ratio=2)
     table.add_column("CHANGELOG", justify="center", ratio=2)
 
+    output_dirs = resolve_translation_output_dirs(base_output_dir)
+
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
-        readme_path, changelog_path = get_translation_file_paths(lang_code, base_output_dir)
-        readme_status = "[bold green]AVAILABLE[/bold green]" if os.path.exists(readme_path) else "[bold red]MISSING[/bold red]"
-        changelog_status = "[bold green]AVAILABLE[/bold green]" if os.path.exists(changelog_path) else "[bold red]MISSING[/bold red]"
-        table.add_row(lang_name, readme_status, changelog_status)
+        readme_name, changelog_name = get_translation_file_names(lang_code)
+        readme_available = any(os.path.exists(os.path.join(output_dir, readme_name)) for output_dir in output_dirs)
+        changelog_available = any(os.path.exists(os.path.join(output_dir, changelog_name)) for output_dir in output_dirs)
+
+        readme_status = "[bold green]AVAILABLE[/bold green]" if readme_available else "[bold red]MISSING[/bold red]"
+        changelog_status = "[bold green]AVAILABLE[/bold green]" if changelog_available else "[bold red]MISSING[/bold red]"
+        table.add_row(f"{lang_code.upper()} | {lang_name}", readme_status, changelog_status)
 
     return table
 
