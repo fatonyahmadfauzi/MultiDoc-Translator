@@ -11,12 +11,32 @@ import time
 import argparse
 import shutil
 import sys
+import urllib.request
+import requests
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import colorama
 from colorama import Fore, Style, init
 
 init(autoreset=True)
+
+# Simple ANSI constants and helpers to mimic pixiv style coloring
+class Ansi:
+    CYAN = Fore.CYAN
+    GREEN = Fore.GREEN
+    RESET = Style.RESET_ALL
+
+
+def colorize(text: str, color_code: str, color_on: bool):
+    if not color_on:
+        return text
+    return f"{color_code}{text}{Ansi.RESET}"
+
+
+def debug_print(msg: str):
+    # Optional debug output; can stay silent when not used
+    if os.getenv("DEBUG", "0") in ("1", "true", "True"):
+        print(Fore.YELLOW + "[DEBUG] " + msg + Style.RESET_ALL)
 
 # Fix emoji encoding for Windows
 import io
@@ -31,6 +51,86 @@ PROTECTED_FILE = "protected_phrases.json"
 PROTECT_STATUS_FILE = ".protect_status"
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PATH_CONFIG_FILE = os.path.join(PROJECT_ROOT, ".path_config")
+
+def check_internet_connection(test_url="https://www.google.com", timeout=5):
+    """Check if internet connection is available by contacting a reliable URL."""
+    try:
+        urllib.request.urlopen(test_url, timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
+def _check_internet_blocking(color_on: bool):
+    """
+    Fungsi ringan untuk menahan aliran CLI program agar tidak masuk menu
+    utama sebelum ada koneksi internet (seperti Loading Screen GUI).
+    """
+    debug_print("[FUNC] _check_internet_blocking() called")
+
+    def is_connected():
+        try:
+            requests.get("https://raw.githubusercontent.com", timeout=3, stream=False)
+            return True
+        except Exception:
+            return False
+
+    # Match pixiv_login visual exactly
+    print(Fore.CYAN + "[i] Checking internet connection..." + Style.RESET_ALL)
+
+    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    idx = 0
+
+    while True:
+        sys.stdout.write(f"\r{Fore.WHITE}Menunggu koneksi internet... {colorize(frames[idx], Ansi.CYAN, color_on)}{Style.RESET_ALL}")
+        sys.stdout.flush()
+
+        if is_connected():
+            # Clear line and print success in Pixiv style
+            sys.stdout.write("\r" + " " * 80 + "\r")
+            sys.stdout.write(Fore.GREEN + "[+] Connected" + Style.RESET_ALL + "\n")
+            sys.stdout.flush()
+            time.sleep(0.7)
+            break
+
+        idx = (idx + 1) % len(frames)
+        time.sleep(0.1)
+
+
+def ensure_internet_connection(retry_interval=3, max_attempts=None):
+    """Ensure internet connection is active before showing the menu."""
+    spinner = ['|', '/', '-', '\\']
+    attempt = 0
+
+    while True:
+        attempt += 1
+        print(Fore.CYAN + "🌍 Checking internet connection... " + Style.RESET_ALL, end='')
+
+        connected = False
+        for i in range(4):
+            sys.stdout.write(spinner[i] + '\r')
+            sys.stdout.flush()
+            time.sleep(0.2)
+            if check_internet_connection():
+                connected = True
+                break
+
+        if connected:
+            print(Fore.GREEN + "✅ Internet connection OK." + Style.RESET_ALL)
+            return True
+
+        print(Fore.RED + "❌ No internet connection detected." + Style.RESET_ALL)
+        if max_attempts and attempt >= max_attempts:
+            print(Fore.YELLOW + "Max attempts reached. Stopping internet connect retries." + Style.RESET_ALL)
+            return False
+
+        answer = input(Fore.CYAN + "Retry internet check? [Y/n]: " + Fore.WHITE).strip().lower()
+        if answer in ('n', 'no'):
+            print(Fore.YELLOW + "Internet connection is required for translation/repair operations." + Style.RESET_ALL)
+            return False
+
+        print(Fore.BLUE + f"Retrying in {retry_interval} seconds..." + Style.RESET_ALL)
+        time.sleep(retry_interval)
 
 # ---------------------- DISPLAY LANGUAGE SETTINGS ----------------------
 DISPLAY_LANGUAGES = {
@@ -84,6 +184,7 @@ DISPLAY_LANGUAGES = {
         "changelog_section_exists": "ℹ️ Changelog section already exists in README.md",
         "no_changelog_file_root": "❌ No CHANGELOG.md file found in root directory",
         "no_translation_files": "ℹ️ No translated README files found",
+        "no_internet": "❌ No internet connection detected. Please connect to the internet and try again.",
         "language_not_supported": "⚠️ Display language '{code}' not supported, using default",
         "help_description": "MultiDoc Translator - Automated multi-language documentation translator",
         "help_epilog": """
@@ -3261,6 +3362,11 @@ def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, o
         print(t("errors.noLanguagesSelected"))
         return False
     
+    # Internet connection check
+    if not check_internet_connection():
+        print(t("no_internet"))
+        return False
+
     # Auto setup changelog only if with_changelog is True AND CHANGELOG file exists
     if with_changelog and has_changelog_file() and not has_changelog_section_in_readme():
         print(t("changelog.autoSettingUp"))
@@ -3633,6 +3739,11 @@ def repair_translations(target_dir=None, output_base_dir=None):
     """Repair language switchers positioning, remove duplicates, and detect translation failures."""
     print(Fore.CYAN + "\n[+] Starting Translation Repair Tool...")
     
+    # Internet connection check
+    if not check_internet_connection():
+        print(Fore.RED + t("no_internet"))
+        return False
+
     # 1. Update/fix all switchers globally
     print(Fore.YELLOW + "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...")
     update_language_switcher(target_dir=target_dir, output_base_dir=output_base_dir)
@@ -3729,6 +3840,9 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
+
+    # Require internet connection before showing menu (blocking spinner as in pixiv_login CLI)
+    _check_internet_blocking(color_on=True)
 
     while True:
         # Clear screen
