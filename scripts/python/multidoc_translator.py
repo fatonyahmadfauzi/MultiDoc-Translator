@@ -4325,6 +4325,11 @@ def main():
 
     # Handle NEW CHANGELOG Only commands
     if args.generate_changelog_only:
+        # Check internet connection before translation
+        if not check_internet_connection():
+            print(t("no_internet"))
+            return
+        
         if args.generate_changelog_only.lower() == 'all':
             lang_codes = list(LANGUAGES.keys())
         else:
@@ -4364,6 +4369,11 @@ def main():
     if args.translate_changelog:
         if not has_changelog_file():
             print(t("no_changelog_file"))
+            return
+        
+        # Check internet connection before translation
+        if not check_internet_connection():
+            print(t("no_internet"))
             return
         
         if args.translate_changelog.lower() == 'all':
@@ -4407,6 +4417,11 @@ def main():
         fix_existing_changelog_spacing()
     
     if args.lang:
+        # Check internet connection before translation
+        if not check_internet_connection():
+            print(t("no_internet"))
+            return
+        
         # Parse multiple languages if comma-separated
         lang_codes = [lang.strip() for lang in args.lang.split(',')]
         valid_langs = []
@@ -4423,6 +4438,11 @@ def main():
         else:
             print(t("no_valid_language"))
     else:
+        # Check internet connection before translation
+        if not check_internet_connection():
+            print(t("no_internet"))
+            return
+        
         # Translate all languages with CHANGELOG option
         all_langs = list(LANGUAGES.keys())
         translate_with_changelog(all_langs, with_changelog, target_dir=os.getcwd(), output_base_dir=OUTPUT_DIR)
