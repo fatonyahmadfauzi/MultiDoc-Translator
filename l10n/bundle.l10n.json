@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 Sources checked:",
   "github.sourcePackageJson": "• package.json (repository field)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (GitHub URL patterns)"
+  "github.sourceReadme": "• README.md (GitHub URL patterns)",
+
+  "ui.changeLanguage": "🌐 Change Extension Language",
+  "ui.currentLanguage": "Current language",
+  "ui.languageSelector": "Select extension UI language",
+  "ui.languageChanged": "✅ Extension language changed to {0}",
+  "ui.languageCancelHint": "Select a language to change the extension UI language",
+  "ui.languageSectionTitle": "Extension Language",
+  "ui.languageSectionDesc": "Change the display language of this extension UI"
 }

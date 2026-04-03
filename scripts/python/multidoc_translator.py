@@ -51,6 +51,7 @@ PROTECTED_FILE = "protected_phrases.json"
 PROTECT_STATUS_FILE = ".protect_status"
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PATH_CONFIG_FILE = os.path.join(PROJECT_ROOT, ".path_config")
+LANG_CONFIG_FILE = os.path.join(PROJECT_ROOT, ".lang_config")
 
 def check_internet_connection(test_url="https://www.google.com", timeout=5):
     """Check if internet connection is available by contacting a reliable URL."""
@@ -135,6 +136,10 @@ def ensure_internet_connection(retry_interval=3, max_attempts=None):
 # ---------------------- DISPLAY LANGUAGE SETTINGS ----------------------
 DISPLAY_LANGUAGES = {
     "en": {
+        "ui.codeLanguage": "Code/Language",
+        "ui.changelogTitle": "CHANGELOG",
+        "ui.warningDifferentProject": "⚠️  WARNING: Output Directory is in a different project!",
+        "ui.pathOutsideProject": "(Path is outside the current project folder)",
         "translating_readme": "📘 Translating README to {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} successfully created",
         "translating_changelog": "📘 Translating CHANGELOG to {lang_name} ({lang_code})...",
@@ -225,7 +230,7 @@ Examples:
         "changelog.onlyDescription": "These actions only affect CHANGELOG files, README files remain unchanged.",
         "changelog.generateOnly": "🌐 Generate CHANGELOG Only",
         "changelog.removeSelected": "🗑️ Remove CHANGELOG Selected",
-        "changelog.affectsSelected": "Affects only selected languages: {0} languages",
+        "changelog.affectsSelected": "Affects only selected languages: {count} languages",
         "changelog.generateWith": "📋 Generate with CHANGELOG",
         "changelog.checkedDescription": "When checked: Translates both README and CHANGELOG files",
         "changelog.uncheckedDescription": "When unchecked: Translates only README files",
@@ -235,16 +240,16 @@ Examples:
         "progress.translatingReadmeOnly": "Translating README only",
         "success.filesSavedWithChangelog": "READMEs and CHANGELOGs", 
         "success.filesSavedReadmeOnly": "READMEs only",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs and CHANGELOGs successfully translated!",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs successfully translated!",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs and CHANGELOGs successfully translated!",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs successfully translated!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md not found - skipping CHANGELOG translation",
         
         # NEW: Error and success messages for CHANGELOG only
         "errors.changelogGenerateFailed": "❌ CHANGELOG generation failed",
         "errors.changelogRemoveSelectedFailed": "❌ Failed to remove selected CHANGELOG files",
         "success.changelogGenerated": "✅ CHANGELOG successfully generated for {count} languages",
-        "success.changelogRemovedSelected": "✅ {0} CHANGELOG files successfully removed",
-        "confirmation.removeChangelogSelected": "Are you sure you want to remove CHANGELOG files for {0} selected languages? README files will not be affected.",
+        "success.changelogRemovedSelected": "✅ {count} CHANGELOG files successfully removed",
+        "confirmation.removeChangelogSelected": "Are you sure you want to remove CHANGELOG files for {count} selected languages? README files will not be affected.",
         
         # NEW: Command help texts
         "help_generate_changelog_only": "Generate CHANGELOG files only for selected languages (README files remain unchanged)",
@@ -257,6 +262,7 @@ Examples:
         "progress.translatingLanguage": "📖 Translating {lang_name} ({current}/{total})...",
         "progress.waiting": "⏳ Waiting {seconds} seconds before next translation...",
         "progress.completed": "✅ Translation process completed",
+        "progress.barLabel": "Progress:",
         "progress.filesSaved": "💾 Files saved to: {path}",
         "progress.removingSelected": "🗑️ Removing selected CHANGELOG files...",
         "progress.fileCreated": "✅ Removed: {path}",
@@ -279,9 +285,115 @@ Examples:
         "menu_debug": "Toggle Debug Mode",
         "debug_enabled": "Debug mode is now ENABLED.",
         "debug_disabled": "Debug mode is now DISABLED.",
-        "debug_current": "Current"
+        "debug_current": "Current",
+        "ui.changeLanguage": "Change Language",
+        "ui.currentLanguage": "Current language",
+        "ui.languageChanged": "✅ Display language changed to {name}",
+        "ui.languageSelector": "Select display language for CLI notifications",
+        "ui.translate": "Translate",
+        "ui.removeTranslated": "Remove Translated Languages",
+        "ui.protectionSettings": "Protection Settings (Phrases)",
+        "ui.autoSetupChangelog": "Auto Setup Changelog Section",
+        "ui.detectGithub": "Detect GitHub URL",
+        "ui.repairTranslations": "Repair Translations (Fix Duplicates & Failures)",
+        "ui.setupPaths": "Setup Paths",
+        "ui.exit": "Exit",
+        "ui.selectOption": "Select option:",
+        "ui.currentProjectPath": "Current project path",
+        "ui.outputDirectory": "Output Directory",
+        "ui.folderProject": "Folder Project",
+        "ui.available": "AVAILABLE",
+        "ui.notFound": "NOT FOUND",
+        "ui.notSet": "Not set",
+        "ui.developer": "Developer",
+        "ui.exiting": "Exiting...",
+        "ui.chooseLanguageCode": "Choose language code (empty to cancel):",
+        "ui.translationStatus": "Translation Status:",
+        "ui.translateBoth": "Translate README & CHANGELOG",
+        "ui.translateReadme": "Translate README Only",
+        "ui.translateChangelog": "Translate CHANGELOG Only",
+        "ui.removeBoth": "Remove README & CHANGELOG",
+        "ui.removeReadme": "Remove README Only",
+        "ui.removeChangelog": "Remove CHANGELOG Only",
+        "ui.back": "Back",
+        "ui.missing": "MISSING",
+        "ui.enterLangCodes": "Enter language codes (comma-separated, or 'all'):",
+        "ui.invalidOption": "Invalid option.",
+        "ui.invalidLanguages": "Invalid languages.",
+        "ui.pressEnter": "Press Enter to continue...",
+        "ui.status": "Status: ",
+        "ui.active": "ACTIVE",
+        "ui.inactive": "INACTIVE",
+        "ui.protectedPhrases": "Protected Phrases:",
+        "ui.noProtectedDir": "- No protected phrases configured.",
+        "ui.toggleProtection": "Toggle Protection Status",
+        "ui.addProtection": "Add Protected Phrase",
+        "ui.removeProtection": "Remove Protected Phrase",
+        "ui.resetDefault": "Reset to Default",
+        "ui.enterPhraseAdd": "Enter phrase to protect (leave empty to cancel): ",
+        "ui.addedPhrase": "Added: {phrase}",
+        "ui.enterPhraseRemove": "Enter phrase to remove (leave empty to cancel): ",
+        "ui.removedPhrase": "Removed: {phrase}",
+        "ui.phraseNotFound": "Phrase not found.",
+        "ui.resetSuccess": "Reset to defaults.",
+        "ui.changelogComplete": "Changelog setup completed.",
+        "ui.changelogFailed": "Changelog setup failed.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Output directory automatically set to: {path}",
+        "ui.autoSetFailed": "❌ Could not find docs/lang directory in the current project.",
+        "ui.repairStarting": "Starting Translation Repair Tool...",
+        "ui.repairStep1": "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...",
+        "ui.repairStep2": "2. Scanning translated documents for failures (API errors / unchanged English)...",
+        "ui.repairLanguages": "Languages: {langs}",
+        "ui.looksTranslated": "looks properly translated.",
+        "ui.repairSuccess": "No failed translations detected. All files are clean and fully repaired!",
+        "ui.highEnglishOverlap": "High English overlap ({percent}%)",
+        "ui.repairErrorScan": "Could not scan ({error})",
+        "ui.retranslatingFailed": "Re-translating {count} failed files: {langs}",
+        "ui.repairFixed": "Repair completed! Missing translations have been fixed.",
+        "ui.enterLangCodesRemove": "Enter language codes to remove (comma-separated, or 'all'): ",
+        "ui.actionCancelled": "Action cancelled. Returning to remove menu...",
+        "ui.allRemoved": "All translated languages removed.",
+        "ui.removedList": "Removed: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Enter README language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedReadmeList": "Removed README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedChangelogFiles": "Selected CHANGELOG files removed.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Protected Phrases:",
+        "ui.pkgRepoField": "• package.json (repository field)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL patterns)",
+        "ui.pleaseCheck": "\nPlease check:",
+        "ui.checkPkgRepo": "• package.json has 'repository' field",
+        "ui.checkGitRemote": "• .git/config has remote URL",
+        "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
     },
     "id": {
+        "ui.codeLanguage": "Kode/Bahasa",
+        "ui.changelogTitle": "CHANGELOG",
+        "ui.warningDifferentProject": "⚠️  PERINGATAN: Direktori Output berada di proyek yang berbeda!",
+        "ui.pathOutsideProject": "(Path berada di luar folder proyek saat ini)",
         "translating_readme": "📘 Menerjemahkan README ke {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} berhasil dibuat",
         "translating_changelog": "📘 Menerjemahkan CHANGELOG ke {lang_name} ({lang_code})...",
@@ -370,7 +482,7 @@ Contoh:
         "changelog.onlyDescription": "Aksi ini hanya mempengaruhi file CHANGELOG, file README tidak berubah.",
         "changelog.generateOnly": "🌐 Generate CHANGELOG Saja",
         "changelog.removeSelected": "🗑️ Hapus CHANGELOG Terpilih",
-        "changelog.affectsSelected": "Hanya mempengaruhi bahasa terpilih: {0} bahasa",
+        "changelog.affectsSelected": "Hanya mempengaruhi bahasa terpilih: {count} bahasa",
         "changelog.generateWith": "📋 Generate dengan CHANGELOG",
         "changelog.checkedDescription": "Jika dicentang: Menerjemahkan file README dan CHANGELOG",
         "changelog.uncheckedDescription": "Jika tidak dicentang: Hanya menerjemahkan file README",
@@ -379,15 +491,15 @@ Contoh:
         "progress.translatingReadmeOnly": "Menerjemahkan README saja",
         "success.filesSavedWithChangelog": "README dan CHANGELOG",
         "success.filesSavedReadmeOnly": "README saja",
-        "success.translationCompletedWithChangelog": "✅ {0} README dan CHANGELOG berhasil diterjemahkan!",
-        "success.translationCompletedReadmeOnly": "✅ {0} README berhasil diterjemahkan!",
+        "success.translationCompletedWithChangelog": "✅ {count} README dan CHANGELOG berhasil diterjemahkan!",
+        "success.translationCompletedReadmeOnly": "✅ {count} README berhasil diterjemahkan!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md tidak ditemukan - melewati penerjemahan CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Generate CHANGELOG gagal",
         "errors.changelogRemoveSelectedFailed": "❌ Gagal menghapus file CHANGELOG terpilih",
-        "success.changelogGenerated": "✅ CHANGELOG berhasil digenerate untuk {0} bahasa",
-        "success.changelogRemovedSelected": "✅ {0} file CHANGELOG berhasil dihapus",
-        "confirmation.removeChangelogSelected": "Apakah Anda yakin ingin menghapus file CHANGELOG untuk {0} bahasa terpilih? File README tidak akan terpengaruh.",
+        "success.changelogGenerated": "✅ CHANGELOG berhasil digenerate untuk {count} bahasa",
+        "success.changelogRemovedSelected": "✅ {count} file CHANGELOG berhasil dihapus",
+        "confirmation.removeChangelogSelected": "Apakah Anda yakin ingin menghapus file CHANGELOG untuk {count} bahasa terpilih? File README tidak akan terpengaruh.",
         
         "help_generate_changelog_only": "Generate file CHANGELOG saja untuk bahasa terpilih (file README tidak berubah)",
         "help_remove_changelog_selected": "Hapus file CHANGELOG untuk bahasa terpilih saja (file README tidak berubah)",
@@ -421,12 +533,118 @@ Contoh:
         "menu_debug": "Alihkan Mode Debug",
         "debug_enabled": "Mode debug sekarang DIAKTIFKAN.",
         "debug_disabled": "Mode debug sekarang DINONAKTIFKAN.",
-        "debug_current": "Saat ini"
+        "debug_current": "Saat ini",
+        "ui.changeLanguage": "Ubah Bahasa Tampilan",
+        "ui.currentLanguage": "Bahasa saat ini",
+        "ui.languageChanged": "✅ Bahasa tampilan berubah ke {name}",
+        "ui.languageSelector": "Pilih bahasa tampilan untuk notifikasi CLI",
+        "ui.translate": "Terjemahkan",
+        "ui.removeTranslated": "Hapus Bahasa Terjemahan",
+        "ui.protectionSettings": "Pengaturan Perlindungan (Frasa)",
+        "ui.autoSetupChangelog": "Setup Otomatis Bagian Changelog",
+        "ui.detectGithub": "Deteksi URL GitHub",
+        "ui.repairTranslations": "Perbaiki Terjemahan (Duplikat & Gagal)",
+        "ui.setupPaths": "Atur Direktori",
+        "ui.exit": "Keluar",
+        "ui.selectOption": "Pilih opsi:",
+        "ui.currentProjectPath": "Jalur proyek saat ini",
+        "ui.outputDirectory": "Direktori Output",
+        "ui.folderProject": "Folder Proyek",
+        "ui.available": "TERSEDIA",
+        "ui.notFound": "TIDAK DITEMUKAN",
+        "ui.notSet": "Belum diatur",
+        "ui.developer": "Pengembang",
+        "ui.exiting": "Keluar...",
+        "ui.chooseLanguageCode": "Pilih kode bahasa (kosong untuk membatalkan):",
+        "ui.translationStatus": "Status Terjemahan:",
+        "ui.translateBoth": "Terjemahkan README & CHANGELOG",
+        "ui.translateReadme": "Terjemahkan README Saja",
+        "ui.translateChangelog": "Terjemahkan CHANGELOG Saja",
+        "ui.removeBoth": "Hapus README & CHANGELOG",
+        "ui.removeReadme": "Hapus README Saja",
+        "ui.removeChangelog": "Hapus CHANGELOG Saja",
+        "ui.back": "Kembali",
+        "ui.missing": "TIDAK ADA",
+        "ui.enterLangCodes": "Masukkan kode bahasa (pisahkan dengan koma, atau 'all'):",
+        "ui.invalidOption": "Opsi tidak valid.",
+        "ui.invalidLanguages": "Bahasa tidak valid.",
+        "ui.pressEnter": "Tekan Enter untuk melanjutkan...",
+        "ui.status": "Status: ",
+        "ui.active": "AKTIF",
+        "ui.inactive": "NONAKTIF",
+        "ui.protectedPhrases": "Frasa yang Dilindungi:",
+        "ui.noProtectedDir": "- Tidak ada frasa yang dilindungi.",
+        "ui.toggleProtection": "Ganti Status Perlindungan",
+        "ui.addProtection": "Tambah Frasa yang Dilindungi",
+        "ui.removeProtection": "Hapus Frasa yang Dilindungi",
+        "ui.resetDefault": "Kembalikan ke Default",
+        "ui.enterPhraseAdd": "Masukkan frasa untuk dilindungi (kosongkan untuk batal): ",
+        "ui.addedPhrase": "Ditambahkan: {phrase}",
+        "ui.enterPhraseRemove": "Masukkan frasa untuk dihapus (kosongkan untuk batal): ",
+        "ui.removedPhrase": "Dihapus: {phrase}",
+        "ui.phraseNotFound": "Frasa tidak ditemukan.",
+        "ui.resetSuccess": "Dikembalikan ke default.",
+        "ui.changelogComplete": "Penyiapan Changelog selesai.",
+        "ui.changelogFailed": "Penyiapan Changelog gagal.",
+        "ui.setupPathsMenu": "Pengaturan Path",
+        "ui.setTargetDir": "Atur Direktori Target",
+        "ui.currentDir": "Saat ini: {path}",
+        "ui.setOutputBaseDir": "Atur Direktori Basis Output",
+        "ui.enterTargetDir": "Masukkan path direktori target:",
+        "ui.enterOutputDir": "Masukkan path direktori basis output:",
+        "ui.typeRoot": "  • Ketik 'root' untuk menggunakan root proyek",
+        "ui.typeAuto": "  • Ketik 'auto' untuk mencari docs/lang di proyek",
+        "ui.leaveEmpty": "  • Kosongkan untuk batal",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Dibatalkan. Tidak ada perubahan yang dibuat.",
+        "ui.replaceCurrentDir": "⚠️ Ini akan menggantikan direktori saat ini:",
+        "ui.oldPath": "   Lama: {path}",
+        "ui.newPath": "   Baru: {path}",
+        "ui.continueYN": "Apakah Anda ingin melanjutkan? (y/n): ",
+        "ui.targetSet": "✅ Direktori target diatur ke: {path}",
+        "ui.outputSet": "✅ Direktori output diatur ke: {path}",
+        "ui.targetAlreadySet": "⚠️ Direktori target sudah berada di direktori saat ini.",
+        "ui.fileDetected": "📄 Path file terdeteksi. Menggunakan parent directory: {path}",
+        "ui.pathNotFound": "❌ Path tidak ditemukan: {path} \nHarap periksa apakah file/direktori ada.",
+        "ui.setOutputAuto": "Atur direktori output base ke docs/lang di proyek ini? (y/n): ",
+        "ui.autoSetSuccess": "✅ Direktori output secara otomatis diatur ke: {path}",
+        "ui.autoSetFailed": "❌ Tidak dapat menemukan direktori docs/lang di proyek ini.",
+        "ui.repairStarting": "Memulai Alat Perbaikan Terjemahan...",
+        "ui.repairStep1": "1. Membersihkan switcher ganda dan memperbaiki posisinya di semua README...",
+        "ui.repairStep2": "2. Memindai kegagalan dokumen (Kesalahan API / tidak diterjemahkan)...",
+        "ui.repairLanguages": "Bahasa: {langs}",
+        "ui.looksTranslated": "tampak diterjemahkan dengan benar.",
+        "ui.repairSuccess": "Tidak ada terjemahan gagal yang terdeteksi. Semua file bersih dan diperbaiki!",
+        "ui.highEnglishOverlap": "Bahasa Inggris terlalu dominan ({percent}%)",
+        "ui.repairErrorScan": "Tidak dapat memindai ({error})",
+        "ui.retranslatingFailed": "Menerjemahkan ulang {count} file gagal: {langs}",
+        "ui.repairFixed": "Perbaikan selesai! Terjemahan yang hilang telah diperbaiki.",
+        "ui.enterLangCodesRemove": "Masukkan kode bahasa untuk dihapus (pisahkan koma, atau 'all'): ",
+        "ui.actionCancelled": "Aksi dibatalkan. Kembali ke menu hapus...",
+        "ui.allRemoved": "Semua bahasa terjemahan telah dihapus.",
+        "ui.removedList": "Dihapus: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Masukkan kode bahasa README untuk dihapus (pisahkan koma, atau 'all'): ",
+        "ui.removedReadmeList": "README dihapus: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Masukkan kode bahasa CHANGELOG untuk dihapus (pisahkan koma, atau 'all'): ",
+        "ui.removedChangelogFiles": "File CHANGELOG yang dipilih telah dihapus.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Frasa yang Diproteksi:",
+        "ui.pkgRepoField": "• package.json (field repository)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (Pola URL GitHub)",
+        "ui.pleaseCheck": "\nHarap periksa:",
+        "ui.checkPkgRepo": "• package.json memiliki field 'repository'",
+        "ui.checkGitRemote": "• .git/config memiliki URL remote",
+        "ui.checkReadmeUrl": "• Atau tambahkan URL GitHub secara manual ke README",
     },
     "jp": {
+        "ui.codeLanguage": "コード/言語",
+        "ui.changelogTitle": "チェンジログ",
+        "ui.warningDifferentProject": "⚠️  警告: 出力ディレクトリが別のプロジェクトにあります！",
+        "ui.pathOutsideProject": "(パスは現在のプロジェクトフォルダの外にあります)",
         "translating_readme": "📘 READMEを{lang_name}に翻訳中 ({lang_code})...",
         "readme_created": "✅ {path} が正常に作成されました",
-        "translating_changelog": "📘 CHANGELOGを{lang_name}に翻訳中 ({lang_code})...",
+        "translating_changelog": "📘 チェンジログを{lang_name}に翻訳中 ({lang_code})...",
         "changelog_created": "✅ {path} が正常に作成されました",
         "changelog_links_updated": "✅ {filename} のチェンジログリンクを更新しました",
         "all_translated": "🎉 すべてのREADMEが正常に翻訳されました！",
@@ -450,8 +668,8 @@ Contoh:
         "changelog_setup_completed": "✅ チェンジログのセットアップが完了しました",
         "changelog_setup_failed": "❌ チェンジログのセットアップに失敗しました",
         "no_changelog_file": "❌ ルートディレクトリにCHANGELOG.mdファイルがありません",
-        "changelog_translated": "✅ {count}言語にCHANGELOGを正常に翻訳しました",
-        "no_changelog_translated": "❌ 翻訳されたCHANGELOGファイルはありません",
+        "changelog_translated": "✅ {count}言語にチェンジログを正常に翻訳しました",
+        "no_changelog_translated": "❌ 翻訳されたチェンジログファイルはありません",
         "languages_removed": "🎉 言語が正常に削除されました: {langs}",
         "all_languages_removed": "🎉 すべての翻訳ファイルが正常に削除されました",
         "auto_setup_changelog": "🔧 READMEにチェンジログセクションを自動設定中...",
@@ -463,7 +681,7 @@ Contoh:
         "failed_delete_file": "❌ {filename} の削除に失敗: {error}",
         "failed_delete_folder": "❌ フォルダの削除に失敗: {error}",
         "failed_update_main": "❌ メインREADMEの更新に失敗: {error}",
-        "failed_translate_changelog": "❌ CHANGELOGの翻訳に失敗: {error}",
+        "failed_translate_changelog": "❌ チェンジログの翻訳に失敗: {error}",
         "failed_update_changelog_links": "❌ {filename} のチェンジログリンク更新に失敗: {error}",
         "failed_update_switcher": "❌ {filename} の言語スイッチャー更新に失敗: {error}",
         "translation_failed": "❌ 翻訳に失敗: {error}",
@@ -502,70 +720,177 @@ Contoh:
         "help_enable_protect": "翻訳中のフレーズ保護を有効化",
         "help_disable_protect": "翻訳中のフレーズ保護を無効化",
         "help_status_protect": "フレーズ保護が現在有効かどうかを確認",
-        "help_translate_changelog": "CHANGELOG.mdのみ翻訳（全言語の場合は'all'、またはコード指定）",
-        "help_auto_setup_changelog": "CHANGELOG.mdが存在する場合、README.mdに変更ログセクションを自動追加",
+        "help_translate_changelog": "チェンジログ(CHANGELOG.md)のみ翻訳（全言語の場合は'all'、またはコード指定）",
+        "help_auto_setup_changelog": "CHANGELOG.mdが存在する場合、README.mdにチェンジログセクションを自動追加",
         "help_detect_github_url": "さまざまなソースからGitHubリポジトリURLを検出して表示",
         "help_display": "ターミナル通知の表示言語 (en, id, jp, de, es, fr, kr, pl, pt, ru, zh)",
 
-        "changelog.onlyActions": "📋 CHANGELOGのみのアクション",
-        "changelog.generateRemoveOnly": "CHANGELOGのみ生成/削除",
-        "changelog.onlyDescription": "これらのアクションはCHANGELOGファイルのみに影響し、READMEファイルは変更されません。",
-        "changelog.generateOnly": "🌐 CHANGELOGのみ生成",
-        "changelog.removeSelected": "🗑️ 選択したCHANGELOGを削除",
-        "changelog.affectsSelected": "選択した言語のみに影響: {0}言語",
-        "changelog.generateWith": "📋 CHANGELOG付きで生成",
-        "changelog.checkedDescription": "チェック時: READMEとCHANGELOGファイルの両方を翻訳",
+        "changelog.onlyActions": "📋 チェンジログのみのアクション",
+        "changelog.generateRemoveOnly": "チェンジログのみ生成/削除",
+        "changelog.onlyDescription": "これらのアクションはチェンジログファイルのみに影響し、READMEファイルは変更されません。",
+        "changelog.generateOnly": "🌐 チェンジログのみ生成",
+        "changelog.removeSelected": "🗑️ 選択したチェンジログを削除",
+        "changelog.affectsSelected": "選択した言語のみに影響: {count}言語",
+        "changelog.generateWith": "📋 チェンジログ付きで生成",
+        "changelog.checkedDescription": "チェック時: READMEとチェンジログの両方を翻訳",
         "changelog.uncheckedDescription": "未チェック時: READMEファイルのみ翻訳",
         
-        "progress.translatingWithChangelog": "README + CHANGELOGを翻訳中",
+        "progress.translatingWithChangelog": "README + チェンジログを翻訳中",
         "progress.translatingReadmeOnly": "READMEのみ翻訳中",
-        "success.filesSavedWithChangelog": "READMEとCHANGELOG",
+        "success.filesSavedWithChangelog": "READMEとチェンジログ",
         "success.filesSavedReadmeOnly": "READMEのみ",
-        "success.translationCompletedWithChangelog": "✅ {0}個のREADMEとCHANGELOGが正常に翻訳されました！",
-        "success.translationCompletedReadmeOnly": "✅ {0}個のREADMEが正常に翻訳されました！",
-        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.mdが見つかりません - CHANGELOG翻訳をスキップします",
+        "success.translationCompletedWithChangelog": "✅ {count}個のREADMEとチェンジログが正常に翻訳されました！",
+        "success.translationCompletedReadmeOnly": "✅ {count}個のREADMEが正常に翻訳されました！",
+        "info.noChangelogFileSkipping": "⚠️ CHANGELOG.mdが見つかりません - チェンジログ翻訳をスキップします",
         
-        "errors.changelogGenerateFailed": "❌ CHANGELOG生成に失敗しました",
-        "errors.changelogRemoveSelectedFailed": "❌ 選択したCHANGELOGファイルの削除に失敗しました",
-        "success.changelogGenerated": "✅ {0}言語のCHANGELOGが正常に生成されました",
-        "success.changelogRemovedSelected": "✅ {0}個のCHANGELOGファイルが正常に削除されました",
-        "confirmation.removeChangelogSelected": "選択した{0}言語のCHANGELOGファイルを削除してもよろしいですか？READMEファイルは影響を受けません。",
+        "errors.changelogGenerateFailed": "❌ チェンジログ生成に失敗しました",
+        "errors.changelogRemoveSelectedFailed": "❌ 選択したチェンジログファイルの削除に失敗しました",
+        "success.changelogGenerated": "✅ {count}言語のチェンジログが正常に生成されました",
+        "success.changelogRemovedSelected": "✅ {count}個のチェンジログファイルが正常に削除されました",
+        "confirmation.removeChangelogSelected": "選択した{count}言語のチェンジログファイルを削除してもよろしいですか？READMEファイルは影響を受けません。",
         
-        "help_generate_changelog_only": "選択した言語のCHANGELOGファイルのみ生成（READMEファイルは変更されません）",
-        "help_remove_changelog_selected": "選択した言語のCHANGELOGファイルのみ削除（READMEファイルは変更されません）",
-        "help_remove_changelog_only": "すべてのCHANGELOGファイルのみ削除（READMEファイルは変更されません）",
-        "help_with_changelog": "有効時: READMEとCHANGELOGを翻訳。無効時: READMEのみ翻訳",
+        "help_generate_changelog_only": "選択した言語のチェンジログファイルのみ生成（READMEファイルは変更されません）",
+        "help_remove_changelog_selected": "選択した言語のチェンジログファイルのみ削除（READMEファイルは変更されません）",
+        "help_remove_changelog_only": "すべてのチェンジログファイルのみ削除（READMEファイルは変更されません）",
+        "help_with_changelog": "有効時: READMEとチェンジログを翻訳。無効時: READMEのみ翻訳",
         "errors.noLanguagesSelected": "❌ 言語が選択されていません",
         "errors.noLanguagesSelectedRemove": "❌ 削除する言語が選択されていません",
         "progress.startingTranslation": "🚀 {count}言語の翻訳を開始します - {mode_text}",
         "progress.translatingLanguage": "📖 {lang_name}を翻訳中 ({current}/{total})...",
         "progress.waiting": "⏳ 次の翻訳まで{seconds}秒待機中...",
         "progress.completed": "✅ 翻訳プロセスが完了しました",
+        "progress.barLabel": "進捗:",
         "progress.filesSaved": "💾 ファイルを保存しました: {path}",
-        "progress.removingSelected": "🗑️ 選択したCHANGELOGファイルを削除中...",
+        "progress.removingSelected": "🗑️ 選択したチェンジログファイルを削除中...",
         "progress.fileCreated": "✅ 削除しました: {path}",
-        "progress.removingChangelog": "🗑️ すべてのCHANGELOGファイルを削除中...",
-        "changelog.translatingChangelog": "📘 {count}言語のCHANGELOGを翻訳中...",
-        "changelog.translating": "🔧 CHANGELOGを{lang_name}に翻訳中...",
-        "changelog.translated": "✅ CHANGELOGを{lang_name}に翻訳しました",
+        "progress.removingChangelog": "🗑️ すべてのチェンジログファイルを削除中...",
+        "changelog.translatingChangelog": "📘 {count}言語のチェンジログを翻訳中...",
+        "changelog.translating": "🔧 チェンジログを{lang_name}に翻訳中...",
+        "changelog.translated": "✅ チェンジログを{lang_name}に翻訳しました",
         "changelog.autoSettingUp": "🔧 チェンジログセクションを自動設定中...",
         "changelog.checkingSpacing": "🔧 チェンジログセクションの間隔を確認中...",
-        "progress.changelogTranslated": "✅ CHANGELOGを{lang_name}に翻訳しました",
+        "progress.changelogTranslated": "✅ チェンジログを{lang_name}に翻訳しました",
         "errors.translationFailedShort": "❌ {lang_name}の翻訳に失敗しました",
         "errors.translationFailed": "❌ {lang_code}の翻訳に失敗しました: {error}",
-        "errors.changelogTranslationFailed": "❌ CHANGELOGの翻訳に失敗しました",
-        "success.changelogTranslationCompleted": "✅ CHANGELOGの翻訳が完了しました",
-        "errors.changelogRemoveFailed": "❌ CHANGELOGファイルの削除に失敗しました",
-        "info.noChangelogFiles": "ℹ️ CHANGELOGファイルが見つかりません",
-        "success.changelogRemoved": "✅ {count}個のCHANGELOGファイルを削除しました",
-        "confirmation.removeChangelog": "すべてのCHANGELOGファイルを削除してもよろしいですか？READMEファイルは影響を受けません。"
+        "errors.changelogTranslationFailed": "❌ チェンジログの翻訳に失敗しました",
+        "success.changelogTranslationCompleted": "✅ チェンジログの翻訳が完了しました",
+        "errors.changelogRemoveFailed": "❌ チェンジログファイルの削除に失敗しました",
+        "info.noChangelogFiles": "ℹ️ チェンジログファイルが見つかりません",
+        "success.changelogRemoved": "✅ {count}個のチェンジログファイルを削除しました",
+        "confirmation.removeChangelog": "すべてのチェンジログファイルを削除してもよろしいですか？READMEファイルは影響を受けません。"
 ,
         "menu_debug": "デバッグモードの切り替え",
         "debug_enabled": "デバッグモードが【有効】になりました。",
         "debug_disabled": "デバッグモードが【無効】になりました。",
-        "debug_current": "現在"
+        "debug_current": "現在",
+        "ui.changeLanguage": "表示言語を変更",
+        "ui.currentLanguage": "現在の言語",
+        "ui.languageChanged": "✅ 表示言語を {name} に変更しました",
+        "ui.languageSelector": "CLI通知の表示言語を選択",
+        "ui.translate": "翻訳する",
+        "ui.removeTranslated": "翻訳済み言語の削除",
+        "ui.protectionSettings": "保護設定（フレーズ）",
+        "ui.autoSetupChangelog": "チェンジログセクションの自動追加",
+        "ui.detectGithub": "GitHub URLの検出",
+        "ui.repairTranslations": "翻訳の修復（重複と失敗の修正）",
+        "ui.setupPaths": "パスの設定",
+        "ui.exit": "終了",
+        "ui.selectOption": "オプションを選択:",
+        "ui.currentProjectPath": "現在のプロジェクトパス",
+        "ui.outputDirectory": "出力ディレクトリ",
+        "ui.folderProject": "プロジェクトフォルダ",
+        "ui.available": "利用可能",
+        "ui.notFound": "見つかりません",
+        "ui.notSet": "未設定",
+        "ui.developer": "開発者",
+        "ui.exiting": "終了しています...",
+        "ui.chooseLanguageCode": "言語コードを選択してください（空でキャンセル）:",
+        "ui.translationStatus": "翻訳ステータス:",
+        "ui.translateBoth": "READMEとチェンジログを翻訳する",
+        "ui.translateReadme": "READMEのみ翻訳する",
+        "ui.translateChangelog": "チェンジログのみ翻訳する",
+        "ui.removeBoth": "READMEとチェンジログを削除する",
+        "ui.removeReadme": "READMEのみ削除する",
+        "ui.removeChangelog": "チェンジログのみ削除する",
+        "ui.back": "戻る",
+        "ui.missing": "欠落",
+        "ui.enterLangCodes": "言語コードを入力（カンマ区切り、または'all'）:",
+        "ui.invalidOption": "無効なオプションです。",
+        "ui.invalidLanguages": "無効な言語です。",
+        "ui.pressEnter": "Enterキーを押して続行...",
+        "ui.status": "ステータス: ",
+        "ui.active": "有効",
+        "ui.inactive": "無効",
+        "ui.protectedPhrases": "保護されたフレーズ:",
+        "ui.noProtectedDir": "- 保護されたフレーズは設定されていません。",
+        "ui.toggleProtection": "保護ステータスの切り替え",
+        "ui.addProtection": "保護フレーズを追加する",
+        "ui.removeProtection": "保護フレーズを削除する",
+        "ui.resetDefault": "デフォルトにリセット",
+        "ui.enterPhraseAdd": "保護するフレーズを入力してください（空でキャンセル）: ",
+        "ui.addedPhrase": "追加しました: {phrase}",
+        "ui.enterPhraseRemove": "削除するフレーズを入力してください（空でキャンセル）: ",
+        "ui.removedPhrase": "削除しました: {phrase}",
+        "ui.phraseNotFound": "フレーズが見つかりません。",
+        "ui.resetSuccess": "デフォルトにリセットされました。",
+        "ui.changelogComplete": "チェンジログのセットアップが完了しました。",
+        "ui.changelogFailed": "チェンジログのセットアップに失敗しました。",
+        "ui.setupPathsMenu": "パスの設定",
+        "ui.setTargetDir": "ターゲットディレクトリの設定",
+        "ui.currentDir": "現在: {path}",
+        "ui.setOutputBaseDir": "出力ベースディレクトリの設定",
+        "ui.enterTargetDir": "ターゲットディレクトリパスを入力:",
+        "ui.enterOutputDir": "出力ベースディレクトリパスを入力:",
+        "ui.typeRoot": "  • 'root'と入力するとプロジェクトのルートを使用します",
+        "ui.typeAuto": "  • 'auto'と入力すると自動でdocs/langを検索します",
+        "ui.leaveEmpty": "  • 空でキャンセル",
+        "ui.path": "パス: ",
+        "ui.cancelled": "⏭️ キャンセルしました。変更は行われません。",
+        "ui.replaceCurrentDir": "⚠️ 現在のディレクトリを置き換えます:",
+        "ui.oldPath": "   旧: {path}",
+        "ui.newPath": "   新: {path}",
+        "ui.continueYN": "続行しますか？ (y/n): ",
+        "ui.targetSet": "✅ ターゲットディレクトリをセットしました: {path}",
+        "ui.outputSet": "✅ 出力ディレクトリをセットしました: {path}",
+        "ui.targetAlreadySet": "⚠️ ターゲットディレクトリは既に設定済みです。",
+        "ui.fileDetected": "📄 ファイルパスを検出しました。親ディレクトリを使用します: {path}",
+        "ui.pathNotFound": "❌ パスが見つかりません: {path} \n存在するか確認してください。",
+        "ui.setOutputAuto": "出力ベースディレクトリを現在のdocs/langにセットしますか？ (y/n): ",
+        "ui.autoSetSuccess": "✅ 出力ディレクトリを自動セットしました: {path}",
+        "ui.autoSetFailed": "❌ プロジェクトでdocs/langが見つかりませんでした。",
+        "ui.repairStarting": "翻訳修復ツールを起動しています...",
+        "ui.repairStep1": "1. すべてのREADME上の重複スイッチャーをクリーンアップし位置を修正しています...",
+        "ui.repairStep2": "2. 翻訳失敗（APIエラー/英語のまま）がないかスキャン中...",
+        "ui.repairLanguages": "言語: {langs}",
+        "ui.looksTranslated": "は正しく翻訳されているようです。",
+        "ui.repairSuccess": "失敗した翻訳は検出されませんでした。すべてのファイルは正常に修復されました！",
+        "ui.highEnglishOverlap": "高い英語の重複率 ({percent}%)",
+        "ui.repairErrorScan": "スキャンできませんでした ({error})",
+        "ui.retranslatingFailed": "{count}個の失敗したファイルを再翻訳中: {langs}",
+        "ui.repairFixed": "修復完了！不足していた翻訳が修正されました。",
+        "ui.enterLangCodesRemove": "削除する言語コードを入力（カンマ区切り、または'all'）: ",
+        "ui.actionCancelled": "キャンセルしました。削除メニューに戻ります...",
+        "ui.allRemoved": "すべての翻訳言語を削除しました。",
+        "ui.removedList": "削除しました: {langs}",
+        "ui.enterLangCodesRemoveReadme": "削除するREADMEの言語コードを入力（カンマ区切り、または'all'）: ",
+        "ui.removedReadmeList": "READMEを削除しました: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "削除するチェンジログの言語コードを入力（カンマ区切り、または'all'）: ",
+        "ui.removedChangelogFiles": "選択したチェンジログファイルを削除しました。",
+        "ui.statusLabel": "ステータス: ",
+        "ui.protectedPhrasesList": "保護されたフレーズ:",
+        "ui.pkgRepoField": "• package.json (repository フィールド)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URLパターン)",
+        "ui.pleaseCheck": "\n以下をご確認ください:",
+        "ui.checkPkgRepo": "• package.json に 'repository' フィールドがあるか",
+        "ui.checkGitRemote": "• .git/config にリモート URL があるか",
+        "ui.checkReadmeUrl": "• または GitHub URL を README に手動で追加してください",
     },
     "de": {
+        "ui.codeLanguage": "Code/Sprache",
+        "ui.changelogTitle": "CHANGELOG",
+        "ui.warningDifferentProject": "⚠️ WARNUNG: Das Ausgabeverzeichnis befindet sich in einem anderen Projekt!",
+        "ui.pathOutsideProject": "(Pfad liegt außerhalb des aktuellen Projektordners)",
         "translating_readme": "📘 Übersetze README in {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} erfolgreich erstellt",
         "translating_changelog": "📘 Übersetze CHANGELOG in {lang_name} ({lang_code})...",
@@ -654,7 +979,7 @@ Beispiele:
         "changelog.onlyDescription": "Diese Aktionen betreffen nur CHANGELOG-Dateien, README-Dateien bleiben unverändert.",
         "changelog.generateOnly": "🌐 Nur CHANGELOG generieren",
         "changelog.removeSelected": "🗑️ Ausgewählte CHANGELOGs entfernen",
-        "changelog.affectsSelected": "Betrifft nur ausgewählte Sprachen: {0} Sprachen",
+        "changelog.affectsSelected": "Betrifft nur ausgewählte Sprachen: {count} Sprachen",
         "changelog.generateWith": "📋 Mit CHANGELOG generieren",
         "changelog.checkedDescription": "Wenn aktiviert: Übersetzt sowohl README- als auch CHANGELOG-Dateien",
         "changelog.uncheckedDescription": "Wenn deaktiviert: Übersetzt nur README-Dateien",
@@ -663,15 +988,15 @@ Beispiele:
         "progress.translatingReadmeOnly": "Übersetze nur README",
         "success.filesSavedWithChangelog": "READMEs und CHANGELOGs",
         "success.filesSavedReadmeOnly": "Nur READMEs",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs und CHANGELOGs erfolgreich übersetzt!",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs erfolgreich übersetzt!",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs und CHANGELOGs erfolgreich übersetzt!",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs erfolgreich übersetzt!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md nicht gefunden - überspringe CHANGELOG-Übersetzung",
         
         "errors.changelogGenerateFailed": "❌ CHANGELOG-Generierung fehlgeschlagen",
         "errors.changelogRemoveSelectedFailed": "❌ Fehler beim Entfernen ausgewählter CHANGELOG-Dateien",
-        "success.changelogGenerated": "✅ CHANGELOG erfolgreich für {0} Sprachen generiert",
-        "success.changelogRemovedSelected": "✅ {0} CHANGELOG-Dateien erfolgreich entfernt",
-        "confirmation.removeChangelogSelected": "Sind Sie sicher, dass Sie CHANGELOG-Dateien für {0} ausgewählte Sprachen entfernen möchten? README-Dateien werden nicht beeinflusst.",
+        "success.changelogGenerated": "✅ CHANGELOG erfolgreich für {count} Sprachen generiert",
+        "success.changelogRemovedSelected": "✅ {count} CHANGELOG-Dateien erfolgreich entfernt",
+        "confirmation.removeChangelogSelected": "Sind Sie sicher, dass Sie CHANGELOG-Dateien für {count} ausgewählte Sprachen entfernen möchten? README-Dateien werden nicht beeinflusst.",
         
         "help_generate_changelog_only": "Nur CHANGELOG-Dateien für ausgewählte Sprachen generieren (README-Dateien bleiben unverändert)",
         "help_remove_changelog_selected": "Nur CHANGELOG-Dateien für ausgewählte Sprachen entfernen (README-Dateien bleiben unverändert)",
@@ -705,9 +1030,115 @@ Beispiele:
         "menu_debug": "Debug-Modus umschalten",
         "debug_enabled": "Debug-Modus ist jetzt AKTIVIERT.",
         "debug_disabled": "Debug-Modus ist jetzt DEAKTIVIERT.",
-        "debug_current": "Aktuell"
+        "debug_current": "Aktuell",
+        "ui.changeLanguage": "Anzeigesprache ändern",
+        "ui.currentLanguage": "Aktuelle Sprache",
+        "ui.languageChanged": "✅ Anzeigesprache auf {name} geändert",
+        "ui.languageSelector": "Anzeigesprache für CLI-Benachrichtigungen auswählen",
+        "ui.translate": "Übersetzen",
+        "ui.removeTranslated": "Übersetzte Sprachen entfernen",
+        "ui.protectionSettings": "Schutzeinstellungen (Phrasen)",
+        "ui.autoSetupChangelog": "Changelog-Bereich automatisch einrichten",
+        "ui.detectGithub": "GitHub-URL erkennen",
+        "ui.repairTranslations": "Übersetzungen reparieren (Duplikate & Fehler beheben)",
+        "ui.setupPaths": "Pfade einrichten",
+        "ui.exit": "Beenden",
+        "ui.selectOption": "Option wählen:",
+        "ui.currentProjectPath": "Aktueller Projektpfad",
+        "ui.outputDirectory": "Ausgabeverzeichnis",
+        "ui.folderProject": "Projektordner",
+        "ui.available": "VERFÜGBAR",
+        "ui.notFound": "NICHT GEFUNDEN",
+        "ui.notSet": "Nicht festgelegt",
+        "ui.developer": "Entwickler",
+        "ui.exiting": "Wird beendet...",
+        "ui.chooseLanguageCode": "Sprachcode wählen (leer zum Abbrechen):",
+        "ui.translationStatus": "Übersetzungsstatus:",
+        "ui.translateBoth": "README & CHANGELOG übersetzen",
+        "ui.translateReadme": "Nur README übersetzen",
+        "ui.translateChangelog": "Nur CHANGELOG übersetzen",
+        "ui.removeBoth": "README & CHANGELOG entfernen",
+        "ui.removeReadme": "Nur README entfernen",
+        "ui.removeChangelog": "Nur CHANGELOG entfernen",
+        "ui.back": "Zurück",
+        "ui.missing": "FEHLT",
+        "ui.enterLangCodes": "Sprachcodes eingeben (kommasepariert, oder 'all'):",
+        "ui.invalidOption": "Ungültige Option.",
+        "ui.invalidLanguages": "Ungültige Sprachen.",
+        "ui.pressEnter": "Drücken Sie die Eingabetaste, um fortzufahren...",
+        "ui.status": "Status: ",
+        "ui.active": "AKTIV",
+        "ui.inactive": "INAKTIV",
+        "ui.protectedPhrases": "Geschützte Phrasen:",
+        "ui.noProtectedDir": "- Keine geschützten Phrasen konfiguriert.",
+        "ui.toggleProtection": "Schutzstatus umschalten",
+        "ui.addProtection": "Geschützte Phrase hinzufügen",
+        "ui.removeProtection": "Geschützte Phrase entfernen",
+        "ui.resetDefault": "Auf Standard zurücksetzen",
+        "ui.enterPhraseAdd": "Phrase zum Schützen eingeben (leer zum Abbrechen): ",
+        "ui.addedPhrase": "Hinzugefügt: {phrase}",
+        "ui.enterPhraseRemove": "Phrase zum Entfernen eingeben (leer zum Abbrechen): ",
+        "ui.removedPhrase": "Entfernt: {phrase}",
+        "ui.phraseNotFound": "Phrase nicht gefunden.",
+        "ui.resetSuccess": "Auf Standard zurückgesetzt.",
+        "ui.changelogComplete": "Changelog-Setup abgeschlossen.",
+        "ui.changelogFailed": "Changelog-Setup fehlgeschlagen.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Output directory automatically set to: {path}",
+        "ui.autoSetFailed": "❌ Could not find docs/lang directory in the current project.",
+        "ui.repairStarting": "Starting Translation Repair Tool...",
+        "ui.repairStep1": "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...",
+        "ui.repairStep2": "2. Scanning translated documents for failures (API errors / unchanged English)...",
+        "ui.repairLanguages": "Languages: {langs}",
+        "ui.looksTranslated": "looks properly translated.",
+        "ui.repairSuccess": "No failed translations detected. All files are clean and fully repaired!",
+        "ui.highEnglishOverlap": "High English overlap ({percent}%)",
+        "ui.repairErrorScan": "Could not scan ({error})",
+        "ui.retranslatingFailed": "Re-translating {count} failed files: {langs}",
+        "ui.repairFixed": "Repair completed! Missing translations have been fixed.",
+        "ui.enterLangCodesRemove": "Enter language codes to remove (comma-separated, or 'all'): ",
+        "ui.actionCancelled": "Action cancelled. Returning to remove menu...",
+        "ui.allRemoved": "All translated languages removed.",
+        "ui.removedList": "Removed: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Enter README language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedReadmeList": "Removed README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedChangelogFiles": "Selected CHANGELOG files removed.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Protected Phrases:",
+        "ui.pkgRepoField": "• package.json (repository field)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL patterns)",
+        "ui.pleaseCheck": "\nPlease check:",
+        "ui.checkPkgRepo": "• package.json has 'repository' field",
+        "ui.checkGitRemote": "• .git/config has remote URL",
+        "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
     },
     "es": {
+        "ui.codeLanguage": "Código/Idioma",
+        "ui.changelogTitle": "REGISTRO DE CAMBIOS",
+        "ui.warningDifferentProject": "⚠️ ADVERTENCIA: ¡El directorio de salida está en un proyecto diferente!",
+        "ui.pathOutsideProject": "(La ruta está fuera de la carpeta del proyecto actual)",
         "translating_readme": "📘 Traduciendo README a {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} creado exitosamente",
         "translating_changelog": "📘 Traduciendo CHANGELOG a {lang_name} ({lang_code})...",
@@ -796,7 +1227,7 @@ Ejemplos:
         "changelog.onlyDescription": "Estas acciones solo afectan archivos CHANGELOG, los archivos README permanecen sin cambios.",
         "changelog.generateOnly": "🌐 Generar solo CHANGELOG",
         "changelog.removeSelected": "🗑️ Eliminar CHANGELOG seleccionado",
-        "changelog.affectsSelected": "Afecta solo idiomas seleccionados: {0} idiomas",
+        "changelog.affectsSelected": "Afecta solo idiomas seleccionados: {count} idiomas",
         "changelog.generateWith": "📋 Generar con CHANGELOG",
         "changelog.checkedDescription": "Cuando está marcado: Traduce archivos README y CHANGELOG",
         "changelog.uncheckedDescription": "Cuando no está marcado: Traduce solo archivos README",
@@ -805,15 +1236,15 @@ Ejemplos:
         "progress.translatingReadmeOnly": "Traduciendo solo README",
         "success.filesSavedWithChangelog": "READMES y CHANGELOGs",
         "success.filesSavedReadmeOnly": "Solo READMEs",
-        "success.translationCompletedWithChangelog": "✅ ¡{0} READMEs y CHANGELOGs traducidos exitosamente!",
-        "success.translationCompletedReadmeOnly": "✅ ¡{0} READMEs traducidos exitosamente!",
+        "success.translationCompletedWithChangelog": "✅ ¡{count} READMEs y CHANGELOGs traducidos exitosamente!",
+        "success.translationCompletedReadmeOnly": "✅ ¡{count} READMEs traducidos exitosamente!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md no encontrado - omitiendo traducción de CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Generación de CHANGELOG fallida",
         "errors.changelogRemoveSelectedFailed": "❌ Error al eliminar archivos CHANGELOG seleccionados",
-        "success.changelogGenerated": "✅ CHANGELOG generado exitosamente para {0} idiomas",
-        "success.changelogRemovedSelected": "✅ {0} archivos CHANGELOG eliminados exitosamente",
-        "confirmation.removeChangelogSelected": "¿Está seguro de que desea eliminar archivos CHANGELOG para {0} idiomas seleccionados? Los archivos README no se verán afectados.",
+        "success.changelogGenerated": "✅ CHANGELOG generado exitosamente para {count} idiomas",
+        "success.changelogRemovedSelected": "✅ {count} archivos CHANGELOG eliminados exitosamente",
+        "confirmation.removeChangelogSelected": "¿Está seguro de que desea eliminar archivos CHANGELOG para {count} idiomas seleccionados? Los archivos README no se verán afectados.",
         
         "help_generate_changelog_only": "Generar solo archivos CHANGELOG para idiomas seleccionados (los archivos README permanecen sin cambios)",
         "help_remove_changelog_selected": "Eliminar solo archivos CHANGELOG para idiomas seleccionados (los archivos README permanecen sin cambios)",
@@ -847,9 +1278,115 @@ Ejemplos:
         "menu_debug": "Alternar Modo Depuración",
         "debug_enabled": "El modo de depuración ahora está ACTIVADO.",
         "debug_disabled": "El modo de depuración ahora está DESACTIVADO.",
-        "debug_current": "Actual"
+        "debug_current": "Actual",
+        "ui.changeLanguage": "Cambiar idioma de visualización",
+        "ui.currentLanguage": "Idioma actual",
+        "ui.languageChanged": "✅ Idioma de visualización cambiado a {name}",
+        "ui.languageSelector": "Seleccionar idioma de visualización para notificaciones CLI",
+        "ui.translate": "Traducir",
+        "ui.removeTranslated": "Eliminar idiomas traducidos",
+        "ui.protectionSettings": "Configuración de protección (Frases)",
+        "ui.autoSetupChangelog": "Configuración automática de Changelog",
+        "ui.detectGithub": "Detectar URL de GitHub",
+        "ui.repairTranslations": "Reparar traducciones (Corregir duplicados y fallos)",
+        "ui.setupPaths": "Configurar rutas",
+        "ui.exit": "Salir",
+        "ui.selectOption": "Seleccione una opción:",
+        "ui.currentProjectPath": "Ruta actual del proyecto",
+        "ui.outputDirectory": "Directorio de salida",
+        "ui.folderProject": "Carpeta del proyecto",
+        "ui.available": "DISPONIBLE",
+        "ui.notFound": "NO ENCONTRADO",
+        "ui.notSet": "No establecido",
+        "ui.developer": "Desarrollador",
+        "ui.exiting": "Saliendo...",
+        "ui.chooseLanguageCode": "Elija código de idioma (vacío para cancelar):",
+        "ui.translationStatus": "Estado de traducción:",
+        "ui.translateBoth": "Traducir README y CHANGELOG",
+        "ui.translateReadme": "Traducir solo README",
+        "ui.translateChangelog": "Traducir solo CHANGELOG",
+        "ui.removeBoth": "Eliminar README y CHANGELOG",
+        "ui.removeReadme": "Eliminar solo README",
+        "ui.removeChangelog": "Eliminar solo CHANGELOG",
+        "ui.back": "Atrás",
+        "ui.missing": "FALTA",
+        "ui.enterLangCodes": "Ingresar códigos de idioma (separados por coma, o 'all'):",
+        "ui.invalidOption": "Opción no válida.",
+        "ui.invalidLanguages": "Idiomas no válidos.",
+        "ui.pressEnter": "Presione Enter para continuar...",
+        "ui.status": "Estado: ",
+        "ui.active": "ACTIVO",
+        "ui.inactive": "INACTIVO",
+        "ui.protectedPhrases": "Frases protegidas:",
+        "ui.noProtectedDir": "- No hay frases protegidas configuradas.",
+        "ui.toggleProtection": "Alternar estado de protección",
+        "ui.addProtection": "Agregar frase protegida",
+        "ui.removeProtection": "Eliminar frase protegida",
+        "ui.resetDefault": "Restablecer a valores predeterminados",
+        "ui.enterPhraseAdd": "Ingrese frase a proteger (vacío para cancelar): ",
+        "ui.addedPhrase": "Agregado: {phrase}",
+        "ui.enterPhraseRemove": "Ingrese frase a eliminar (vacío para cancelar): ",
+        "ui.removedPhrase": "Eliminado: {phrase}",
+        "ui.phraseNotFound": "Frase no encontrada.",
+        "ui.resetSuccess": "Restablecido a predeterminado.",
+        "ui.changelogComplete": "Configuración de Changelog completada.",
+        "ui.changelogFailed": "Configuración de Changelog fallida.",
+        "ui.setupPathsMenu": "Configurar Rutas",
+        "ui.setTargetDir": "Fijar Directorio Objetivo",
+        "ui.currentDir": "Actual: {path}",
+        "ui.setOutputBaseDir": "Fijar Directorio Base de Salida",
+        "ui.enterTargetDir": "Introduzca la ruta del directorio objetivo:",
+        "ui.enterOutputDir": "Introduzca la ruta base de salida:",
+        "ui.typeRoot": "  • Escriba 'root' para usar raíz del proyecto",
+        "ui.typeAuto": "  • Escriba 'auto' para buscar docs/lang",
+        "ui.leaveEmpty": "  • Deje en blanco para cancelar",
+        "ui.path": "Ruta: ",
+        "ui.cancelled": "⏭️ Cancelado. Sin cambios.",
+        "ui.replaceCurrentDir": "⚠️ Esto reemplazará el directorio actual:",
+        "ui.oldPath": "   Viejo: {path}",
+        "ui.newPath": "   Nuevo: {path}",
+        "ui.continueYN": "¿Desea continuar? (y/n): ",
+        "ui.targetSet": "✅ Directorio objetivo ajustado a: {path}",
+        "ui.outputSet": "✅ Directorio de salida ajustado a: {path}",
+        "ui.targetAlreadySet": "⚠️ Directorio objetivo ya ajustado al actual.",
+        "ui.fileDetected": "📄 Archivo detectado. Usando directorio padre: {path}",
+        "ui.pathNotFound": "❌ Ruta no encontrada: {path}",
+        "ui.setOutputAuto": "¿Ajustar base de salida a docs/lang? (y/n): ",
+        "ui.autoSetSuccess": "✅ Salida ajustada automáticamente a: {path}",
+        "ui.autoSetFailed": "❌ No se encontró docs/lang en el proyecto.",
+        "ui.repairStarting": "Iniciando Herramienta de Reparación de Traducción...",
+        "ui.repairStep1": "1. Limpiando selectores duplicados y ajustando posición...",
+        "ui.repairStep2": "2. Escaneando documentos traducidos por errores...",
+        "ui.repairLanguages": "Idiomas: {langs}",
+        "ui.looksTranslated": "parece estar correctamente traducido.",
+        "ui.repairSuccess": "No hay traducciones fallidas. ¡Reparación completa!",
+        "ui.highEnglishOverlap": "Alta superposición en inglés ({percent}%)",
+        "ui.repairErrorScan": "No se pudo escanear ({error})",
+        "ui.retranslatingFailed": "Retraduciendo {count} archivos fallidos: {langs}",
+        "ui.repairFixed": "Reparación completada. Traducciones arregladas.",
+        "ui.enterLangCodesRemove": "Introduzca los códigos de idioma a eliminar (separados por comas, o 'all'): ",
+        "ui.actionCancelled": "Acción cancelada. Volviendo al menú de eliminación...",
+        "ui.allRemoved": "Todos los idiomas traducidos eliminados.",
+        "ui.removedList": "Eliminado: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Introduzca códigos de idioma README a eliminar (separados por comas, o 'all'): ",
+        "ui.removedReadmeList": "README eliminado: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Introduzca códigos de idioma CHANGELOG a eliminar (separados por comas, o 'all'): ",
+        "ui.removedChangelogFiles": "Archivos CHANGELOG seleccionados eliminados.",
+        "ui.statusLabel": "Estado: ",
+        "ui.protectedPhrasesList": "Frases Protegidas:",
+        "ui.pkgRepoField": "• package.json (campo repository)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (Patrones de URL de GitHub)",
+        "ui.pleaseCheck": "\nPor favor, compruebe:",
+        "ui.checkPkgRepo": "• Que package.json tenga el campo 'repository'",
+        "ui.checkGitRemote": "• Que .git/config tenga una URL remota",
+        "ui.checkReadmeUrl": "• O añada la URL de GitHub manualmente al README",
     },
     "fr": {
+        "ui.codeLanguage": "Code/Langue",
+        "ui.changelogTitle": "JOURNAL DES CHANGEMENTS",
+        "ui.warningDifferentProject": "⚠️ AVERTISSEMENT : le répertoire de sortie se trouve dans un projet différent !",
+        "ui.pathOutsideProject": "(Le chemin est en dehors du dossier du projet actuel)",
         "translating_readme": "📘 Traduction du README en {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} créé avec succès",
         "translating_changelog": "📘 Traduction du CHANGELOG en {lang_name} ({lang_code})...",
@@ -938,7 +1475,7 @@ Exemples :
         "changelog.onlyDescription": "Ces actions n'affectent que les fichiers CHANGELOG, les fichiers README restent inchangés.",
         "changelog.generateOnly": "🌐 Générer CHANGELOG uniquement",
         "changelog.removeSelected": "🗑️ Supprimer CHANGELOG sélectionné",
-        "changelog.affectsSelected": "Affecte uniquement les langues sélectionnées : {0} langues",
+        "changelog.affectsSelected": "Affecte uniquement les langues sélectionnées : {count} langues",
         "changelog.generateWith": "📋 Générer avec CHANGELOG",
         "changelog.checkedDescription": "Lorsqu'elle est cochée : Traduit les fichiers README et CHANGELOG",
         "changelog.uncheckedDescription": "Lorsqu'elle n'est pas cochée : Traduit uniquement les fichiers README",
@@ -947,15 +1484,15 @@ Exemples :
         "progress.translatingReadmeOnly": "Traduction README uniquement",
         "success.filesSavedWithChangelog": "READMES et CHANGELOGs",
         "success.filesSavedReadmeOnly": "READMES uniquement",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs et CHANGELOGs traduits avec succès !",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs traduits avec succès !",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs et CHANGELOGs traduits avec succès !",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs traduits avec succès !",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md non trouvé - ignore la traduction CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Échec de la génération CHANGELOG",
         "errors.changelogRemoveSelectedFailed": "❌ Échec de la suppression des fichiers CHANGELOG sélectionnés",
-        "success.changelogGenerated": "✅ CHANGELOG généré avec succès pour {0} langues",
-        "success.changelogRemovedSelected": "✅ {0} fichiers CHANGELOG supprimés avec succès",
-        "confirmation.removeChangelogSelected": "Êtes-vous sûr de vouloir supprimer les fichiers CHANGELOG pour {0} langues sélectionnées ? Les fichiers README ne seront pas affectés.",
+        "success.changelogGenerated": "✅ CHANGELOG généré avec succès pour {count} langues",
+        "success.changelogRemovedSelected": "✅ {count} fichiers CHANGELOG supprimés avec succès",
+        "confirmation.removeChangelogSelected": "Êtes-vous sûr de vouloir supprimer les fichiers CHANGELOG pour {count} langues sélectionnées ? Les fichiers README ne seront pas affectés.",
         
         "help_generate_changelog_only": "Générer uniquement les fichiers CHANGELOG pour les langues sélectionnées (les fichiers README restent inchangés)",
         "help_remove_changelog_selected": "Supprimer uniquement les fichiers CHANGELOG pour les langues sélectionnées (les fichiers README restent inchangés)",
@@ -989,9 +1526,116 @@ Exemples :
         "menu_debug": "Basculer le mode débogage",
         "debug_enabled": "Le mode débogage est maintenant ACTIVÉ.",
         "debug_disabled": "Le mode débogage est maintenant DÉSACTIVÉ.",
-        "debug_current": "Actuel"
+        "debug_current": "Actuel",
+        "ui.changeLanguage": "Changer la langue d'affichage",
+        "ui.currentLanguage": "Langue actuelle",
+        "ui.languageChanged": "✅ Langue d'affichage changée vers {name}",
+        "ui.languageSelector": "Sélectionner la langue d'affichage pour les notifications CLI",
+        "ui.translate": "Traduire",
+        "ui.removeTranslated": "Supprimer les langues traduites",
+        "ui.protectionSettings": "Paramètres de protection (Phrases)",
+        "ui.autoSetupChangelog": "Configuration automatique du Changelog",
+        "ui.detectGithub": "Détecter l'URL GitHub",
+        "ui.repairTranslations": "Réparer les traductions (Corriger doublons et échecs)",
+        "ui.setupPaths": "Configurer les chemins",
+        "ui.exit": "Quitter",
+        "ui.selectOption": "Sélectionnez une option :",
+        "ui.currentProjectPath": "Chemin actuel du projet",
+        "ui.outputDirectory": "Répertoire de sortie",
+        "ui.folderProject": "Dossier du projet",
+        "ui.available": "DISPONIBLE",
+        "ui.notFound": "INTROUVABLE",
+        "ui.notSet": "Non défini",
+        "ui.developer": "Développeur",
+        "ui.exiting": "Fermeture...",
+        "ui.chooseLanguageCode": "Choisissez le code de langue (vide pour annuler) :",
+        "ui.translationStatus": "Statut de traduction:",
+        "ui.translateBoth": "Traduire README & CHANGELOG",
+        "ui.translateReadme": "Traduire uniquement README",
+        "ui.translateChangelog": "Traduire uniquement CHANGELOG",
+        "ui.removeBoth": "Supprimer README & CHANGELOG",
+        "ui.removeReadme": "Supprimer uniquement README",
+        "ui.removeChangelog": "Supprimer uniquement CHANGELOG",
+        "ui.back": "Retour",
+        "ui.missing": "MANQUANT",
+        "ui.enterLangCodes": "Entrez les codes de langue (séparés par des virgules, ou 'all'):",
+        "ui.invalidOption": "Option invalide.",
+        "ui.invalidLanguages": "Langues invalides.",
+        "ui.pressEnter": "Appuyez sur Entrée pour continuer...",
+        "ui.status": "Statut : ",
+        "ui.active": "ACTIF",
+        "ui.inactive": "INACTIF",
+        "ui.protectedPhrases": "Phrases protégées :",
+        "ui.noProtectedDir": "- Aucune phrase protégée configurée.",
+        "ui.toggleProtection": "Basculer l'état de protection",
+        "ui.addProtection": "Ajouter une phrase protégée",
+        "ui.removeProtection": "Supprimer une phrase protégée",
+        "ui.resetDefault": "Réinitialiser par défaut",
+        "ui.enterPhraseAdd": "Entrez la phrase à protéger (vide pour annuler) : ",
+        "ui.addedPhrase": "Ajouté : {phrase}",
+        "ui.enterPhraseRemove": "Entrez la phrase à supprimer (vide pour annuler) : ",
+        "ui.removedPhrase": "Supprimé : {phrase}",
+        "ui.phraseNotFound": "Phrase introuvable.",
+        "ui.resetSuccess": "Réinitialisé aux valeurs par défaut.",
+        "ui.changelogComplete": "Aménagement du journal des modifications terminé.",
+        "ui.changelogFailed": "Échec de l'aménagement.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Répertoire de sortie automatiquement défini sur : {path}",
+        "ui.autoSetFailed": "❌ Impossible de trouver le répertoire docs/lang dans le projet actuel.",
+        "ui.repairStarting": "Démarrage de l'outil de réparation des traductions...",
+        "ui.repairStep1": "1. Nettoyage des sélecteurs en double et correction de leurs positions dans tous les READMEs...",
+        "ui.repairStep2": "2. Analyse des documents traduits pour détecter les échecs (erreurs API / anglais inchangé)...",
+        "ui.repairLanguages": "Langues : {langs}",
+        "ui.looksTranslated": "semble correctement traduit.",
+        "ui.repairSuccess": "Aucune traduction échouée détectée. Tous les fichiers sont propres et entièrement réparés !",
+        "ui.highEnglishOverlap": "Chevauchement élevé en anglais ({percent}%)",
+        "ui.repairErrorScan": "Impossible d'analyser ({error})",
+        "ui.retranslatingFailed": "Retraduction de {count} fichiers échoués : {langs}",
+        "ui.repairFixed": "Réparation terminée ! Les traductions manquantes ont été corrigées.",
+        "ui.enterLangCodesRemove": "Entrez les codes de langue à supprimer (séparés par des virgules, ou 'all') : ",
+        "ui.actionCancelled": "Action annulée. Retour au menu de suppression...",
+        "ui.allRemoved": "Toutes les langues traduites ont été supprimées.",
+        "ui.removedList": "Supprimé : {langs}",
+        "ui.enterLangCodesRemoveReadme": "Entrez les codes de langue README à supprimer (séparés par des virgules, ou 'all') : ",
+        "ui.removedReadmeList": "README supprimé : {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Entrez les codes de langue CHANGELOG à supprimer (séparés par des virgules, ou 'all') : ",
+        "ui.removedChangelogFiles": "Fichiers CHANGELOG sélectionnés supprimés.",
+        "ui.statusLabel": "Statut : ",
+        "ui.protectedPhrasesList": "Phrases protégées :",
+        "ui.pkgRepoField": "• package.json (champ repository)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (modèles d'URL GitHub)",
+        "ui.pleaseCheck": "\nVeuillez vérifier :",
+        "ui.checkPkgRepo": "• package.json contient le champ 'repository'",
+        "ui.checkGitRemote": "• .git/config contient l'URL distante",
+        "ui.checkReadmeUrl": "• Ou ajoutez l'URL GitHub manuellement dans README",
+        "progress.barLabel": "Progression :",
     },
     "kr": {
+        "ui.codeLanguage": "코드/언어",
+        "ui.changelogTitle": "변경 로그",
+        "ui.warningDifferentProject": "⚠️ 경고: 출력 디렉터리가 다른 프로젝트에 있습니다!",
+        "ui.pathOutsideProject": "(경로는 현재 프로젝트 폴더 외부에 있습니다)",
         "translating_readme": "📘 README를 {lang_name}({lang_code})로 번역 중...",
         "readme_created": "✅ {path}이(가) 성공적으로 생성됨",
         "translating_changelog": "📘 CHANGELOG를 {lang_name}({lang_code})로 번역 중...",
@@ -1080,7 +1724,7 @@ Exemples :
         "changelog.onlyDescription": "이 작업은 CHANGELOG 파일에만 영향을 미치며, README 파일은 변경되지 않습니다.",
         "changelog.generateOnly": "🌐 CHANGELOG만 생성",
         "changelog.removeSelected": "🗑️ 선택한 CHANGELOG 삭제",
-        "changelog.affectsSelected": "선택한 언어만 영향: {0}개 언어",
+        "changelog.affectsSelected": "선택한 언어만 영향: {count}개 언어",
         "changelog.generateWith": "📋 CHANGELOG 포함 생성",
         "changelog.checkedDescription": "체크 시: README와 CHANGELOG 파일 모두 번역",
         "changelog.uncheckedDescription": "체크 해제 시: README 파일만 번역",
@@ -1089,15 +1733,15 @@ Exemples :
         "progress.translatingReadmeOnly": "README만 번역 중",
         "success.filesSavedWithChangelog": "README와 CHANGELOG",
         "success.filesSavedReadmeOnly": "README만",
-        "success.translationCompletedWithChangelog": "✅ {0}개 README와 CHANGELOG가 성공적으로 번역되었습니다!",
-        "success.translationCompletedReadmeOnly": "✅ {0}개 README가 성공적으로 번역되었습니다!",
+        "success.translationCompletedWithChangelog": "✅ {count}개 README와 CHANGELOG가 성공적으로 번역되었습니다!",
+        "success.translationCompletedReadmeOnly": "✅ {count}개 README가 성공적으로 번역되었습니다!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md를 찾을 수 없음 - CHANGELOG 번역 건너뜀",
         
         "errors.changelogGenerateFailed": "❌ CHANGELOG 생성 실패",
         "errors.changelogRemoveSelectedFailed": "❌ 선택한 CHANGELOG 파일 삭제 실패",
-        "success.changelogGenerated": "✅ {0}개 언어의 CHANGELOG가 성공적으로 생성되었습니다",
-        "success.changelogRemovedSelected": "✅ {0}개 CHANGELOG 파일이 성공적으로 삭제되었습니다",
-        "confirmation.removeChangelogSelected": "선택한 {0}개 언어의 CHANGELOG 파일을 삭제하시겠습니까? README 파일은 영향을 받지 않습니다.",
+        "success.changelogGenerated": "✅ {count}개 언어의 CHANGELOG가 성공적으로 생성되었습니다",
+        "success.changelogRemovedSelected": "✅ {count}개 CHANGELOG 파일이 성공적으로 삭제되었습니다",
+        "confirmation.removeChangelogSelected": "선택한 {count}개 언어의 CHANGELOG 파일을 삭제하시겠습니까? README 파일은 영향을 받지 않습니다.",
         
         "help_generate_changelog_only": "선택한 언어의 CHANGELOG 파일만 생성 (README 파일은 변경되지 않음)",
         "help_remove_changelog_selected": "선택한 언어의 CHANGELOG 파일만 삭제 (README 파일은 변경되지 않음)",
@@ -1131,9 +1775,115 @@ Exemples :
         "menu_debug": "디버그 모드 전환",
         "debug_enabled": "디버그 모드가 이제 활성화되었습니다.",
         "debug_disabled": "디버그 모드가 이제 비활성화되었습니다.",
-        "debug_current": "현재"
+        "debug_current": "현재",
+        "ui.changeLanguage": "표시 언어 변경",
+        "ui.currentLanguage": "현재 언어",
+        "ui.languageChanged": "✅ 표시 언어가 {name}(으)로 변경되었습니다",
+        "ui.languageSelector": "CLI 알림의 표시 언어 선택",
+        "ui.translate": "번역하기",
+        "ui.removeTranslated": "번역된 언어 삭제",
+        "ui.protectionSettings": "보호 설정 (구문)",
+        "ui.autoSetupChangelog": "Changelog 섹션 자동 설정",
+        "ui.detectGithub": "GitHub URL 감지",
+        "ui.repairTranslations": "번역 수정 (중복 및 오류 수정)",
+        "ui.setupPaths": "경로 설정",
+        "ui.exit": "종료",
+        "ui.selectOption": "옵션 선택:",
+        "ui.currentProjectPath": "현재 프로젝트 경로",
+        "ui.outputDirectory": "출력 디렉토리",
+        "ui.folderProject": "프로젝트 폴더",
+        "ui.available": "사용 가능",
+        "ui.notFound": "찾을 수 없음",
+        "ui.notSet": "설정되지 않음",
+        "ui.developer": "개발자",
+        "ui.exiting": "종료 중...",
+        "ui.chooseLanguageCode": "언어 코드 선택 (비워두면 취소):",
+        "ui.translationStatus": "번역 상태:",
+        "ui.translateBoth": "README 및 CHANGELOG 번역",
+        "ui.translateReadme": "README만 번역",
+        "ui.translateChangelog": "CHANGELOG만 번역",
+        "ui.removeBoth": "README 및 CHANGELOG 삭제",
+        "ui.removeReadme": "README만 삭제",
+        "ui.removeChangelog": "CHANGELOG만 삭제",
+        "ui.back": "뒤로",
+        "ui.missing": "누락됨",
+        "ui.enterLangCodes": "언어 코드 입력 (쉼표로 구분, 또는 'all'):",
+        "ui.invalidOption": "잘못된 옵션입니다.",
+        "ui.invalidLanguages": "잘못된 언어입니다.",
+        "ui.pressEnter": "계속하려면 Enter를 누르세요...",
+        "ui.status": "상태: ",
+        "ui.active": "활성",
+        "ui.inactive": "비활성",
+        "ui.protectedPhrases": "보호된 구문:",
+        "ui.noProtectedDir": "- 보호된 구문이 설정되지 않았습니다.",
+        "ui.toggleProtection": "보호 상태 전환",
+        "ui.addProtection": "보호 구문 추가",
+        "ui.removeProtection": "보호 구문 제거",
+        "ui.resetDefault": "기본값으로 재설정",
+        "ui.enterPhraseAdd": "보호할 구문 입력 (비워두면 취소): ",
+        "ui.addedPhrase": "추가됨: {phrase}",
+        "ui.enterPhraseRemove": "제거할 구문 입력 (비워두면 취소): ",
+        "ui.removedPhrase": "제거됨: {phrase}",
+        "ui.phraseNotFound": "구문을 찾을 수 없습니다.",
+        "ui.resetSuccess": "기본값으로 재설정되었습니다.",
+        "ui.changelogComplete": "Changelog 설정이 완료되었습니다.",
+        "ui.changelogFailed": "Changelog 설정에 실패했습니다.",
+        "ui.setupPathsMenu": "경로 설정",
+        "ui.setTargetDir": "대상 디렉토리 설정",
+        "ui.currentDir": "현재: {path}",
+        "ui.setOutputBaseDir": "출력 기본 디렉토리 설정",
+        "ui.enterTargetDir": "대상 디렉토리 경로 입력:",
+        "ui.enterOutputDir": "출력 기본 디렉토리 경로 입력:",
+        "ui.typeRoot": "  • 프로젝트 루트를 사용하려면 'root' 입력",
+        "ui.typeAuto": "  • 현재 프로젝트에서 docs/lang을 찾으려면 'auto' 입력",
+        "ui.leaveEmpty": "  • 비워두면 취소",
+        "ui.path": "경로: ",
+        "ui.cancelled": "⏭️ 취소되었습니다. 변경사항 없음.",
+        "ui.replaceCurrentDir": "⚠️ 현재 디렉토리를 변경합니다:",
+        "ui.oldPath": "   이전: {path}",
+        "ui.newPath": "   새로: {path}",
+        "ui.continueYN": "계속 하시겠습니까? (y/n): ",
+        "ui.targetSet": "✅ 대상 디렉토리가 설정되었습니다: {path}",
+        "ui.outputSet": "✅ 출력 디렉토리가 설정되었습니다: {path}",
+        "ui.targetAlreadySet": "⚠️ 대상 디렉토리가 이미 현재 작업 디렉토리로 설정되어 있습니다.",
+        "ui.fileDetected": "📄 파일 경로가 감지되었습니다. 상위 디렉토리 사용: {path}",
+        "ui.pathNotFound": "❌ 경로를 찾을 수 없음: {path} \n디렉토리 또는 파일이 있는지 확인하세요.",
+        "ui.setOutputAuto": "출력 디렉토리를 현재 프로젝트의 docs/lang으로 설정하시겠습니까? (y/n): ",
+        "ui.autoSetSuccess": "✅ 출력 디렉토리가 자동으로 설정되었습니다: {path}",
+        "ui.autoSetFailed": "❌ 현재 프로젝트에서 docs/lang 디렉토리를 찾을 수 없습니다.",
+        "ui.repairStarting": "번역 복구 도구 시작 중...",
+        "ui.repairStep1": "1. 모든 README에서 중복된 스위처를 정리하고 위치를 수정 중...",
+        "ui.repairStep2": "2. 번역 문서의 오류(API 오류 / 영문 그대로 남은 부분) 스캔 중...",
+        "ui.repairLanguages": "언어: {langs}",
+        "ui.looksTranslated": "정상적으로 번역된 것 같습니다.",
+        "ui.repairSuccess": "실패한 번역이 감지되지 않았습니다. 모든 파일이 정상적으로 복구되었습니다!",
+        "ui.highEnglishOverlap": "영어 중복 비율 높음 ({percent}%)",
+        "ui.repairErrorScan": "스캔할 수 없음 ({error})",
+        "ui.retranslatingFailed": "{count}개의 실패한 파일 다시 번역 중: {langs}",
+        "ui.repairFixed": "복구 완료! 누락된 번역이 수정되었습니다.",
+        "ui.enterLangCodesRemove": "삭제할 언어 코드 입력 (쉼표로 구분, 또는 'all'): ",
+        "ui.actionCancelled": "취소됨. 삭제 메뉴로 돌아갑니다...",
+        "ui.allRemoved": "모든 번역 언어가 삭제되었습니다.",
+        "ui.removedList": "삭제됨: {langs}",
+        "ui.enterLangCodesRemoveReadme": "삭제할 README 언어 코드 입력 (쉼표로 구분, 또는 'all'): ",
+        "ui.removedReadmeList": "README 삭제됨: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "삭제할 CHANGELOG 언어 코드 입력 (쉼표로 구분, 또는 'all'): ",
+        "ui.removedChangelogFiles": "선택한 CHANGELOG 파일이 삭제되었습니다.",
+        "ui.statusLabel": "상태: ",
+        "ui.protectedPhrasesList": "보호된 구문:",
+        "ui.pkgRepoField": "• package.json (repository 필드)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL 패턴)",
+        "ui.pleaseCheck": "\n다음을 확인해 주세요:",
+        "ui.checkPkgRepo": "• package.json에 'repository' 필드가 있는지",
+        "ui.checkGitRemote": "• .git/config에 원격 URL이 있는지",
+        "ui.checkReadmeUrl": "• 또는 GitHub URL을 README에 수동으로 추가하세요",
     },
     "pl": {
+        "ui.codeLanguage": "Kod/język",
+        "ui.changelogTitle": "LOG ZMIAN",
+        "ui.warningDifferentProject": "⚠️ OSTRZEŻENIE: Katalog wyjściowy znajduje się w innym projekcie!",
+        "ui.pathOutsideProject": "(Ścieżka znajduje się poza bieżącym folderem projektu)",
         "translating_readme": "📘 Tłumaczenie README na {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} pomyślnie utworzony",
         "translating_changelog": "📘 Tłumaczenie CHANGELOG na {lang_name} ({lang_code})...",
@@ -1222,7 +1972,7 @@ Przykłady:
         "changelog.onlyDescription": "Te działania dotyczą tylko plików CHANGELOG, pliki README pozostają niezmienione.",
         "changelog.generateOnly": "🌐 Tylko generuj CHANGELOG",
         "changelog.removeSelected": "🗑️ Usuń wybrane CHANGELOG",
-        "changelog.affectsSelected": "Wpływa tylko na wybrane języki: {0} języków",
+        "changelog.affectsSelected": "Wpływa tylko na wybrane języki: {count} języków",
         "changelog.generateWith": "📋 Generuj z CHANGELOG",
         "changelog.checkedDescription": "Gdy zaznaczone: Tłumaczy zarówno pliki README jak i CHANGELOG",
         "changelog.uncheckedDescription": "Gdy niezaznaczone: Tłumaczy tylko pliki README",
@@ -1231,15 +1981,15 @@ Przykłady:
         "progress.translatingReadmeOnly": "Tłumaczenie tylko README",
         "success.filesSavedWithChangelog": "READMES i CHANGELOGs",
         "success.filesSavedReadmeOnly": "Tylko READMEs",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs i CHANGELOGs pomyślnie przetłumaczone!",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs pomyślnie przetłumaczone!",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs i CHANGELOGs pomyślnie przetłumaczone!",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs pomyślnie przetłumaczone!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md nie znaleziono - pomijam tłumaczenie CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Generowanie CHANGELOG nie powiodło się",
         "errors.changelogRemoveSelectedFailed": "❌ Nie udało się usunąć wybranych plików CHANGELOG",
-        "success.changelogGenerated": "✅ CHANGELOG pomyślnie wygenerowany dla {0} języków",
-        "success.changelogRemovedSelected": "✅ {0} plików CHANGELOG pomyślnie usunięto",
-        "confirmation.removeChangelogSelected": "Czy na pewno chcesz usunąć pliki CHANGELOG dla {0} wybranych języków? Pliki README nie zostaną naruszone.",
+        "success.changelogGenerated": "✅ CHANGELOG pomyślnie wygenerowany dla {count} języków",
+        "success.changelogRemovedSelected": "✅ {count} plików CHANGELOG pomyślnie usunięto",
+        "confirmation.removeChangelogSelected": "Czy na pewno chcesz usunąć pliki CHANGELOG dla {count} wybranych języków? Pliki README nie zostaną naruszone.",
         
         "help_generate_changelog_only": "Tylko generuj pliki CHANGELOG dla wybranych języków (pliki README pozostają niezmienione)",
         "help_remove_changelog_selected": "Tylko usuń pliki CHANGELOG dla wybranych języków (pliki README pozostają niezmienione)",
@@ -1273,9 +2023,115 @@ Przykłady:
         "menu_debug": "Przełącz tryb debugowania",
         "debug_enabled": "Tryb debugowania jest teraz WŁĄCZONY.",
         "debug_disabled": "Tryb debugowania jest teraz WYŁĄCZONY.",
-        "debug_current": "Obecny"
+        "debug_current": "Obecny",
+        "ui.changeLanguage": "Zmień język wyświetlania",
+        "ui.currentLanguage": "Aktualny język",
+        "ui.languageChanged": "✅ Język wyświetlania zmieniony na {name}",
+        "ui.languageSelector": "Wybierz język wyświetlania dla powiadomień CLI",
+        "ui.translate": "Tłumacz",
+        "ui.removeTranslated": "Usuń przetłumaczone języki",
+        "ui.protectionSettings": "Ustawienia ochrony (Frazy)",
+        "ui.autoSetupChangelog": "Automatyczna konfiguracja sekcji Changelog",
+        "ui.detectGithub": "Wykryj adres URL GitHub",
+        "ui.repairTranslations": "Napraw tłumaczenia (Napraw duplikaty i błędy)",
+        "ui.setupPaths": "Skonfiguruj ścieżki",
+        "ui.exit": "Wyjście",
+        "ui.selectOption": "Wybierz opcję:",
+        "ui.currentProjectPath": "Obecna ścieżka projektu",
+        "ui.outputDirectory": "Katalog wyjściowy",
+        "ui.folderProject": "Folder projektu",
+        "ui.available": "DOSTĘPNE",
+        "ui.notFound": "NIE ZNALEZIONO",
+        "ui.notSet": "Nie ustawiono",
+        "ui.developer": "Deweloper",
+        "ui.exiting": "Zamykanie...",
+        "ui.chooseLanguageCode": "Wybierz kod języka (puste aby anulować):",
+        "ui.translationStatus": "Status tłumaczenia:",
+        "ui.translateBoth": "Tłumacz README i CHANGELOG",
+        "ui.translateReadme": "Tłumacz tylko README",
+        "ui.translateChangelog": "Tłumacz tylko CHANGELOG",
+        "ui.removeBoth": "Usuń README i CHANGELOG",
+        "ui.removeReadme": "Usuń tylko README",
+        "ui.removeChangelog": "Usuń tylko CHANGELOG",
+        "ui.back": "Wstecz",
+        "ui.missing": "BRAKUJĄCE",
+        "ui.enterLangCodes": "Wprowadź kody języków (oddzielone przecinkami, lub 'all'):",
+        "ui.invalidOption": "Nieprawidłowa opcja.",
+        "ui.invalidLanguages": "Nieprawidłowe języki.",
+        "ui.pressEnter": "Naciśnij Enter, aby kontynuować...",
+        "ui.status": "Status: ",
+        "ui.active": "AKTYWNY",
+        "ui.inactive": "NIEAKTYWNY",
+        "ui.protectedPhrases": "Chronione frazy:",
+        "ui.noProtectedDir": "- Brak skonfigurowanych chronionych fraz.",
+        "ui.toggleProtection": "Przełącz status ochrony",
+        "ui.addProtection": "Dodaj chronioną frazę",
+        "ui.removeProtection": "Usuń chronioną frazę",
+        "ui.resetDefault": "Przywróć ustawienia domyślne",
+        "ui.enterPhraseAdd": "Wprowadź frazę do ochrony (puste aby anulować): ",
+        "ui.addedPhrase": "Dodano: {phrase}",
+        "ui.enterPhraseRemove": "Wprowadź frazę do usunięcia (puste aby anulować): ",
+        "ui.removedPhrase": "Usunięto: {phrase}",
+        "ui.phraseNotFound": "Nie znaleziono frazy.",
+        "ui.resetSuccess": "Zresetowano do ustawień domyślnych.",
+        "ui.changelogComplete": "Konfiguracja dziennika zmian zakończona.",
+        "ui.changelogFailed": "Konfiguracja dziennika zmian nie powiodła się.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Output directory automatically set to: {path}",
+        "ui.autoSetFailed": "❌ Could not find docs/lang directory in the current project.",
+        "ui.repairStarting": "Starting Translation Repair Tool...",
+        "ui.repairStep1": "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...",
+        "ui.repairStep2": "2. Scanning translated documents for failures (API errors / unchanged English)...",
+        "ui.repairLanguages": "Languages: {langs}",
+        "ui.looksTranslated": "looks properly translated.",
+        "ui.repairSuccess": "No failed translations detected. All files are clean and fully repaired!",
+        "ui.highEnglishOverlap": "High English overlap ({percent}%)",
+        "ui.repairErrorScan": "Could not scan ({error})",
+        "ui.retranslatingFailed": "Re-translating {count} failed files: {langs}",
+        "ui.repairFixed": "Repair completed! Missing translations have been fixed.",
+        "ui.enterLangCodesRemove": "Enter language codes to remove (comma-separated, or 'all'): ",
+        "ui.actionCancelled": "Action cancelled. Returning to remove menu...",
+        "ui.allRemoved": "All translated languages removed.",
+        "ui.removedList": "Removed: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Enter README language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedReadmeList": "Removed README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedChangelogFiles": "Selected CHANGELOG files removed.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Protected Phrases:",
+        "ui.pkgRepoField": "• package.json (repository field)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL patterns)",
+        "ui.pleaseCheck": "\nPlease check:",
+        "ui.checkPkgRepo": "• package.json has 'repository' field",
+        "ui.checkGitRemote": "• .git/config has remote URL",
+        "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
     },
     "pt": {
+        "ui.codeLanguage": "Código/Idioma",
+        "ui.changelogTitle": "REGISTRO DE ALTERAÇÕES",
+        "ui.warningDifferentProject": "⚠️ AVISO: O Output Directory está em um projeto diferente!",
+        "ui.pathOutsideProject": "(O caminho está fora da pasta do projeto atual)",
         "translating_readme": "📘 Traduzindo README para {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} criado com sucesso",
         "translating_changelog": "📘 Traduzindo CHANGELOG para {lang_name} ({lang_code})...",
@@ -1364,7 +2220,7 @@ Exemplos:
         "changelog.onlyDescription": "Estas ações afetam apenas arquivos CHANGELOG, arquivos README permanecem inalterados.",
         "changelog.generateOnly": "🌐 Gerar apenas CHANGELOG",
         "changelog.removeSelected": "🗑️ Remover CHANGELOG selecionado",
-        "changelog.affectsSelected": "Afeta apenas idiomas selecionados: {0} idiomas",
+        "changelog.affectsSelected": "Afeta apenas idiomas selecionados: {count} idiomas",
         "changelog.generateWith": "📋 Gerar com CHANGELOG",
         "changelog.checkedDescription": "Quando marcado: Traduz arquivos README e CHANGELOG",
         "changelog.uncheckedDescription": "Quando desmarcado: Traduz apenas arquivos README",
@@ -1373,15 +2229,15 @@ Exemplos:
         "progress.translatingReadmeOnly": "Traduzindo apenas README",
         "success.filesSavedWithChangelog": "READMES e CHANGELOGs",
         "success.filesSavedReadmeOnly": "Apenas READMEs",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs e CHANGELOGs traduzidos com sucesso!",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs traduzidos com sucesso!",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs e CHANGELOGs traduzidos com sucesso!",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs traduzidos com sucesso!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md não encontrado - ignorando tradução CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Falha na geração CHANGELOG",
         "errors.changelogRemoveSelectedFailed": "❌ Falha ao remover arquivos CHANGELOG selecionados",
-        "success.changelogGenerated": "✅ CHANGELOG gerado com sucesso para {0} idiomas",
-        "success.changelogRemovedSelected": "✅ {0} arquivos CHANGELOG removidos com sucesso",
-        "confirmation.removeChangelogSelected": "Tem certeza de que deseja remover arquivos CHANGELOG para {0} idiomas selecionados? Arquivos README não serão afetados.",
+        "success.changelogGenerated": "✅ CHANGELOG gerado com sucesso para {count} idiomas",
+        "success.changelogRemovedSelected": "✅ {count} arquivos CHANGELOG removidos com sucesso",
+        "confirmation.removeChangelogSelected": "Tem certeza de que deseja remover arquivos CHANGELOG para {count} idiomas selecionados? Arquivos README não serão afetados.",
         
         "help_generate_changelog_only": "Apenas gerar arquivos CHANGELOG para idiomas selecionados (arquivos README permanecem inalterados)",
         "help_remove_changelog_selected": "Apenas remover arquivos CHANGELOG para idiomas selecionados (arquivos README permanecem inalterados)",
@@ -1415,9 +2271,115 @@ Exemplos:
         "menu_debug": "Alternar Modo de Depuração",
         "debug_enabled": "O modo de depuração agora está ATIVADO.",
         "debug_disabled": "O modo de depuração agora está DESATIVADO.",
-        "debug_current": "Atual"
+        "debug_current": "Atual",
+        "ui.changeLanguage": "Alterar idioma de exibição",
+        "ui.currentLanguage": "Idioma atual",
+        "ui.languageChanged": "✅ Idioma de exibição alterado para {name}",
+        "ui.languageSelector": "Selecionar idioma de exibição para notificações CLI",
+        "ui.translate": "Traduzir",
+        "ui.removeTranslated": "Remover idiomas traduzidos",
+        "ui.protectionSettings": "Configurações de proteção (Frases)",
+        "ui.autoSetupChangelog": "Configuração automática de Changelog",
+        "ui.detectGithub": "Detectar URL do GitHub",
+        "ui.repairTranslations": "Reparar traduções (Corrigir duplicatas e falhas)",
+        "ui.setupPaths": "Configurar caminhos",
+        "ui.exit": "Sair",
+        "ui.selectOption": "Selecione uma opção:",
+        "ui.currentProjectPath": "Caminho atual do projeto",
+        "ui.outputDirectory": "Diretório de saída",
+        "ui.folderProject": "Pasta do projeto",
+        "ui.available": "DISPONÍVEL",
+        "ui.notFound": "NÃO ENCONTRADO",
+        "ui.notSet": "Não definido",
+        "ui.developer": "Desenvolvedor",
+        "ui.exiting": "Saindo...",
+        "ui.chooseLanguageCode": "Escolha o código do idioma (vazio para cancelar):",
+        "ui.translationStatus": "Status de Tradução:",
+        "ui.translateBoth": "Traduzir README & CHANGELOG",
+        "ui.translateReadme": "Traduzir apenas README",
+        "ui.translateChangelog": "Traduzir apenas CHANGELOG",
+        "ui.removeBoth": "Remover README & CHANGELOG",
+        "ui.removeReadme": "Remover apenas README",
+        "ui.removeChangelog": "Remover apenas CHANGELOG",
+        "ui.back": "Voltar",
+        "ui.missing": "FALTANDO",
+        "ui.enterLangCodes": "Insira os códigos de idioma (separados por vírgula, ou 'all'):",
+        "ui.invalidOption": "Opção inválida.",
+        "ui.invalidLanguages": "Idiomas inválidos.",
+        "ui.pressEnter": "Pressione Enter para continuar...",
+        "ui.status": "Status: ",
+        "ui.active": "ATIVO",
+        "ui.inactive": "INATIVO",
+        "ui.protectedPhrases": "Frases Protegidas:",
+        "ui.noProtectedDir": "- Nenhuma frase protegida configurada.",
+        "ui.toggleProtection": "Alternar Status de Proteção",
+        "ui.addProtection": "Adicionar Frase Protegida",
+        "ui.removeProtection": "Remover Frase Protegida",
+        "ui.resetDefault": "Restaurar Padrões",
+        "ui.enterPhraseAdd": "Insira uma frase a proteger (vazio para cancelar): ",
+        "ui.addedPhrase": "Adicionado: {phrase}",
+        "ui.enterPhraseRemove": "Insira uma frase a remover (vazio para cancelar): ",
+        "ui.removedPhrase": "Removido: {phrase}",
+        "ui.phraseNotFound": "Frase não encontrada.",
+        "ui.resetSuccess": "Redefinido para os padrões.",
+        "ui.changelogComplete": "Configuração do Changelog concluída.",
+        "ui.changelogFailed": "Falha na configuração do Changelog.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Output directory automatically set to: {path}",
+        "ui.autoSetFailed": "❌ Could not find docs/lang directory in the current project.",
+        "ui.repairStarting": "Starting Translation Repair Tool...",
+        "ui.repairStep1": "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...",
+        "ui.repairStep2": "2. Scanning translated documents for failures (API errors / unchanged English)...",
+        "ui.repairLanguages": "Languages: {langs}",
+        "ui.looksTranslated": "looks properly translated.",
+        "ui.repairSuccess": "No failed translations detected. All files are clean and fully repaired!",
+        "ui.highEnglishOverlap": "High English overlap ({percent}%)",
+        "ui.repairErrorScan": "Could not scan ({error})",
+        "ui.retranslatingFailed": "Re-translating {count} failed files: {langs}",
+        "ui.repairFixed": "Repair completed! Missing translations have been fixed.",
+        "ui.enterLangCodesRemove": "Enter language codes to remove (comma-separated, or 'all'): ",
+        "ui.actionCancelled": "Action cancelled. Returning to remove menu...",
+        "ui.allRemoved": "All translated languages removed.",
+        "ui.removedList": "Removed: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Enter README language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedReadmeList": "Removed README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedChangelogFiles": "Selected CHANGELOG files removed.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Protected Phrases:",
+        "ui.pkgRepoField": "• package.json (repository field)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL patterns)",
+        "ui.pleaseCheck": "\nPlease check:",
+        "ui.checkPkgRepo": "• package.json has 'repository' field",
+        "ui.checkGitRemote": "• .git/config has remote URL",
+        "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
     },
     "ru": {
+        "ui.codeLanguage": "Код/Язык",
+        "ui.changelogTitle": "ИЗМЕНЕНИЯ",
+        "ui.warningDifferentProject": "⚠️ ВНИМАНИЕ: каталог вывода находится в другом проекте!",
+        "ui.pathOutsideProject": "(Путь находится за пределами текущей папки проекта)",
         "translating_readme": "📘 Перевод README на {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} успешно создан",
         "translating_changelog": "📘 Перевод CHANGELOG на {lang_name} ({lang_code})...",
@@ -1506,7 +2468,7 @@ Exemplos:
         "changelog.onlyDescription": "Эти действия затрагивают только файлы CHANGELOG, файлы README остаются неизменными.",
         "changelog.generateOnly": "🌐 Только генерировать CHANGELOG",
         "changelog.removeSelected": "🗑️ Удалить выбранные CHANGELOG",
-        "changelog.affectsSelected": "Затрагивает только выбранные языки: {0} языков",
+        "changelog.affectsSelected": "Затрагивает только выбранные языки: {count} языков",
         "changelog.generateWith": "📋 Генерировать с CHANGELOG",
         "changelog.checkedDescription": "Когда отмечено: Переводит файлы README и CHANGELOG",
         "changelog.uncheckedDescription": "Когда не отмечено: Переводит только файлы README",
@@ -1515,15 +2477,15 @@ Exemplos:
         "progress.translatingReadmeOnly": "Перевод только README",
         "success.filesSavedWithChangelog": "READMES и CHANGELOGs",
         "success.filesSavedReadmeOnly": "Только READMEs",
-        "success.translationCompletedWithChangelog": "✅ {0} READMEs и CHANGELOGs успешно переведены!",
-        "success.translationCompletedReadmeOnly": "✅ {0} READMEs успешно переведены!",
+        "success.translationCompletedWithChangelog": "✅ {count} READMEs и CHANGELOGs успешно переведены!",
+        "success.translationCompletedReadmeOnly": "✅ {count} READMEs успешно переведены!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md не найден - пропускаю перевод CHANGELOG",
         
         "errors.changelogGenerateFailed": "❌ Ошибка генерации CHANGELOG",
         "errors.changelogRemoveSelectedFailed": "❌ Ошибка удаления выбранных файлов CHANGELOG",
-        "success.changelogGenerated": "✅ CHANGELOG успешно сгенерирован для {0} языков",
-        "success.changelogRemovedSelected": "✅ {0} файлов CHANGELOG успешно удалено",
-        "confirmation.removeChangelogSelected": "Вы уверены, что хотите удалить файлы CHANGELOG для {0} выбранных языков? Файлы README не будут затронуты.",
+        "success.changelogGenerated": "✅ CHANGELOG успешно сгенерирован для {count} языков",
+        "success.changelogRemovedSelected": "✅ {count} файлов CHANGELOG успешно удалено",
+        "confirmation.removeChangelogSelected": "Вы уверены, что хотите удалить файлы CHANGELOG для {count} выбранных языков? Файлы README не будут затронуты.",
         
         "help_generate_changelog_only": "Только генерировать файлы CHANGELOG для выбранных языков (файлы README остаются неизменными)",
         "help_remove_changelog_selected": "Только удалять файлы CHANGELOG для выбранных языков (файлы README остаются неизменными)",
@@ -1557,9 +2519,115 @@ Exemplos:
         "menu_debug": "Переключить режим отладки",
         "debug_enabled": "Режим отладки теперь ВКЛЮЧЕН.",
         "debug_disabled": "Режим отладки теперь ВЫКЛЮЧЕН.",
-        "debug_current": "Текущий"
+        "debug_current": "Текущий",
+        "ui.changeLanguage": "Изменить язык отображения",
+        "ui.currentLanguage": "Текущий язык",
+        "ui.languageChanged": "✅ Язык отображения изменен на {name}",
+        "ui.languageSelector": "Выбрать язык отображения для уведомлений CLI",
+        "ui.translate": "Перевести",
+        "ui.removeTranslated": "Удалить переведенные языки",
+        "ui.protectionSettings": "Настройки защиты (Фразы)",
+        "ui.autoSetupChangelog": "Автоматическая настройка Changelog",
+        "ui.detectGithub": "Определить URL GitHub",
+        "ui.repairTranslations": "Восстановить переводы (Исправить дубликаты и ошибки)",
+        "ui.setupPaths": "Настроить пути",
+        "ui.exit": "Выход",
+        "ui.selectOption": "Выберите опцию:",
+        "ui.currentProjectPath": "Текущий путь к проекту",
+        "ui.outputDirectory": "Выходной каталог",
+        "ui.folderProject": "Папка проекта",
+        "ui.available": "ДОСТУПНО",
+        "ui.notFound": "НЕ НАЙДЕНО",
+        "ui.notSet": "Не задано",
+        "ui.developer": "Разработчик",
+        "ui.exiting": "Выход...",
+        "ui.chooseLanguageCode": "Выберите код языка (пусто для отмены):",
+        "ui.translationStatus": "Статус перевода:",
+        "ui.translateBoth": "Перевести README и CHANGELOG",
+        "ui.translateReadme": "Перевести только README",
+        "ui.translateChangelog": "Перевести только CHANGELOG",
+        "ui.removeBoth": "Удалить README и CHANGELOG",
+        "ui.removeReadme": "Удалить только README",
+        "ui.removeChangelog": "Удалить только CHANGELOG",
+        "ui.back": "Назад",
+        "ui.missing": "ОТСУТСТВУЕТ",
+        "ui.enterLangCodes": "Введите коды языков (через запятую, или 'all'):",
+        "ui.invalidOption": "Недопустимый параметр.",
+        "ui.invalidLanguages": "Недопустимые языки.",
+        "ui.pressEnter": "Нажмите Enter для продолжения...",
+        "ui.status": "Статус: ",
+        "ui.active": "АКТИВЕН",
+        "ui.inactive": "НЕ АКТИВЕН",
+        "ui.protectedPhrases": "Защищенные фразы:",
+        "ui.noProtectedDir": "- Защищенные фразы не настроены.",
+        "ui.toggleProtection": "Переключить статус защиты",
+        "ui.addProtection": "Добавить защищенную фразу",
+        "ui.removeProtection": "Удалить защищенную фразу",
+        "ui.resetDefault": "Сброс к настройкам по умолчанию",
+        "ui.enterPhraseAdd": "Введите фразу для защиты (пусто для отмены): ",
+        "ui.addedPhrase": "Добавлено: {phrase}",
+        "ui.enterPhraseRemove": "Введите фразу для удаления (пусто для отмены): ",
+        "ui.removedPhrase": "Удалено: {phrase}",
+        "ui.phraseNotFound": "Фраза не найдена.",
+        "ui.resetSuccess": "Сброшено до значений по умолчанию.",
+        "ui.changelogComplete": "Настройка списка изменений завершена.",
+        "ui.changelogFailed": "Ошибка настройки списка изменений.",
+        "ui.setupPathsMenu": "Setup Paths",
+        "ui.setTargetDir": "Set Target Directory",
+        "ui.currentDir": "Current: {path}",
+        "ui.setOutputBaseDir": "Set Output Base Directory",
+        "ui.enterTargetDir": "Enter target directory path:",
+        "ui.enterOutputDir": "Enter output base directory path:",
+        "ui.typeRoot": "  • Type 'root' to use project root",
+        "ui.typeAuto": "  • Type 'auto' to find/use docs/lang in current project",
+        "ui.leaveEmpty": "  • Leave empty to cancel",
+        "ui.path": "Path: ",
+        "ui.cancelled": "⏭️ Cancelled. No changes made.",
+        "ui.replaceCurrentDir": "⚠️ This will replace the current directory:",
+        "ui.oldPath": "   Old: {path}",
+        "ui.newPath": "   New: {path}",
+        "ui.continueYN": "Do you want to continue? (y/n): ",
+        "ui.targetSet": "✅ Target directory set to: {path}",
+        "ui.outputSet": "✅ Output directory set to: {path}",
+        "ui.targetAlreadySet": "⚠️ Target directory already set to current working directory.",
+        "ui.fileDetected": "📄 File path detected. Using parent directory: {path}",
+        "ui.pathNotFound": "❌ Path not found: {path} \nPlease check if directory or file exists.",
+        "ui.setOutputAuto": "Set output base directory to docs/lang in this project? (y/n): ",
+        "ui.autoSetSuccess": "✅ Output directory automatically set to: {path}",
+        "ui.autoSetFailed": "❌ Could not find docs/lang directory in the current project.",
+        "ui.repairStarting": "Starting Translation Repair Tool...",
+        "ui.repairStep1": "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...",
+        "ui.repairStep2": "2. Scanning translated documents for failures (API errors / unchanged English)...",
+        "ui.repairLanguages": "Languages: {langs}",
+        "ui.looksTranslated": "looks properly translated.",
+        "ui.repairSuccess": "No failed translations detected. All files are clean and fully repaired!",
+        "ui.highEnglishOverlap": "High English overlap ({percent}%)",
+        "ui.repairErrorScan": "Could not scan ({error})",
+        "ui.retranslatingFailed": "Re-translating {count} failed files: {langs}",
+        "ui.repairFixed": "Repair completed! Missing translations have been fixed.",
+        "ui.enterLangCodesRemove": "Enter language codes to remove (comma-separated, or 'all'): ",
+        "ui.actionCancelled": "Action cancelled. Returning to remove menu...",
+        "ui.allRemoved": "All translated languages removed.",
+        "ui.removedList": "Removed: {langs}",
+        "ui.enterLangCodesRemoveReadme": "Enter README language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedReadmeList": "Removed README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): ",
+        "ui.removedChangelogFiles": "Selected CHANGELOG files removed.",
+        "ui.statusLabel": "Status: ",
+        "ui.protectedPhrasesList": "Protected Phrases:",
+        "ui.pkgRepoField": "• package.json (repository field)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL patterns)",
+        "ui.pleaseCheck": "\nPlease check:",
+        "ui.checkPkgRepo": "• package.json has 'repository' field",
+        "ui.checkGitRemote": "• .git/config has remote URL",
+        "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
     },
     "zh": {
+        "ui.codeLanguage": "Code/Language",
+        "ui.changelogTitle": "CHANGELOG",
+        "ui.warningDifferentProject": "⚠️  WARNING: Output Directory is in a different project!",
+        "ui.pathOutsideProject": "(Path is outside the current project folder)",
         "translating_readme": "📘 正在将 README 翻译为 {lang_name} ({lang_code})...",
         "readme_created": "✅ {path} 成功创建",
         "translating_changelog": "📘 正在将 CHANGELOG 翻译为 {lang_name} ({lang_code})...",
@@ -1648,7 +2716,7 @@ Exemplos:
         "changelog.onlyDescription": "这些操作仅影响 CHANGELOG 文件，README 文件保持不变。",
         "changelog.generateOnly": "🌐 仅生成 CHANGELOG",
         "changelog.removeSelected": "🗑️ 删除选中的 CHANGELOG",
-        "changelog.affectsSelected": "仅影响选中的语言：{0} 种语言",
+        "changelog.affectsSelected": "仅影响选中的语言：{count} 种语言",
         "changelog.generateWith": "📋 生成包含 CHANGELOG",
         "changelog.checkedDescription": "勾选时：翻译 README 和 CHANGELOG 文件",
         "changelog.uncheckedDescription": "未勾选时：仅翻译 README 文件",
@@ -1657,15 +2725,15 @@ Exemplos:
         "progress.translatingReadmeOnly": "仅翻译 README",
         "success.filesSavedWithChangelog": "README 和 CHANGELOG",
         "success.filesSavedReadmeOnly": "仅 README",
-        "success.translationCompletedWithChangelog": "✅ {0} 个 README 和 CHANGELOG 成功翻译！",
-        "success.translationCompletedReadmeOnly": "✅ {0} 个 README 成功翻译！",
+        "success.translationCompletedWithChangelog": "✅ {count} 个 README 和 CHANGELOG 成功翻译！",
+        "success.translationCompletedReadmeOnly": "✅ {count} 个 README 成功翻译！",
         "info.noChangelogFileSkipping": "⚠️ 未找到 CHANGELOG.md - 跳过 CHANGELOG 翻译",
         
         "errors.changelogGenerateFailed": "❌ CHANGELOG 生成失败",
         "errors.changelogRemoveSelectedFailed": "❌ 删除选中的 CHANGELOG 文件失败",
-        "success.changelogGenerated": "✅ 成功为 {0} 种语言生成 CHANGELOG",
-        "success.changelogRemovedSelected": "✅ {0} 个 CHANGELOG 文件成功删除",
-        "confirmation.removeChangelogSelected": "您确定要删除 {0} 种选中语言的 CHANGELOG 文件吗？README 文件将不受影响。",
+        "success.changelogGenerated": "✅ 成功为 {count} 种语言生成 CHANGELOG",
+        "success.changelogRemovedSelected": "✅ {count} 个 CHANGELOG 文件成功删除",
+        "confirmation.removeChangelogSelected": "您确定要删除 {count} 种选中语言的 CHANGELOG 文件吗？README 文件将不受影响。",
         
         "help_generate_changelog_only": "仅为选中的语言生成 CHANGELOG 文件（README 文件保持不变）",
         "help_remove_changelog_selected": "仅删除选中的语言的 CHANGELOG 文件（README 文件保持不变）",
@@ -1699,18 +2767,157 @@ Exemplos:
         "menu_debug": "切换调试模式",
         "debug_enabled": "调试模式现在已启用。",
         "debug_disabled": "调试模式现在已禁用。",
-        "debug_current": "当前"
+        "debug_current": "当前",
+        "ui.changeLanguage": "更改显示语言",
+        "ui.currentLanguage": "当前语言",
+        "ui.languageChanged": "✅ 显示语言已更改为 {name}",
+        "ui.languageSelector": "选择 CLI 通知的显示语言",
+        "ui.translate": "翻译",
+        "ui.removeTranslated": "删除已翻译语言",
+        "ui.protectionSettings": "保护设置 (短语)",
+        "ui.autoSetupChangelog": "自动设置更新日志部分",
+        "ui.detectGithub": "检测 GitHub URL",
+        "ui.repairTranslations": "修复翻译 (修复重复和失败)",
+        "ui.setupPaths": "设置路径",
+        "ui.exit": "退出",
+        "ui.selectOption": "选择选项:",
+        "ui.currentProjectPath": "当前项目路径",
+        "ui.outputDirectory": "输出目录",
+        "ui.folderProject": "项目文件夹",
+        "ui.available": "可用",
+        "ui.notFound": "未找到",
+        "ui.notSet": "未设置",
+        "ui.developer": "开发者",
+        "ui.exiting": "正在退出...",
+        "ui.chooseLanguageCode": "选择语言代码（留空以取消）:",
+        "ui.translationStatus": "翻译状态:",
+        "ui.translateBoth": "翻译 README 和 CHANGELOG",
+        "ui.translateReadme": "仅翻译 README",
+        "ui.translateChangelog": "仅翻译 CHANGELOG",
+        "ui.removeBoth": "删除 README 和 CHANGELOG",
+        "ui.removeReadme": "仅删除 README",
+        "ui.removeChangelog": "仅删除 CHANGELOG",
+        "ui.back": "返回",
+        "ui.missing": "缺失",
+        "ui.enterLangCodes": "输入语言代码（逗号分隔，或 'all'）:",
+        "ui.invalidOption": "无效选项。",
+        "ui.invalidLanguages": "无效语言。",
+        "ui.pressEnter": "按 Enter 键继续...",
+        "ui.status": "状态: ",
+        "ui.active": "开启",
+        "ui.inactive": "关闭",
+        "ui.protectedPhrases": "受保护的短语:",
+        "ui.noProtectedDir": "- 未配置受保护的短语。",
+        "ui.toggleProtection": "切换保护状态",
+        "ui.addProtection": "添加保护短语",
+        "ui.removeProtection": "删除保护短语",
+        "ui.resetDefault": "恢复默认",
+        "ui.enterPhraseAdd": "输入要保护的短语（留空以取消）: ",
+        "ui.addedPhrase": "已添加: {phrase}",
+        "ui.enterPhraseRemove": "输入要删除的短语（留空以取消）: ",
+        "ui.removedPhrase": "已删除: {phrase}",
+        "ui.phraseNotFound": "未找到短语。",
+        "ui.resetSuccess": "已恢复默认。",
+        "ui.changelogComplete": "Changelog 设置已完成。",
+        "ui.changelogFailed": "Changelog 设置失败。",
+        "ui.setupPathsMenu": "设置路径",
+        "ui.setTargetDir": "设置目标目录",
+        "ui.currentDir": "当前: {path}",
+        "ui.setOutputBaseDir": "设置输出基础目录",
+        "ui.enterTargetDir": "输入目标目录路径:",
+        "ui.enterOutputDir": "输入输出基础目录路径:",
+        "ui.typeRoot": "  • 输入 'root' 使用项目根目录",
+        "ui.typeAuto": "  • 输入 'auto' 在当前项目中查找 docs/lang",
+        "ui.leaveEmpty": "  • 留空以取消",
+        "ui.path": "路径: ",
+        "ui.cancelled": "⏭️ 已取消。未作任何更改。",
+        "ui.replaceCurrentDir": "⚠️ 这将替换当前目录:",
+        "ui.oldPath": "   旧: {path}",
+        "ui.newPath": "   新: {path}",
+        "ui.continueYN": "您要继续吗？(y/n): ",
+        "ui.targetSet": "✅ 目标目录已设置为: {path}",
+        "ui.outputSet": "✅ 输出目录已设置为: {path}",
+        "ui.targetAlreadySet": "⚠️ 目标目录已是当前工作目录。",
+        "ui.fileDetected": "📄 检测到文件路径。使用父目录: {path}",
+        "ui.pathNotFound": "❌ 找不到路径: {path} \n请检查目录或文件是否存在。",
+        "ui.setOutputAuto": "将输出目录设置为当前项目的 docs/lang 吗？(y/n): ",
+        "ui.autoSetSuccess": "✅ 输出目录已自动设置为: {path}",
+        "ui.autoSetFailed": "❌ 未能在当前项目中找到 docs/lang 目录。",
+        "ui.repairStarting": "正在启动翻译修复工具...",
+        "ui.repairStep1": "1. 清理所有 README 中的重复语言切换器并修正位置...",
+        "ui.repairStep2": "2. 扫描翻译文档的错误（API错误 / 未翻译的英文）...",
+        "ui.repairLanguages": "语言: {langs}",
+        "ui.looksTranslated": "看起来翻译正常。",
+        "ui.repairSuccess": "未检测到失败的翻译。所有文件均干干净净、已完全修复！",
+        "ui.highEnglishOverlap": "英语重叠率高 ({percent}%)",
+        "ui.repairErrorScan": "无法扫描 ({error})",
+        "ui.retranslatingFailed": "正在重新翻译 {count} 个失败的文件: {langs}",
+        "ui.repairFixed": "修复完成！缺失的翻译已修正。",
+        "ui.enterLangCodesRemove": "输入要删除的语言代码（逗号分隔，或 'all'）: ",
+        "ui.actionCancelled": "操作已取消。返回删除菜单...",
+        "ui.allRemoved": "所有翻译语言均已删除。",
+        "ui.removedList": "已删除: {langs}",
+        "ui.enterLangCodesRemoveReadme": "输入要删除的 README 语言代码（逗号分隔，或 'all'）: ",
+        "ui.removedReadmeList": "已删除 README: {langs}",
+        "ui.enterLangCodesRemoveChangelog": "输入要删除的 CHANGELOG 语言代码（逗号分隔，或 'all'）: ",
+        "ui.removedChangelogFiles": "所选 CHANGELOG 文件已删除。",
+        "ui.statusLabel": "状态: ",
+        "ui.protectedPhrasesList": "受保护的短语:",
+        "ui.pkgRepoField": "• package.json (repository 字段)",
+        "ui.gitConfig": "• .git/config",
+        "ui.readmeGitPattern": "• README.md (GitHub URL 模式)",
+        "ui.pleaseCheck": "\n请检查:",
+        "ui.checkPkgRepo": "• package.json 包含 'repository' 字段",
+        "ui.checkGitRemote": "• .git/config 包含远程网址 (remote URL)",
+        "ui.checkReadmeUrl": "• 或将 GitHub URL 手动添加到 README 中",
     }
 }
 
 # Global variable for display language
 DISPLAY_LANG = "en"
 
+def init_display_language():
+    import locale
+    import json
+    import os
+    global DISPLAY_LANG
+    lang = "en"
+    if os.path.exists(LANG_CONFIG_FILE):
+        try:
+            with open(LANG_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                lang = json.load(f).get("display_language", "en")
+        except Exception:
+            pass
+    else:
+        try:
+            loc, _ = locale.getdefaultlocale()
+            if loc:
+                sys_lang = loc.split('_')[0].lower()
+                if sys_lang in DISPLAY_LANGUAGES:
+                    lang = sys_lang
+                elif sys_lang == "ja":
+                    lang = "jp"
+                elif sys_lang == "ko":
+                    lang = "kr"
+        except Exception:
+            pass
+            
+    if lang in DISPLAY_LANGUAGES:
+        DISPLAY_LANG = lang
+    return lang
+
 def set_display_language(lang_code):
     """Set display language for notifications"""
+    import json
+    import os
     global DISPLAY_LANG
     if lang_code in DISPLAY_LANGUAGES:
         DISPLAY_LANG = lang_code
+        try:
+            with open(LANG_CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump({"display_language": lang_code}, f)
+        except Exception:
+            pass
     else:
         print(DISPLAY_LANGUAGES["en"]["language_not_supported"].format(code=lang_code))
 
@@ -1856,16 +3063,16 @@ def detect_github_url():
         print(t("repo_url", url=repo_url))
         print(t("releases_url", url=releases_url))
         print("\n" + t("sources_checked"))
-        print("• package.json (repository field)")
-        print("• .git/config")
-        print("• README.md (GitHub URL patterns)")
+        print(t('ui.pkgRepoField'))
+        print(t('ui.gitConfig'))
+        print(t('ui.readmeGitPattern'))
         return True
     else:
         print(t("no_github_url"))
-        print("\nPlease check:")
-        print("• package.json has 'repository' field")
-        print("• .git/config has remote URL") 
-        print("• Or add GitHub URL manually to README")
+        print(t('ui.pleaseCheck'))
+        print(t('ui.checkPkgRepo'))
+        print(t('ui.checkGitRemote')) 
+        print(t('ui.checkReadmeUrl'))
         return False
 
 def create_square_panel(content, title=None, align_center=False, expand=True):
@@ -1969,7 +3176,31 @@ def create_translation_status_table(base_output_dir=None, target_dir=None, inclu
 
     # Build table data
     rows = []
-    status_column_width = len("AVAILABLE")
+    
+    # Max width of the status column depends on translated words
+    avail_width = wcswidth(t('ui.available'))
+    missing_width = wcswidth(t('ui.missing'))
+    # Make sure status column width accommodates the string "README" + 2 padding
+    status_column_width = max(len("AVAILABLE"), len("MISSING"), avail_width, missing_width, len("README"), len(t('ui.changelogTitle'))) + 2
+
+    base_width = max_lang_code + 1 + max_lang_name
+    header_code_lang = t('ui.codeLanguage')
+    pad_h = max(0, base_width - wcswidth(header_code_lang))
+    header = f"{Fore.CYAN}{header_code_lang}{' ' * pad_h}"
+    
+    if include_readme:
+        pad_r = max(0, status_column_width - len("README"))
+        header += f"  README{' ' * pad_r}"
+        
+    if include_changelog:
+        header_changelog = t('ui.changelogTitle')
+        header += f"  {header_changelog}"
+
+    header += Style.RESET_ALL
+    
+    rows.append("")
+    rows.append(header)
+    rows.append("")
 
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
         readme_name, changelog_name = get_translation_file_names(lang_code)
@@ -1983,20 +3214,21 @@ def create_translation_status_table(base_output_dir=None, target_dir=None, inclu
         row = f"{lang_code_field} {lang_name_field}"
 
         if include_readme:
-            readme_status_text = "AVAILABLE" if readme_available else "MISSING"
-            readme_status_display = readme_status_text.ljust(status_column_width)
-            readme_status = f"{Fore.GREEN}{readme_status_display}{Style.RESET_ALL}" if readme_available else f"{Fore.RED}{readme_status_display}{Style.RESET_ALL}"
+            status_word = t('ui.available') if readme_available else t('ui.missing')
+            pad = max(0, status_column_width - wcswidth(status_word))
+            status_display = status_word + (" " * pad)
+            readme_status = f"{Fore.GREEN}{status_display}{Style.RESET_ALL}" if readme_available else f"{Fore.RED}{status_display}{Style.RESET_ALL}"
             row += f"  {readme_status}"
 
         if include_changelog:
-            changelog_status_text = "AVAILABLE" if changelog_available else "MISSING"
-            changelog_status_display = changelog_status_text.ljust(status_column_width)
-            changelog_status = f"{Fore.GREEN}{changelog_status_display}{Style.RESET_ALL}" if changelog_available else f"{Fore.RED}{changelog_status_display}{Style.RESET_ALL}"
+            status_word = t('ui.available') if changelog_available else t('ui.missing')
+            pad = max(0, status_column_width - wcswidth(status_word))
+            status_display = status_word + (" " * pad)
+            changelog_status = f"{Fore.GREEN}{status_display}{Style.RESET_ALL}" if changelog_available else f"{Fore.RED}{status_display}{Style.RESET_ALL}"
             row += f"  {changelog_status}"
 
         rows.append(row)
 
-    # Return as formatted string
     return rows
 
 
@@ -2070,7 +3302,7 @@ def set_output_to_docs_lang(project_dir, config, config_file):
     with open(config_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
-    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+    print(Fore.GREEN + t('ui.outputSet', path=config['output_base_dir']))
     time.sleep(1)
 
 
@@ -2092,7 +3324,7 @@ def setup_paths_menu():
         output_base_dir = config.get('output_base_dir') or None
         
         # Header
-        print(f"\n{Fore.CYAN}Setup Paths{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}{t('ui.setupPathsMenu')}{Style.RESET_ALL}")
         print()  # Add spacing between title and content
         
         # Check project status
@@ -2101,24 +3333,24 @@ def setup_paths_menu():
         
         # Detect project folder name
         project_folder = os.path.basename(target_dir)
-        print(f"{Fore.CYAN}📂 Folder Project: {project_folder}{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}📂 {t('ui.folderProject')}: {project_folder}{Style.RESET_ALL}")
         print()
         
         # Source Files Status
         readme_color = Fore.GREEN if readme_exists else Fore.RED
-        readme_status = "AVAILABLE" if readme_exists else "NOT FOUND"
+        readme_status = t('ui.available') if readme_exists else t('ui.missing')
         print(f"{readme_color}{'✅' if readme_exists else '❌'} README.md: {readme_status}{Style.RESET_ALL}")
         
         changelog_color = Fore.GREEN if changelog_exists else Fore.RED
-        changelog_status = "AVAILABLE" if changelog_exists else "NOT FOUND"
+        changelog_status = t('ui.available') if changelog_exists else t('ui.missing')
         print(f"{changelog_color}{'✅' if changelog_exists else '❌'} CHANGELOG.md: {changelog_status}{Style.RESET_ALL}\n")
         
         # Menu
-        print(f"{Fore.GREEN}[1] Set Target Directory{Style.RESET_ALL}")
-        print(f"    Current: {target_dir}")
+        print(f"{Fore.GREEN}[1] {t('ui.setTargetDir')}{Style.RESET_ALL}")
+        print(f"    {t('ui.currentDir', path=target_dir)}")
         print()
-        print(f"{Fore.GREEN}[2] Set Output Base Directory{Style.RESET_ALL}")
-        print(f"    Current: {output_base_dir if output_base_dir else 'Not set'}")
+        print(f"{Fore.GREEN}[2] {t('ui.setOutputBaseDir')}{Style.RESET_ALL}")
+        print(f"    {t('ui.currentDir', path=output_base_dir if output_base_dir else t('ui.notSet'))}")
 
         # Warning if output_base_dir is outside current target project directory
         if output_base_dir:
@@ -2126,64 +3358,65 @@ def setup_paths_menu():
                 project_root = os.path.abspath(target_dir)
                 output_abs = os.path.abspath(output_base_dir)
                 if not os.path.commonpath([project_root, output_abs]) == project_root:
-                    print(Fore.YELLOW + "\n⚠️  WARNING: Output Directory is in a different project!")
-                    print(Fore.LIGHTBLACK_EX + "(Path is outside the current project folder)")
+                    print(Fore.YELLOW + "\n" + t('ui.warningDifferentProject'))
+                    print(Fore.LIGHTBLACK_EX + t('ui.pathOutsideProject'))
             except Exception:
                 pass
 
         print()
-        print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
 
-        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
-        
+        choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+
+
         if choice == '1':
-            print(Fore.CYAN + "Enter target directory path:")
-            print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
-            print(Fore.LIGHTBLACK_EX + "  • Leave empty to cancel")
-            new_target = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
+            print(Fore.CYAN + t('ui.enterTargetDir'))
+            print(Fore.LIGHTBLACK_EX + t('ui.typeRoot'))
+            print(Fore.LIGHTBLACK_EX + t('ui.leaveEmpty'))
+            new_target = input(Fore.CYAN + t('ui.path') + Fore.WHITE).strip()
             
             if not new_target:
-                print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                print(Fore.YELLOW + t('ui.cancelled'))
                 time.sleep(1)
             elif new_target.lower() == 'root':
                 # Get project root (two levels up from scripts/python)
                 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
                 # Show confirmation if changing existing directory
                 if target_dir != project_root:
-                    print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
-                    print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
-                    print(Fore.LIGHTBLACK_EX + f"   New: {project_root}")
-                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    print(Fore.YELLOW + t('ui.replaceCurrentDir'))
+                    print(Fore.LIGHTBLACK_EX + t('ui.oldPath', path=target_dir))
+                    print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=project_root))
+                    confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                     if confirm != 'y':
-                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        print(Fore.YELLOW + t('ui.cancelled'))
                         time.sleep(1)
                         continue
                 config['target_dir'] = project_root
                 with open(config_file, 'w', encoding='utf-8') as f:
                     json.dump(config, f, ensure_ascii=False, indent=2)
-                print(Fore.GREEN + f"✅ Target directory set to project root: {config['target_dir']}")
-                if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                print(Fore.GREEN + t('ui.targetSet', path=config['target_dir']))
+                if input(Fore.CYAN + t('ui.setOutputAuto') + Fore.WHITE).strip().lower() == 'y':
                     set_output_to_docs_lang(project_root, config, config_file)
                 time.sleep(1)
             elif new_target == '.':
                 current_path = os.getcwd()
                 if target_dir == current_path:
-                    print(Fore.YELLOW + "⚠️  Target directory already set to current working directory.")
+                    print(Fore.YELLOW + t('ui.targetAlreadySet'))
                     time.sleep(1)
                 else:
-                    print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
-                    print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
-                    print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
-                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    print(Fore.YELLOW + t('ui.replaceCurrentDir'))
+                    print(Fore.LIGHTBLACK_EX + t('ui.oldPath', path=target_dir))
+                    print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=current_path))
+                    confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                     if confirm != 'y':
-                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        print(Fore.YELLOW + t('ui.cancelled'))
                         time.sleep(1)
                         continue
                     config['target_dir'] = current_path
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
-                    print(Fore.GREEN + f"✅ Target directory set to current: {config['target_dir']}")
-                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                    print(Fore.GREEN + t('ui.targetSet', path=config['target_dir']))
+                    if input(Fore.CYAN + t('ui.setOutputAuto') + Fore.WHITE).strip().lower() == 'y':
                         set_output_to_docs_lang(current_path, config, config_file)
                     time.sleep(1)
             else:
@@ -2191,57 +3424,56 @@ def setup_paths_menu():
                 if os.path.isfile(new_target):
                     # If it's a file, extract the directory
                     abs_path = os.path.dirname(os.path.abspath(new_target))
-                    print(Fore.CYAN + f"📄 File path detected. Using parent directory: {abs_path}")
+                    print(Fore.CYAN + t('ui.fileDetected', path=abs_path))
                     # Show confirmation if changing existing directory
                     if target_dir != abs_path:
-                        print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
-                        print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
-                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
-                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        print(Fore.YELLOW + t('ui.replaceCurrentDir'))
+                        print(Fore.LIGHTBLACK_EX + t('ui.oldPath', path=target_dir))
+                        print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=abs_path))
+                        confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                         if confirm != 'y':
-                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            print(Fore.YELLOW + t('ui.cancelled'))
                             time.sleep(1)
                             continue
                     config['target_dir'] = abs_path
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
-                    print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
-                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                    print(Fore.GREEN + t('ui.targetSet', path=config['target_dir']))
+                    if input(Fore.CYAN + t('ui.setOutputAuto') + Fore.WHITE).strip().lower() == 'y':
                         set_output_to_docs_lang(abs_path, config, config_file)
                     time.sleep(1)
                 elif os.path.isdir(new_target):
                     abs_path = os.path.abspath(new_target)
                     # Show confirmation if changing existing directory
                     if target_dir != abs_path:
-                        print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
-                        print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
-                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
-                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        print(Fore.YELLOW + t('ui.replaceCurrentDir'))
+                        print(Fore.LIGHTBLACK_EX + t('ui.oldPath', path=target_dir))
+                        print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=abs_path))
+                        confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                         if confirm != 'y':
-                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            print(Fore.YELLOW + t('ui.cancelled'))
                             time.sleep(1)
                             continue
                     config['target_dir'] = abs_path
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
-                    print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
-                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                    print(Fore.GREEN + t('ui.targetSet', path=config['target_dir']))
+                    if input(Fore.CYAN + t('ui.setOutputAuto') + Fore.WHITE).strip().lower() == 'y':
                         set_output_to_docs_lang(abs_path, config, config_file)
                     time.sleep(1)
                 else:
-                    print(Fore.RED + f"❌ Path not found: {new_target}")
-                    print(Fore.LIGHTBLACK_EX + f"   Please check if directory or file exists.")
+                    print(Fore.RED + t('ui.pathNotFound', path=new_target))
                     time.sleep(2)
         
         elif choice == '2':
-            print(Fore.CYAN + "Enter output base directory path:")
-            print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
-            print(Fore.LIGHTBLACK_EX + "  • Type 'auto' to find/use docs/lang in current project")
-            print(Fore.LIGHTBLACK_EX + "  • Leave empty to cancel")
-            new_output = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
+            print(Fore.CYAN + t('ui.enterOutputDir'))
+            print(Fore.LIGHTBLACK_EX + t('ui.typeRoot'))
+            print(Fore.LIGHTBLACK_EX + t('ui.typeAuto'))
+            print(Fore.LIGHTBLACK_EX + t('ui.leaveEmpty'))
+            new_output = input(Fore.CYAN + t('ui.path') + Fore.WHITE).strip()
             
             if not new_output:
-                print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                print(Fore.YELLOW + t('ui.cancelled'))
                 time.sleep(1)
             elif new_output.lower() == 'root':
                 # Get project root (two levels up from scripts/python)
@@ -2250,16 +3482,16 @@ def setup_paths_menu():
                 if output_base_dir and output_base_dir != project_root:
                     print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
                     print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
-                    print(Fore.LIGHTBLACK_EX + f"   New: {project_root}")
-                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                    print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=project_root))
+                    confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                     if confirm != 'y':
-                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                        print(Fore.YELLOW + t('ui.cancelled'))
                         time.sleep(1)
                         continue
                 config['output_base_dir'] = project_root
                 with open(config_file, 'w', encoding='utf-8') as f:
                     json.dump(config, f, ensure_ascii=False, indent=2)
-                print(Fore.GREEN + f"✅ Output directory set to project root: {config['output_base_dir']}")
+                print(Fore.GREEN + t('ui.outputSet', path=config['output_base_dir']))
                 time.sleep(1)
             elif new_output.lower() == 'auto':
                 project_root = target_dir
@@ -2309,10 +3541,10 @@ def setup_paths_menu():
                     if output_base_dir:
                         print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
                         print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
-                        print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
-                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=current_path))
+                        confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                         if confirm != 'y':
-                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            print(Fore.YELLOW + t('ui.cancelled'))
                             time.sleep(1)
                             continue
                     config['output_base_dir'] = current_path
@@ -2325,21 +3557,21 @@ def setup_paths_menu():
                 if os.path.isfile(new_output):
                     # If it's a file, extract the directory
                     abs_path = os.path.dirname(os.path.abspath(new_output))
-                    print(Fore.CYAN + f"📄 File path detected. Using parent directory: {abs_path}")
+                    print(Fore.CYAN + t('ui.fileDetected', path=abs_path))
                     # Show confirmation if changing existing directory
                     if output_base_dir and output_base_dir != abs_path:
                         print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
                         print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
-                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
-                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=abs_path))
+                        confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                         if confirm != 'y':
-                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            print(Fore.YELLOW + t('ui.cancelled'))
                             time.sleep(1)
                             continue
                     config['output_base_dir'] = abs_path
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
-                    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+                    print(Fore.GREEN + t('ui.outputSet', path=config['output_base_dir']))
                     time.sleep(1)
                 elif os.path.isdir(new_output):
                     abs_path = os.path.abspath(new_output)
@@ -2347,20 +3579,19 @@ def setup_paths_menu():
                     if output_base_dir and output_base_dir != abs_path:
                         print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
                         print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
-                        print(Fore.LIGHTBLACK_EX + f"   New: {abs_path}")
-                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        print(Fore.LIGHTBLACK_EX + t('ui.newPath', path=abs_path))
+                        confirm = input(Fore.YELLOW + t('ui.continueYN') + Fore.WHITE).strip().lower()
                         if confirm != 'y':
-                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            print(Fore.YELLOW + t('ui.cancelled'))
                             time.sleep(1)
                             continue
                     config['output_base_dir'] = abs_path
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
-                    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+                    print(Fore.GREEN + t('ui.outputSet', path=config['output_base_dir']))
                     time.sleep(1)
                 else:
-                    print(Fore.RED + f"❌ Path not found: {new_output}")
-                    print(Fore.LIGHTBLACK_EX + f"   Please check if directory or file exists.")
+                    print(Fore.RED + t('ui.pathNotFound', path=new_output))
                     time.sleep(2)
         
         elif choice == '0':
@@ -2712,7 +3943,7 @@ def update_language_switcher(new_languages=None, removed_languages=None, target_
             f.write(content)
         print(t("language_switcher_updated", filename="main README"))
         if ordered_existing:
-            print(f"   Languages: {', '.join(ordered_existing)}")
+            print(f"   {t('ui.repairLanguages', langs=', '.join(ordered_existing))}")
         else:
             print(f"   {t('no_translation_files')}")
     
@@ -3262,7 +4493,7 @@ def remove_changelog_selected(lang_codes):
     # Confirmation prompt
     confirmation = input(t("confirmation.removeChangelogSelected", count=len(valid_langs)) + " (y/N): ")
     if confirmation.lower() not in ['y', 'yes']:
-        print("Operation cancelled.")
+        print(Fore.YELLOW + t("ui.actionCancelled") + Style.RESET_ALL)
         return False
     
     print(t("progress.removingSelected", count=len(valid_langs)))
@@ -3303,7 +4534,7 @@ def remove_changelog_only():
     # Confirmation prompt
     confirmation = input(t("confirmation.removeChangelog") + " (y/N): ")
     if confirmation.lower() not in ['y', 'yes']:
-        print("Operation cancelled.")
+        print(Fore.YELLOW + t("ui.actionCancelled") + Style.RESET_ALL)
         return False
     
     print(t("progress.removingChangelog"))
@@ -3345,7 +4576,8 @@ def print_translation_progress(current, total, width=40):
     filled = int(width * current / total)
     bar = "█" * filled + "─" * (width - filled)
     percent = int(100 * current / total)
-    print(f"  Progress: [{bar}] {current}/{total} ({percent}%)", end='\r', flush=True)
+    progress_label = t("progress.barLabel")
+    print(f"  {progress_label} [{bar}] {current}/{total} ({percent}%)", end='\r', flush=True)
 
 
 def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, output_base_dir=None):
@@ -3737,7 +4969,8 @@ def translate_markdown_table(content: str, lang_code: str) -> str:
 # ---------------------- INTERACTIVE MENU ----------------------
 def repair_translations(target_dir=None, output_base_dir=None):
     """Repair language switchers positioning, remove duplicates, and detect translation failures."""
-    print(Fore.CYAN + "\n[+] Starting Translation Repair Tool...")
+    _msg_repair_starting = t("ui.repairStarting")
+    print(Fore.CYAN + f"\n[+] {_msg_repair_starting}")
     
     # Internet connection check
     if not check_internet_connection():
@@ -3745,11 +4978,12 @@ def repair_translations(target_dir=None, output_base_dir=None):
         return False
 
     # 1. Update/fix all switchers globally
-    print(Fore.YELLOW + "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...")
+    print(Fore.YELLOW + t("ui.repairStep1"))
     update_language_switcher(target_dir=target_dir, output_base_dir=output_base_dir)
     
     # 2. Detect translation failures
-    print(Fore.YELLOW + "\n2. Scanning translated documents for failures (API errors / unchanged English)...")
+    _msg_repair_step2 = t("ui.repairStep2")
+    print(Fore.YELLOW + f"\n{_msg_repair_step2}")
     existing_langs = get_existing_translated_languages()
     failed_langs = []
     
@@ -3794,19 +5028,19 @@ def repair_translations(target_dir=None, output_base_dir=None):
                     overlap_ratio = len(common_words) / len(set(src_words)) if set(src_words) else 0
                     
                     if overlap_ratio > 0.65:
-                        print(Fore.RED + f"   - [FAIL] {LANGUAGES[lang_code][0]} ({lang_code}): High English overlap ({int(overlap_ratio*100)}%)")
+                        print(Fore.RED + f"   - [FAIL] {LANGUAGES[lang_code][0]} ({lang_code}): {t('ui.highEnglishOverlap', percent=int(overlap_ratio*100))}")
                         failed_langs.append(lang_code)
                     else:
-                        print(Fore.GREEN + f"   - [OK] {LANGUAGES[lang_code][0]} ({lang_code}) looks properly translated.")
+                        print(Fore.GREEN + f"   - [OK] {LANGUAGES[lang_code][0]} ({lang_code}) {t('ui.looksTranslated')}")
             except Exception as e:
-                print(Fore.RED + f"   - [ERROR] {lang_code}: Could not scan ({e})")
+                print(Fore.RED + f"   - [ERROR] {lang_code}: {t('ui.repairErrorScan', error=e)}")
                 
     if failed_langs:
-        print(Fore.CYAN + f"\n3. Re-translating {len(failed_langs)} failed files: {', '.join(failed_langs)}")
+        print(Fore.CYAN + f"\n3. {t('ui.retranslatingFailed', count=len(failed_langs), langs=', '.join(failed_langs))}")
         translate_with_changelog(failed_langs, with_changelog=has_changelog_file(), target_dir=target_dir, output_base_dir=output_base_dir)
-        print(Fore.GREEN + "\nRepair completed! Missing translations have been fixed.")
+        print(Fore.GREEN + f"\n{t('ui.repairFixed')}")
     else:
-        print(Fore.GREEN + "\nNo failed translations detected. All files are clean and fully repaired!")
+        print(Fore.GREEN + f"\n{t('ui.repairSuccess')}")
         
     return True
 
@@ -3878,39 +5112,38 @@ def interactive_menu():
 
         # Header
         print(f"\n{Fore.WHITE}🌍 MultiDoc Translator{Style.RESET_ALL}")
-        print(f"{Fore.LIGHTBLACK_EX}Developer: Fatony Ahmad Fauzi{Style.RESET_ALL}\n")
+        print(f"{Fore.LIGHTBLACK_EX}{t('ui.developer')}: Fatony Ahmad Fauzi{Style.RESET_ALL}\n")
 
         # Current Status
-        print(f"{Fore.GREEN}✅ Current project path: {target_dir}{Style.RESET_ALL}")
-        output_display = output_base_dir if output_base_dir else 'Not set'
-        print(f"{Fore.YELLOW}📁 Output Directory: {output_display}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}✅ {t('ui.currentProjectPath')}: {target_dir}{Style.RESET_ALL}")
+        output_display = output_base_dir if output_base_dir else t('ui.notSet')
+        print(f"{Fore.YELLOW}📁 {t('ui.outputDirectory')}: {output_display}{Style.RESET_ALL}")
         
         # Validate output directory path
         if output_base_dir:
             normalized_output = os.path.abspath(output_base_dir)
             normalized_target = os.path.abspath(target_dir)
-            # Check if output directory is within the project directory
             if not normalized_output.startswith(normalized_target):
-                print(f"{Fore.RED}⚠️  WARNING: Output Directory is in a different project!{Style.RESET_ALL}")
-                print(f"{Fore.RED}(Path is outside the current project folder){Style.RESET_ALL}")
+                print(f"{Fore.RED}{t('ui.warningDifferentProject')}{Style.RESET_ALL}")
+                print(f"{Fore.RED}{t('ui.pathOutsideProject')}{Style.RESET_ALL}")
         
         # Detect project folder name
         project_folder = os.path.basename(target_dir)
-        print(f"{Fore.CYAN}📂 Folder Project: {project_folder}{Style.RESET_ALL}\n")
+        print(f"{Fore.CYAN}📂 {t('ui.folderProject')}: {project_folder}{Style.RESET_ALL}\n")
 
         # Source Files
         readme_color = Fore.GREEN if readme_exists else Fore.RED
-        readme_status = "AVAILABLE" if readme_exists else "NOT FOUND"
+        readme_status = t('ui.available') if readme_exists else t('ui.missing')
         print(f"{readme_color}{'✅' if readme_exists else '❌'} README.md: {readme_status}{Style.RESET_ALL}")
         
         changelog_color = Fore.GREEN if changelog_exists else Fore.RED
-        changelog_status = "AVAILABLE" if changelog_exists else "NOT FOUND"
+        changelog_status = t('ui.available') if changelog_exists else t('ui.missing')
         print(f"{changelog_color}{'✅' if changelog_exists else '❌'} CHANGELOG.md: {changelog_status}{Style.RESET_ALL}\n")
 
         # Warning message if output directory not set
         if not output_base_dir:
             print(f"{Fore.YELLOW}⚠️  Output directory not set!{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Please use option [7] Setup Paths first.{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}Please use option [8] Setup Paths first.{Style.RESET_ALL}\n")
 
         actions_locked = not output_base_dir
         remove_disabled = not has_translated_files(OUTPUT_DIR)
@@ -3918,32 +5151,68 @@ def interactive_menu():
         # Main Menu
         menu_color = Fore.LIGHTBLACK_EX if actions_locked else Fore.GREEN
         remove_color = Fore.LIGHTBLACK_EX if remove_disabled or actions_locked else Fore.GREEN
-        print(f"{menu_color}[1] Translate{Style.RESET_ALL}")
-        print(f"{remove_color}[2] Remove Translated Languages{Style.RESET_ALL}")
-        print(f"{menu_color}[3] Protection Settings (Phrases){Style.RESET_ALL}")
-        print(f"{menu_color}[4] Auto Setup Changelog Section{Style.RESET_ALL}")
-        print(f"{menu_color}[5] Detect GitHub URL{Style.RESET_ALL}")
-        print(f"{Fore.RED}[6] Repair Translations (Fix Duplicates & Failures){Style.RESET_ALL}")
-        print(f"{Fore.GREEN}[7] Setup Paths{Style.RESET_ALL}")
-        print(f"{Fore.LIGHTBLACK_EX}[0] Exit{Style.RESET_ALL}")
+        print(f"{menu_color}[1] {t('ui.changeLanguage')}{Style.RESET_ALL}")
+        print(f"{menu_color}[2] {t('ui.translate')}{Style.RESET_ALL}")
+        print(f"{remove_color}[3] {t('ui.removeTranslated')}{Style.RESET_ALL}")
+        print(f"{menu_color}[4] {t('ui.protectionSettings')}{Style.RESET_ALL}")
+        print(f"{menu_color}[5] {t('ui.autoSetupChangelog')}{Style.RESET_ALL}")
+        print(f"{menu_color}[6] {t('ui.detectGithub')}{Style.RESET_ALL}")
+        print(f"{Fore.RED}[7] {t('ui.repairTranslations')}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[8] {t('ui.setupPaths')}{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.exit')}{Style.RESET_ALL}")
 
         # Get user input
-        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+        choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
         
         # Check if remove option is disabled
-        if choice == '2' and remove_disabled:
+        if choice == '3' and remove_disabled:
             print(f"\n{Fore.YELLOW}⚠️  No translated files found to remove.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}There are no README or CHANGELOG files in the output directory.{Style.RESET_ALL}")
-            input("\nPress Enter to continue...")
+            input(f"\n{t('ui.pressEnter')}")
             continue
         
-        if actions_locked and choice in {'1', '2', '3', '4', '5', '6'}:
+        if actions_locked and choice in {'2', '3', '4', '5', '6', '7'}:
             print(f"\n{Fore.YELLOW}⚠️  This action is locked because Output Directory is not set.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Please use [7] Setup Paths first, then return to the main menu.{Style.RESET_ALL}")
-            input("\nPress Enter to continue...")
+            print(f"{Fore.YELLOW}Please use [8] Setup Paths first, then return to the main menu.{Style.RESET_ALL}")
+            input(f"\n{t('ui.pressEnter')}")
             continue
 
         if choice == '1':
+            # Change Display Language
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(f"\n{Fore.CYAN}{t('ui.changeLanguage')}{Style.RESET_ALL}\n")
+            
+            lang_options = ['en', 'pl', 'zh', 'jp', 'de', 'fr', 'es', 'ru', 'pt', 'id', 'kr']
+            for lc in lang_options:
+                lang_display_name = LANGUAGES.get(lc, (lc.upper(),))[0] if lc in LANGUAGES else lc.upper()
+                if lc == 'id':
+                    lang_display_name = 'Indonesia'
+                elif lc == 'en':
+                    lang_display_name = 'English'
+                
+                print(f"[{lc}] {lang_display_name}")
+                
+            print(f"\n{Fore.YELLOW}[+] {t('ui.chooseLanguageCode')} {Fore.WHITE}", end="")
+            lang_choice = input().strip().lower()
+            
+            if not lang_choice:
+                continue
+                
+            if lang_choice in lang_options:
+                set_display_language(lang_choice)
+                if lang_choice == 'id':
+                    lang_display_name = 'Indonesia'
+                elif lang_choice == 'en':
+                    lang_display_name = 'English'
+                else:
+                    lang_display_name = LANGUAGES.get(lang_choice, (lang_choice.upper(),))[0]
+                
+                pass
+            else:
+                print(f"\n{Fore.RED}Invalid language code.{Style.RESET_ALL}")
+                time.sleep(0.8)
+
+        elif choice == '2':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
             translation_status_rows = create_translation_status_table(
@@ -3954,7 +5223,7 @@ def interactive_menu():
             )
             
             # Print translation status table
-            print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
+            print(f"\n{Fore.CYAN}{t('ui.translationStatus')}{Style.RESET_ALL}\n")
             for row in translation_status_rows:
                 print(row)
             print()  # Add empty line below translation status
@@ -3966,12 +5235,12 @@ def interactive_menu():
             readme_only_color = Fore.GREEN if readme_exists else Fore.LIGHTBLACK_EX
             changelog_only_color = Fore.GREEN if changelog_exists else Fore.LIGHTBLACK_EX
             
-            print(f"{readme_changelog_color}[1] Translate README & CHANGELOG{Style.RESET_ALL}")
-            print(f"{readme_only_color}[2] Translate README Only{Style.RESET_ALL}")
-            print(f"{changelog_only_color}[3] Translate CHANGELOG Only{Style.RESET_ALL}")
-            print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+            print(f"{readme_changelog_color}[1] {t('ui.translateBoth')}{Style.RESET_ALL}")
+            print(f"{readme_only_color}[2] {t('ui.translateReadme')}{Style.RESET_ALL}")
+            print(f"{changelog_only_color}[3] {t('ui.translateChangelog')}{Style.RESET_ALL}")
+            print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
 
-            trans_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+            trans_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
             
             # Handle disabled options
             if trans_choice == '1' and not (readme_exists and changelog_exists):
@@ -3984,27 +5253,27 @@ def interactive_menu():
                 else:
                     print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
                     print(f"{Fore.YELLOW}Both README.md and CHANGELOG.md are missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
             
             if trans_choice == '2' and not readme_exists:
                 print(f"\n{Fore.YELLOW}⚠️  Cannot translate README only.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}README.md is missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
             
             if trans_choice == '3' and not changelog_exists:
                 print(f"\n{Fore.YELLOW}⚠️  Cannot translate CHANGELOG only.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}CHANGELOG.md is missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
             
             if trans_choice == '1' and readme_exists and changelog_exists:
                 # Translate README & CHANGELOG
                 if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                langs = input(Fore.CYAN + t('ui.enterLangCodes') + " " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
                 else:
@@ -4012,15 +5281,15 @@ def interactive_menu():
                 if langs_list:
                     translate_with_changelog(langs_list, with_changelog=True, target_dir=target_dir, output_base_dir=output_base_dir)
                 else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
+                    print(Fore.RED + t('ui.invalidLanguages'))
+                input(f"\n{t('ui.pressEnter')}")
                 
             elif trans_choice == '2' and readme_exists:
                 # Translate README Only
                 if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                langs = input(Fore.CYAN + t('ui.enterLangCodes') + " " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
                 else:
@@ -4028,15 +5297,15 @@ def interactive_menu():
                 if langs_list:
                     translate_with_changelog(langs_list, with_changelog=False, target_dir=target_dir, output_base_dir=output_base_dir)
                 else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
+                    print(Fore.RED + t('ui.invalidLanguages'))
+                input(f"\n{t('ui.pressEnter')}")
                 
             elif trans_choice == '3' and changelog_exists:
                 # Translate CHANGELOG Only
                 if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                langs = input(Fore.CYAN + t('ui.enterLangCodes') + " " + Fore.WHITE).strip()
                 if langs.lower() == 'all':
                     langs_list = list(LANGUAGES.keys())
                 else:
@@ -4044,18 +5313,18 @@ def interactive_menu():
                 if langs_list:
                     translate_changelog_only(langs_list)
                 else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
+                    print(Fore.RED + t('ui.invalidLanguages'))
+                input(f"\n{t('ui.pressEnter')}")
             elif trans_choice != '0':
-                print(Fore.RED + "Invalid option.")
-                input("\nPress Enter to continue...")
+                print(Fore.RED + t('ui.invalidOption'))
+                input(f"\n{t('ui.pressEnter')}")
             
-        elif choice == '2':
+        elif choice == '3':
             # Remove Translated Languages (was option 4)
             if not has_translation_output_files(output_base_dir, target_dir):
                 print(f"\n{Fore.YELLOW}⚠️  No translated files found.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}The docs/lang folder is empty or no translation results exist yet.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
 
             os.system('cls' if os.name == 'nt' else 'clear')
@@ -4068,175 +5337,176 @@ def interactive_menu():
                 )
                 
                 # Print translation status table
-                print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
+                print(f"\n{Fore.CYAN}{t('ui.translationStatus')}{Style.RESET_ALL}\n")
                 for row in remove_status_rows:
                     print(row)
                 print()  # Add empty line below translation status
 
                 # Remove menu options
                 print()
-                print(f"{Fore.GREEN}[1] Remove README & CHANGELOG{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[2] Remove README Only{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[3] Remove CHANGELOG Only{Style.RESET_ALL}")
-                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[1] {t('ui.removeBoth')}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[2] {t('ui.removeReadme')}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[3] {t('ui.removeChangelog')}{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
 
-                sub_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+                sub_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
                 
                 if sub_choice == '0':
                     break  # Exit remove submenu
                 
                 elif sub_choice == '1':
                     if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
+                        input(f"\n{t('ui.pressEnter')}")
                         continue
-                    langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    langs = input(Fore.CYAN + t('ui.enterLangCodesRemove') + Fore.WHITE).strip()
                     if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        print(Fore.YELLOW + t('ui.actionCancelled') + "\n")
                         continue
                     if langs.lower() == 'all':
                         remove_all_language_files()
-                        print(Fore.GREEN + "All translated languages removed.")
-                        input("\nPress Enter to continue...")
+                        print(Fore.GREEN + t('ui.allRemoved'))
+                        input(f"\n{t('ui.pressEnter')}")
                         continue
                     else:
                         lang_codes = [l.strip() for l in langs.split(',')]
                         removed = remove_language_files(lang_codes)
                         if removed:
-                            print(Fore.GREEN + f"Removed: {', '.join(removed)}")
-                        input("\nPress Enter to continue...")
+                            print(Fore.GREEN + t('ui.removedList', langs=', '.join(removed)))
+                        input(f"\n{t('ui.pressEnter')}")
                         continue
                 elif sub_choice == '2':
                     if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
+                        input(f"\n{t('ui.pressEnter')}")
                         continue
-                    langs = input(Fore.CYAN + "Enter README language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    langs = input(Fore.CYAN + t('ui.enterLangCodesRemoveReadme') + Fore.WHITE).strip()
                     if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        print(Fore.YELLOW + t('ui.actionCancelled') + "\n")
                         continue
                     lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
                     removed = remove_readme_files(lang_codes)
                     if removed:
-                        print(Fore.GREEN + f"Removed README: {', '.join(removed)}")
-                    input("\nPress Enter to continue...")
+                        print(Fore.GREEN + t('ui.removedReadmeList', langs=', '.join(removed)))
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
                 elif sub_choice == '3':
                     if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
+                        input(f"\n{t('ui.pressEnter')}")
                         continue
-                    langs = input(Fore.CYAN + "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    langs = input(Fore.CYAN + t('ui.enterLangCodesRemoveChangelog') + Fore.WHITE).strip()
                     if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        print(Fore.YELLOW + t('ui.actionCancelled') + "\n")
                         continue
                     lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
                     removed = remove_changelog_selected(lang_codes)
                     if removed:
-                        print(Fore.GREEN + "Selected CHANGELOG files removed.")
-                    input("\nPress Enter to continue...")
+                        print(Fore.GREEN + t('ui.removedChangelogFiles'))
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
                 
                 else:
-                    print(Fore.RED + "Invalid option.")
-                    input("\nPress Enter to continue...")
+                    print(Fore.RED + t('ui.invalidOption'))
+                    input(f"\n{t('ui.pressEnter')}")
                     continue
             # End of remove submenu loop
-        elif choice == '3':
+        elif choice == '4':
             if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
                 protected = load_protected_phrases()
-                status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
-                print("\n" + f"{Fore.WHITE}Status: {Style.RESET_ALL}", end="")
+                status = t('ui.active') if is_protect_enabled() else t('ui.inactive')
+                print("\n" + f"{Fore.WHITE}{t('ui.statusLabel')}{Style.RESET_ALL}", end="")
                 if is_protect_enabled():
                     print(f"{Fore.GREEN}{status}{Style.RESET_ALL}")
                 else:
                     print(f"{Fore.RED}{status}{Style.RESET_ALL}")
                 
-                print(f"\n{Fore.CYAN}Protected Phrases:{Style.RESET_ALL}")
+                print(f"\n{Fore.CYAN}{t('ui.protectedPhrasesList')}{Style.RESET_ALL}")
                 if protected['protected_phrases']:
                     for phrase in protected['protected_phrases']:
                         print(f"- {phrase}")
                 else:
-                    print("- No protected phrases configured.")
+                    print(t('ui.noProtectedDir'))
                 
                 print()
-                print(f"{Fore.GREEN}[1] Toggle Protection Status{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[2] Add Protected Phrase{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[3] Remove Protected Phrase{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}[4] Reset to Default{Style.RESET_ALL}")
-                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[1] {t('ui.toggleProtection')}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[2] {t('ui.addProtection')}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[3] {t('ui.removeProtection')}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[4] {t('ui.resetDefault')}{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
                 
-                p_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+                p_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
                 
                 if p_choice == '1':
                     set_protect_status(not is_protect_enabled())
                 elif p_choice == '2':
-                    phrase = input(Fore.CYAN + "Enter phrase to protect (leave empty to cancel): " + Fore.WHITE).strip()
+                    phrase = input(Fore.CYAN + t('ui.enterPhraseAdd') + Fore.WHITE).strip()
                     if phrase:
                         protected['protected_phrases'].append(phrase)
                         save_protected_phrases(protected)
-                        print(Fore.GREEN + f"Added: {phrase}")
+                        print(Fore.GREEN + t('ui.addedPhrase', phrase=phrase))
                         time.sleep(1)
                 elif p_choice == '3':
-                    phrase = input(Fore.CYAN + "Enter phrase to remove (leave empty to cancel): " + Fore.WHITE).strip()
+                    phrase = input(Fore.CYAN + t('ui.enterPhraseRemove') + Fore.WHITE).strip()
                     if phrase:
                         if phrase in protected['protected_phrases']:
                             protected['protected_phrases'].remove(phrase)
                             save_protected_phrases(protected)
-                            print(Fore.GREEN + f"Removed: {phrase}")
+                            print(Fore.GREEN + t('ui.removedPhrase', phrase=phrase))
                         else:
-                            print(Fore.RED + "Phrase not found.")
+                            print(Fore.RED + t('ui.phraseNotFound'))
                         time.sleep(1)
                 elif p_choice == '4':
                     save_protected_phrases(DEFAULT_PROTECTED)
-                    print(Fore.GREEN + "Reset to defaults.")
+                    print(Fore.GREEN + t('ui.resetSuccess'))
                     time.sleep(1)
                 elif p_choice == '0':
                     break
 
-        elif choice == '4':
+        elif choice == '5':
             # Auto Setup Changelog Section (was option 6)
             if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
             if add_changelog_section_to_readme():
-                print(Fore.GREEN + "Changelog setup completed.")
+                print(Fore.GREEN + t('ui.changelogComplete'))
             else:
-                print(Fore.RED + "Changelog setup failed.")
-            input("\nPress Enter to continue...")
-            
-        elif choice == '5':
-            # Detect GitHub URL (was option 7)
-            if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
-                continue
-            detect_github_url()
-            input("\nPress Enter to continue...")
+                print(Fore.RED + t('ui.changelogFailed'))
+            input(f"\n{t('ui.pressEnter')}")
             
         elif choice == '6':
-            # Repair Translations (was option 8)
+            # Detect GitHub URL (was option 7)
             if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+                input(f"\n{t('ui.pressEnter')}")
                 continue
-            repair_translations(target_dir=target_dir, output_base_dir=output_base_dir)
-            input("\nPress Enter to continue...")
+            detect_github_url()
+            input(f"\n{t('ui.pressEnter')}")
             
         elif choice == '7':
+            # Repair Translations (was option 8)
+            if not configure_runtime_paths(target_dir, output_base_dir):
+                input(f"\n{t('ui.pressEnter')}")
+                continue
+            repair_translations(target_dir=target_dir, output_base_dir=output_base_dir)
+            input(f"\n{t('ui.pressEnter')}")
+            
+        elif choice == '8':
             # Setup Paths (NEW)
             setup_paths_menu()
             
         elif choice == '0':
-            print(Fore.GREEN + "Exiting...")
+            print(Fore.GREEN + t('ui.exiting'))
             break
 
 # ---------------------- MAIN PROGRAM ----------------------
 def main():
     if len(sys.argv) == 1:
+        init_display_language()
         interactive_menu()
         return
 
-    display_lang = "en"
+    display_lang = init_display_language()
     
     # Check --display parameter
     for i, arg in enumerate(sys.argv):

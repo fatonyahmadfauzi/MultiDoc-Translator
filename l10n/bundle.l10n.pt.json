@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 Fontes verificadas:",
   "github.sourcePackageJson": "• package.json (campo repository)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (padrões de URL GitHub)"
+  "github.sourceReadme": "• README.md (padrões de URL GitHub)",
+
+  "ui.changeLanguage": "🌐 Alterar idioma da extensão",
+  "ui.currentLanguage": "Idioma atual",
+  "ui.languageSelector": "Selecionar idioma da UI da extensão",
+  "ui.languageChanged": "✅ Idioma da extensão alterado para {0}",
+  "ui.languageCancelHint": "Selecione um idioma para alterar o idioma da UI da extensão",
+  "ui.languageSectionTitle": "Idioma da extensão",
+  "ui.languageSectionDesc": "Alterar o idioma de exibição da UI desta extensão"
 }

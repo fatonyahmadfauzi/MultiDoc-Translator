@@ -182,7 +182,16 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "github.sourcesChecked": "📋 Sources checked:",
     "github.sourcePackageJson": "• package.json (repository field)",
     "github.sourceGitConfig": "• .git/config",
-    "github.sourceReadme": "• README.md (GitHub URL patterns)"
+    "github.sourceReadme": "• README.md (GitHub URL patterns)",
+
+    // UI language switcher phrases
+    "ui.changeLanguage": "🌐 Change Extension Language",
+    "ui.currentLanguage": "Current language",
+    "ui.languageSelector": "Select extension UI language",
+    "ui.languageChanged": "✅ Extension language changed to {0}",
+    "ui.languageCancelHint": "Select a language to change the extension UI language",
+    "ui.languageSectionTitle": "Extension Language",
+    "ui.languageSectionDesc": "Change the display language of this extension UI"
 };
 
 export class L10nManager {
@@ -373,6 +382,25 @@ export class L10nManager {
     // Mendapatkan bahasa saat ini
     public getCurrentLanguage(): string {
         return this.currentLanguage;
+    }
+
+    // 🌐 Switch language at runtime (rebind to a new bundle code)
+    public switchLanguage(langCode: string): boolean {
+        console.log(`[L10n] switchLanguage called with: ${langCode}`);
+        const normalized = this.normalizeLanguageCode(langCode);
+        if (this.bundles.has(normalized)) {
+            this.currentLanguage = normalized;
+            console.log(`[L10n] ✅ Language switched to: ${normalized}`);
+            return true;
+        }
+        // Also try matching our LANGUAGES map directly (e.g. 'jp', 'kr')
+        if (this.bundles.has(langCode)) {
+            this.currentLanguage = langCode;
+            console.log(`[L10n] ✅ Language switched to: ${langCode}`);
+            return true;
+        }
+        console.log(`[L10n] ❌ Language not found: ${langCode}, keeping: ${this.currentLanguage}`);
+        return false;
     }
 }
 

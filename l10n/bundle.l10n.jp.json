@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 チェックされたソース：",
   "github.sourcePackageJson": "• package.json (repository フィールド)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (GitHub URL パターン)"
+  "github.sourceReadme": "• README.md (GitHub URL パターン)",
+
+  "ui.changeLanguage": "🌐 拡張機能の言語を変更",
+  "ui.currentLanguage": "現在の言語",
+  "ui.languageSelector": "拡張機能UIの言語を選択",
+  "ui.languageChanged": "✅ 拡張機能の言語を {0} に変更しました",
+  "ui.languageCancelHint": "拡張機能UIの言語を変更するには言語を選択してください",
+  "ui.languageSectionTitle": "拡張機能の言語",
+  "ui.languageSectionDesc": "この拡張機能UIの表示言語を変更"
 }

@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 Проверенные источники:",
   "github.sourcePackageJson": "• package.json (поле repository)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (шаблоны URL GitHub)"
+  "github.sourceReadme": "• README.md (шаблоны URL GitHub)",
+
+  "ui.changeLanguage": "🌐 Изменить язык расширения",
+  "ui.currentLanguage": "Текущий язык",
+  "ui.languageSelector": "Выбрать язык UI расширения",
+  "ui.languageChanged": "✅ Язык расширения изменен на {0}",
+  "ui.languageCancelHint": "Выберите язык для изменения языка UI расширения",
+  "ui.languageSectionTitle": "Язык расширения",
+  "ui.languageSectionDesc": "Изменить язык отображения UI этого расширения"
 }

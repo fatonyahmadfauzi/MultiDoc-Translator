@@ -137,6 +137,9 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                     case 'removeChangelogSelected':
                         await this.removeChangelogSelected();
                         break;
+                    case 'changeLanguage':
+                        await this.changeLanguage();
+                        break;
                 }
             } catch (error) {
                 Logger.error('Error handling webview message', error);
@@ -536,6 +539,20 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 ${t('actions.generate')}
             </button>
 
+            <!-- LANGUAGE SWITCHER -->
+            <div class="section">
+                <div class="section-title">${t('ui.languageSectionTitle')}</div>
+                <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-bottom: 10px;">
+                    ${t('ui.languageSectionDesc')}
+                </div>
+                <div style="font-size: 12px; margin-bottom: 8px; color: var(--vscode-foreground);">
+                    ${t('ui.currentLanguage')}: <strong>${LANGUAGES[this.l10n.getCurrentLanguage()]?.[0] ?? this.l10n.getCurrentLanguage()}</strong>
+                </div>
+                <button class="button" onclick="vscodePostMessage('changeLanguage')">
+                    ${t('ui.changeLanguage')}
+                </button>
+            </div>
+
             <div class="button-group">
                 <button class="button remove" id="removeSelectedBtn" ${selectedCount === 0 ? 'disabled' : ''} onclick="vscodePostMessage('removeSelected')">
                     ${t('actions.removeSelected')}
@@ -855,6 +872,40 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
             this.progressOutput.appendLine(`❌ ${errorMsg}`);
             vscode.window.showErrorMessage(errorMsg);
             Logger.error('Error in removeChangelogSelected', error);
+        }
+    }
+
+    // 🌐 Change Extension Language interactively
+    async changeLanguage() {
+        const currentLang = this.l10n.getCurrentLanguage();
+        
+        // Build QuickPick items from all supported languages
+        const langItems = Object.entries(LANGUAGES).map(([code, [name, , ]]) => ({
+            label: code === currentLang ? `$(check) ${name}` : name,
+            description: code === currentLang ? '(current)' : '',
+            langCode: code
+        }));
+
+        const selected = await vscode.window.showQuickPick(langItems, {
+            placeHolder: this.l10n.t('ui.languageCancelHint'),
+            title: this.l10n.t('ui.languageSelector')
+        });
+
+        if (!selected) {
+            return; // user cancelled
+        }
+
+        const success = this.l10n.switchLanguage(selected.langCode);
+
+        if (success) {
+            const newLangName = LANGUAGES[selected.langCode]?.[0] ?? selected.langCode;
+            vscode.window.showInformationMessage(this.l10n.t('ui.languageChanged', newLangName));
+            
+            // Reload the webview to apply the new language across all UI labels
+            if (this._view) {
+                this._view.webview.html = this.getWebviewContent();
+                setTimeout(() => this.sendTranslationsToWebview(), 100);
+            }
         }
     }
 

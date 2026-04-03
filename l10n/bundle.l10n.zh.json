@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 已检查的源：",
   "github.sourcePackageJson": "• package.json (repository 字段)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (GitHub URL 模式)"
+  "github.sourceReadme": "• README.md (GitHub URL 模式)",
+
+  "ui.changeLanguage": "🌐 更改扩展语言",
+  "ui.currentLanguage": "当前语言",
+  "ui.languageSelector": "选择扩展 UI 语言",
+  "ui.languageChanged": "✅ 扩展语言已更改为 {0}",
+  "ui.languageCancelHint": "选择一种语言以更改扩展 UI 语言",
+  "ui.languageSectionTitle": "扩展语言",
+  "ui.languageSectionDesc": "更改此扩展 UI 的显示语言"
 }

@@ -151,5 +151,13 @@
   "github.sourcesChecked": "📋 Sumber yang diperiksa:",
   "github.sourcePackageJson": "• package.json (repository field)",
   "github.sourceGitConfig": "• .git/config",
-  "github.sourceReadme": "• README.md (pola URL GitHub)"
+  "github.sourceReadme": "• README.md (pola URL GitHub)",
+
+  "ui.changeLanguage": "🌐 Ubah Bahasa Ekstensi",
+  "ui.currentLanguage": "Bahasa saat ini",
+  "ui.languageSelector": "Pilih bahasa UI ekstensi",
+  "ui.languageChanged": "✅ Bahasa ekstensi berubah ke {0}",
+  "ui.languageCancelHint": "Pilih bahasa untuk mengubah tampilan UI ekstensi",
+  "ui.languageSectionTitle": "Bahasa Ekstensi",
+  "ui.languageSectionDesc": "Ubah bahasa tampilan UI ekstensi ini"
 }
