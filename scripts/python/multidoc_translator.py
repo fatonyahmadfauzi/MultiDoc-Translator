@@ -13,6 +13,8 @@ import shutil
 import sys
 import urllib.request
 import requests
+import itertools
+import threading
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import colorama
@@ -49,7 +51,7 @@ PACKAGE_JSON = "package.json"
 OUTPUT_DIR = "docs/lang"
 PROTECTED_FILE = "protected_phrases.json"
 PROTECT_STATUS_FILE = ".protect_status"
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PATH_CONFIG_FILE = os.path.join(PROJECT_ROOT, ".path_config")
 
 def check_internet_connection(test_url="https://www.google.com", timeout=5):
@@ -61,40 +63,148 @@ def check_internet_connection(test_url="https://www.google.com", timeout=5):
         return False
 
 
-def _check_internet_blocking(color_on: bool):
+def _NET_CHECK_LABELS():
+    return {
+        "en": {
+            "checking": "Checking internet connection",
+            "connected": "Connected",
+            "no_internet": "No internet connection. Retrying",
+            "tip": "Press Ctrl+C to exit",
+        },
+        "id": {
+            "checking": "Memeriksa koneksi internet",
+            "connected": "Terhubung",
+            "no_internet": "Tidak ada koneksi internet. Mencoba lagi",
+            "tip": "Tekan Ctrl+C untuk keluar",
+        },
+        "jp": {
+            "checking": "インターネット接続を確認中",
+            "connected": "接続済み",
+            "no_internet": "インターネット接続なし。再試行中",
+            "tip": "Ctrl+C で終了",
+        },
+        "de": {
+            "checking": "Internetverbindung wird geprüft",
+            "connected": "Verbunden",
+            "no_internet": "Keine Internetverbindung. Erneuter Versuch",
+            "tip": "Strg+C zum Beenden",
+        },
+        "fr": {
+            "checking": "Vérification de la connexion internet",
+            "connected": "Connecté",
+            "no_internet": "Pas de connexion internet. Nouvelle tentative",
+            "tip": "Ctrl+C pour quitter",
+        },
+        "es": {
+            "checking": "Verificando conexión a internet",
+            "connected": "Conectado",
+            "no_internet": "Sin conexión a internet. Reintentando",
+            "tip": "Ctrl+C para salir",
+        },
+        "ru": {
+            "checking": "Проверка интернет-соединения",
+            "connected": "Подключено",
+            "no_internet": "Нет соединения с интернетом. Повторная попытка",
+            "tip": "Ctrl+C для выхода",
+        },
+        "pt": {
+            "checking": "Verificando conexão com a internet",
+            "connected": "Conectado",
+            "no_internet": "Sem conexão com a internet. Tentando novamente",
+            "tip": "Ctrl+C para sair",
+        },
+        "pl": {
+            "checking": "Sprawdzanie połączenia z internetem",
+            "connected": "Połączono",
+            "no_internet": "Brak połączenia z internetem. Ponowna próba",
+            "tip": "Ctrl+C aby wyjść",
+        },
+        "zh": {
+            "checking": "正在检查网络连接",
+            "connected": "已连接",
+            "no_internet": "没有网络连接。正在重试",
+            "tip": "Ctrl+C 退出",
+        },
+        "kr": {
+            "checking": "인터넷 연결 확인 중",
+            "connected": "연결됨",
+            "no_internet": "인터넷 연결 없음. 재시도 중",
+            "tip": "Ctrl+C로 종료",
+        },
+    }
+
+
+def _nl(key: str, lang: str) -> str:
+    labels = _NET_CHECK_LABELS()
+    return labels.get(lang, labels["en"]).get(key, labels["en"][key])
+
+
+def _check_internet(timeout: int = 4) -> bool:
+    debug_print("[FUNC] _check_internet() called")
+    try:
+        resp = requests.get("https://raw.githubusercontent.com", timeout=timeout, stream=False)
+        return resp.status_code < 500
+    except Exception:
+        return False
+
+
+def _check_internet_blocking(lang: str = "en", color_on: bool = True) -> None:
     """
-    Fungsi ringan untuk menahan aliran CLI program agar tidak masuk menu
-    utama sebelum ada koneksi internet (seperti Loading Screen GUI).
+    Match pixiv_login.py latest startup internet check style exactly.
     """
     debug_print("[FUNC] _check_internet_blocking() called")
 
-    def is_connected():
-        try:
-            requests.get("https://raw.githubusercontent.com", timeout=3, stream=False)
-            return True
-        except Exception:
-            return False
+    SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    spin_iter = itertools.cycle(SPINNER)
+    _stop_event = threading.Event()
+    _result = [False]
 
-    # Match pixiv_login visual exactly
-    print(Fore.CYAN + "[i] Checking internet connection..." + Style.RESET_ALL)
+    def _checker() -> None:
+        debug_print("[FUNC] _checker() called")
+        _result[0] = _check_internet()
+        _stop_event.set()
 
-    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    idx = 0
+    RETRY_DELAY = 3
 
     while True:
-        sys.stdout.write(f"\r{Fore.WHITE}Menunggu koneksi internet... {colorize(frames[idx], Ansi.CYAN, color_on)}{Style.RESET_ALL}")
-        sys.stdout.flush()
+        _stop_event.clear()
+        _result[0] = False
+        t = threading.Thread(target=_checker, daemon=True)
+        t.start()
 
-        if is_connected():
-            # Clear line and print success in Pixiv style
-            sys.stdout.write("\r" + " " * 80 + "\r")
-            sys.stdout.write(Fore.GREEN + "[+] Connected" + Style.RESET_ALL + "\n")
+        checking_label = _nl("checking", lang)
+        while not _stop_event.is_set():
+            frame = next(spin_iter)
+            sys.stdout.write(
+                f"\r  {colorize(frame, Fore.CYAN, color_on)} "
+                f"{colorize(checking_label + '.', Style.DIM, color_on)}    "
+            )
             sys.stdout.flush()
-            time.sleep(0.7)
-            break
+            time.sleep(0.08)
 
-        idx = (idx + 1) % len(frames)
-        time.sleep(0.1)
+        t.join()
+
+        if _result[0]:
+            sys.stdout.write(
+                f"\r  {colorize('[+]', Fore.GREEN, color_on)} "
+                f"{colorize(_nl('connected', lang), Fore.GREEN + Style.BRIGHT, color_on)}          \n"
+            )
+            sys.stdout.flush()
+            time.sleep(0.8)
+            return
+        else:
+            no_int_label = _nl("no_internet", lang)
+            tip_label = _nl("tip", lang)
+            for i in range(RETRY_DELAY * 12):
+                frame = next(spin_iter)
+                elapsed = RETRY_DELAY - (i // 12)
+                sys.stdout.write(
+                    f"\r  {colorize(frame, Fore.RED, color_on)} "
+                    f"{colorize(no_int_label + f' ({elapsed}s).', Fore.RED, color_on)}  "
+                    f"{colorize(f'  [{tip_label}]', Style.DIM, color_on)}    "
+                )
+                sys.stdout.flush()
+                time.sleep(1 / 12)
 
 
 def ensure_internet_connection(retry_interval=3, max_attempts=None):
@@ -3839,46 +3949,378 @@ def ask_target_directory():
         
     return True
 
-def interactive_menu():
+def print_cli_banner():
+    print(colorize("🌍 MultiDoc Translator", Fore.WHITE, True))
+    print(colorize("Developer: Fatony Ahmad Fauzi", Fore.LIGHTBLACK_EX, True))
+    print()
 
-    # Require internet connection before showing menu (blocking spinner as in pixiv_login CLI)
-    _check_internet_blocking(color_on=True)
+
+def translate_readme_menu():
+    """Submenu for translating README files"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}📘 Translate README{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Translate to all languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Translate to specific languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Translate README to all languages
+            print(f"{Fore.GREEN}🚀 Starting README translation to all languages...{Style.RESET_ALL}")
+            # TODO: Implement translation logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Translate README to specific languages
+            print(f"{Fore.GREEN}Select languages to translate README:{Style.RESET_ALL}")
+            # TODO: Implement language selection logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def translate_changelog_menu():
+    """Submenu for translating CHANGELOG files"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}📘 Translate CHANGELOG{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Translate to all languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Translate to specific languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Translate CHANGELOG to all languages
+            print(f"{Fore.GREEN}🚀 Starting CHANGELOG translation to all languages...{Style.RESET_ALL}")
+            # TODO: Implement translation logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Translate CHANGELOG to specific languages
+            print(f"{Fore.GREEN}Select languages to translate CHANGELOG:{Style.RESET_ALL}")
+            # TODO: Implement language selection logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def translate_both_menu():
+    """Submenu for translating both README and CHANGELOG files"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}📘 Translate README + CHANGELOG{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Translate to all languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Translate to specific languages{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Translate both to all languages
+            print(f"{Fore.GREEN}🚀 Starting README + CHANGELOG translation to all languages...{Style.RESET_ALL}")
+            # TODO: Implement translation logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Translate both to specific languages
+            print(f"{Fore.GREEN}Select languages to translate README + CHANGELOG:{Style.RESET_ALL}")
+            # TODO: Implement language selection logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def remove_languages_menu():
+    """Submenu for removing selected language files"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}🗑️ Remove selected languages{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Remove README files only{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Remove CHANGELOG files only{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[3] Remove both README and CHANGELOG files{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Remove README files only
+            print(f"{Fore.GREEN}Select languages to remove README files:{Style.RESET_ALL}")
+            # TODO: Implement language selection and removal logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Remove CHANGELOG files only
+            print(f"{Fore.GREEN}Select languages to remove CHANGELOG files:{Style.RESET_ALL}")
+            # TODO: Implement language selection and removal logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "3":
+            # Remove both files
+            print(f"{Fore.GREEN}Select languages to remove both README and CHANGELOG files:{Style.RESET_ALL}")
+            # TODO: Implement language selection and removal logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def repair_translations_menu():
+    """Submenu for repairing missing translations"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}🔧 Repair missing translations{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Repair README translations{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Repair CHANGELOG translations{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[3] Repair both README and CHANGELOG translations{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Repair README translations
+            print(f"{Fore.GREEN}🔧 Repairing missing README translations...{Style.RESET_ALL}")
+            # TODO: Implement repair logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Repair CHANGELOG translations
+            print(f"{Fore.GREEN}🔧 Repairing missing CHANGELOG translations...{Style.RESET_ALL}")
+            # TODO: Implement repair logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "3":
+            # Repair both translations
+            print(f"{Fore.GREEN}🔧 Repairing missing README and CHANGELOG translations...{Style.RESET_ALL}")
+            # TODO: Implement repair logic
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def debug_menu():
+    """Submenu for debug options"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.MAGENTA}🔧 Debug{Style.RESET_ALL}\n")
+        
+        # Check current debug status
+        debug_enabled = os.getenv("DEBUG", "0") in ("1", "true", "True")
+        debug_status = f"{Fore.GREEN}ENABLED{Style.RESET_ALL}" if debug_enabled else f"{Fore.RED}DISABLED{Style.RESET_ALL}"
+        
+        print(f"{Fore.CYAN}[1] Toggle Debug Mode (Current: {debug_status}){Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Show system information{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[3] Test internet connection{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            # Toggle debug mode
+            if debug_enabled:
+                os.environ["DEBUG"] = "0"
+                print(f"{Fore.YELLOW}Debug mode is now DISABLED.{Style.RESET_ALL}")
+            else:
+                os.environ["DEBUG"] = "1"
+                print(f"{Fore.GREEN}Debug mode is now ENABLED.{Style.RESET_ALL}")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "2":
+            # Show system information
+            print(f"{Fore.GREEN}System Information:{Style.RESET_ALL}")
+            print(f"  Python version: {sys.version}")
+            print(f"  Platform: {sys.platform}")
+            print(f"  Current directory: {os.getcwd()}")
+            print(f"  Output directory: {OUTPUT_DIR}")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "3":
+            # Test internet connection
+            print(f"{Fore.GREEN}Testing internet connection...{Style.RESET_ALL}")
+            connected = check_internet_connection()
+            if connected:
+                print(f"{Fore.GREEN}✅ Internet connection OK{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}❌ No internet connection{Style.RESET_ALL}")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def translate_menu():
+    """Submenu for translation options"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}📘 Translation Options{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Translate README{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Translate CHANGELOG{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[3] Translate README + CHANGELOG{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            translate_readme_menu()
+        elif choice == "2":
+            translate_changelog_menu()
+        elif choice == "3":
+            translate_both_menu()
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def remove_menu():
+    """Submenu for removal options"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}🗑️  Remove Translated Languages{Style.RESET_ALL}\n")
+        
+        print(f"{Fore.CYAN}[1] Remove selected languages{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            remove_languages_menu()
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def protection_menu():
+    """Submenu for protection settings"""
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print_cli_banner()
+        print(f"{Fore.GREEN}🛡️  Protection Settings (Phrases){Style.RESET_ALL}\n")
+        
+        protected = load_protected_phrases()
+        status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
+        print(f"Status: {Fore.GREEN if is_protect_enabled() else Fore.RED}{status}{Style.RESET_ALL}")
+        
+        print(f"\nProtected Phrases:")
+        if protected['protected_phrases']:
+            for phrase in protected['protected_phrases']:
+                print(f"- {phrase}")
+        else:
+            print("- No protected phrases configured.")
+        
+        print(f"\n{Fore.CYAN}[1] Toggle Protection Status{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[2] Add Protected Phrase{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[3] Remove Protected Phrase{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}[4] Reset to Default{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+        
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
+        
+        if choice == "0":
+            break
+        elif choice == "1":
+            set_protect_status(not is_protect_enabled())
+            print(f"{Fore.GREEN}Protection status updated.{Style.RESET_ALL}")
+            time.sleep(1)
+        elif choice == "2":
+            phrase = input(f"{Fore.CYAN}Enter phrase to protect (leave empty to cancel): {Style.RESET_ALL}").strip()
+            if phrase:
+                protected['protected_phrases'].append(phrase)
+                save_protected_phrases(protected)
+                print(f"{Fore.GREEN}Added: {phrase}{Style.RESET_ALL}")
+                time.sleep(1)
+        elif choice == "3":
+            phrase = input(f"{Fore.CYAN}Enter phrase to remove (leave empty to cancel): {Style.RESET_ALL}").strip()
+            if phrase:
+                if phrase in protected['protected_phrases']:
+                    protected['protected_phrases'].remove(phrase)
+                    save_protected_phrases(protected)
+                    print(f"{Fore.GREEN}Removed: {phrase}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}Phrase not found.{Style.RESET_ALL}")
+                time.sleep(1)
+        elif choice == "4":
+            save_protected_phrases(DEFAULT_PROTECTED)
+            print(f"{Fore.GREEN}Reset to defaults.{Style.RESET_ALL}")
+            time.sleep(1)
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
+
+def interactive_menu():
+    display_lang = "id"  # atau ambil dari config kalau sudah ada
+    color_on = True
+
+    _check_internet_blocking(lang=display_lang, color_on=color_on)
+
+    # Load configuration from .path_config
+    config_file = PATH_CONFIG_FILE
+    if os.path.exists(config_file):
+        with open(config_file, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        target_dir = config.get('target_dir') or os.getcwd()
+        output_base_dir = config.get('output_base_dir') or None
+    else:
+        target_dir = os.getcwd()
+        output_base_dir = None
+
+    readme_exists = os.path.isfile(os.path.join(target_dir, SOURCE_FILE))
+    changelog_exists = os.path.isfile(os.path.join(target_dir, CHANGELOG_FILE))
+
+    # Set OUTPUT_DIR based on configuration
+    if output_base_dir:
+        # Check if output_base_dir already ends with docs/lang
+        if output_base_dir.endswith(os.path.join('docs', 'lang')) or output_base_dir.endswith(os.path.join('docs', 'lang').replace('\\', '/')):
+            runtime_output_dir = output_base_dir
+        else:
+            runtime_output_dir = os.path.join(output_base_dir, 'docs', 'lang')
+    else:
+        runtime_output_dir = os.path.join(target_dir, 'docs', 'lang')
+    
+    # Set OUTPUT_DIR to the resolved path
+    global OUTPUT_DIR
+    OUTPUT_DIR = runtime_output_dir
 
     while True:
-        # Clear screen
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        # Load configuration from .path_config
-        config_file = PATH_CONFIG_FILE
-        if os.path.exists(config_file):
-            with open(config_file, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-            target_dir = config.get('target_dir') or os.getcwd()
-            output_base_dir = config.get('output_base_dir') or None
-        else:
-            target_dir = os.getcwd()
-            output_base_dir = None
-
-        # Set OUTPUT_DIR based on configuration
-        if output_base_dir:
-            # Check if output_base_dir already ends with docs/lang
-            if output_base_dir.endswith(os.path.join('docs', 'lang')) or output_base_dir.endswith(os.path.join('docs', 'lang').replace('\\', '/')):
-                runtime_output_dir = output_base_dir
-            else:
-                runtime_output_dir = os.path.join(output_base_dir, 'docs', 'lang')
-        else:
-            runtime_output_dir = os.path.join(target_dir, 'docs', 'lang')
-        
-        # Set OUTPUT_DIR to the resolved path
-        OUTPUT_DIR = runtime_output_dir
-
-        # Check project status
-        readme_exists = os.path.isfile(os.path.join(target_dir, SOURCE_FILE))
-        changelog_exists = os.path.isfile(os.path.join(target_dir, CHANGELOG_FILE))
-
-        # Header
-        print(f"\n{Fore.WHITE}🌍 MultiDoc Translator{Style.RESET_ALL}")
-        print(f"{Fore.LIGHTBLACK_EX}Developer: Fatony Ahmad Fauzi{Style.RESET_ALL}\n")
+        print_cli_banner()
 
         # Current Status
         print(f"{Fore.GREEN}✅ Current project path: {target_dir}{Style.RESET_ALL}")
@@ -3925,310 +4367,68 @@ def interactive_menu():
         print(f"{menu_color}[5] Detect GitHub URL{Style.RESET_ALL}")
         print(f"{Fore.RED}[6] Repair Translations (Fix Duplicates & Failures){Style.RESET_ALL}")
         print(f"{Fore.GREEN}[7] Setup Paths{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[8] Toggle Debug Mode{Style.RESET_ALL}")
         print(f"{Fore.LIGHTBLACK_EX}[0] Exit{Style.RESET_ALL}")
 
-        # Get user input
-        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
-        
-        # Check if remove option is disabled
-        if choice == '2' and remove_disabled:
-            print(f"\n{Fore.YELLOW}⚠️  No translated files found to remove.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}There are no README or CHANGELOG files in the output directory.{Style.RESET_ALL}")
-            input("\nPress Enter to continue...")
-            continue
-        
-        if actions_locked and choice in {'1', '2', '3', '4', '5', '6'}:
-            print(f"\n{Fore.YELLOW}⚠️  This action is locked because Output Directory is not set.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Please use [7] Setup Paths first, then return to the main menu.{Style.RESET_ALL}")
-            input("\nPress Enter to continue...")
-            continue
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Style.RESET_ALL}").strip()
 
-        if choice == '1':
-            # Show translate submenu
-            os.system('cls' if os.name == 'nt' else 'clear')
-            translation_status_rows = create_translation_status_table(
-                output_base_dir,
-                target_dir,
-                include_readme=readme_exists,
-                include_changelog=changelog_exists
-            )
-            
-            # Print translation status table
-            print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
-            for row in translation_status_rows:
-                print(row)
-            print()  # Add empty line below translation status
-
-            # Translation menu options
-            print()
-            # Determine colors based on file availability
-            readme_changelog_color = Fore.GREEN if readme_exists and changelog_exists else Fore.LIGHTBLACK_EX
-            readme_only_color = Fore.GREEN if readme_exists else Fore.LIGHTBLACK_EX
-            changelog_only_color = Fore.GREEN if changelog_exists else Fore.LIGHTBLACK_EX
-            
-            print(f"{readme_changelog_color}[1] Translate README & CHANGELOG{Style.RESET_ALL}")
-            print(f"{readme_only_color}[2] Translate README Only{Style.RESET_ALL}")
-            print(f"{changelog_only_color}[3] Translate CHANGELOG Only{Style.RESET_ALL}")
-            print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
-
-            trans_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
-            
-            # Handle disabled options
-            if trans_choice == '1' and not (readme_exists and changelog_exists):
-                if not readme_exists and changelog_exists:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}README.md is missing. Use option [2] to translate README only.{Style.RESET_ALL}")
-                elif readme_exists and not changelog_exists:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}CHANGELOG.md is missing. Use option [3] to translate CHANGELOG only.{Style.RESET_ALL}")
-                else:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}Both README.md and CHANGELOG.md are missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
-                continue
-            
-            if trans_choice == '2' and not readme_exists:
-                print(f"\n{Fore.YELLOW}⚠️  Cannot translate README only.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}README.md is missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
-                continue
-            
-            if trans_choice == '3' and not changelog_exists:
-                print(f"\n{Fore.YELLOW}⚠️  Cannot translate CHANGELOG only.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}CHANGELOG.md is missing.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
-                continue
-            
-            if trans_choice == '1' and readme_exists and changelog_exists:
-                # Translate README & CHANGELOG
-                if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
-                    continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                if langs.lower() == 'all':
-                    langs_list = list(LANGUAGES.keys())
-                else:
-                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-                if langs_list:
-                    translate_with_changelog(langs_list, with_changelog=True, target_dir=target_dir, output_base_dir=output_base_dir)
-                else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
-                
-            elif trans_choice == '2' and readme_exists:
-                # Translate README Only
-                if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
-                    continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                if langs.lower() == 'all':
-                    langs_list = list(LANGUAGES.keys())
-                else:
-                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-                if langs_list:
-                    translate_with_changelog(langs_list, with_changelog=False, target_dir=target_dir, output_base_dir=output_base_dir)
-                else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
-                
-            elif trans_choice == '3' and changelog_exists:
-                # Translate CHANGELOG Only
-                if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
-                    continue
-                langs = input(Fore.CYAN + "Enter language codes (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                if langs.lower() == 'all':
-                    langs_list = list(LANGUAGES.keys())
-                else:
-                    langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
-                if langs_list:
-                    translate_changelog_only(langs_list)
-                else:
-                    print(Fore.RED + "Invalid languages.")
-                input("\nPress Enter to continue...")
-            elif trans_choice != '0':
-                print(Fore.RED + "Invalid option.")
-                input("\nPress Enter to continue...")
-            
-        elif choice == '2':
-            # Remove Translated Languages (was option 4)
-            if not has_translation_output_files(output_base_dir, target_dir):
-                print(f"\n{Fore.YELLOW}⚠️  No translated files found.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}The docs/lang folder is empty or no translation results exist yet.{Style.RESET_ALL}")
-                input("\nPress Enter to continue...")
-                continue
-
-            os.system('cls' if os.name == 'nt' else 'clear')
-            while True:
-                remove_status_rows = create_translation_status_table(
-                    output_base_dir,
-                    target_dir,
-                    include_readme=readme_exists,
-                    include_changelog=changelog_exists
-                )
-                
-                # Print translation status table
-                print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
-                for row in remove_status_rows:
-                    print(row)
-                print()  # Add empty line below translation status
-
-                # Remove menu options
-                print()
-                print(f"{Fore.GREEN}[1] Remove README & CHANGELOG{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[2] Remove README Only{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[3] Remove CHANGELOG Only{Style.RESET_ALL}")
-                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
-
-                sub_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
-                
-                if sub_choice == '0':
-                    break  # Exit remove submenu
-                
-                elif sub_choice == '1':
-                    if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
-                        continue
-                    langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                    if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
-                        continue
-                    if langs.lower() == 'all':
-                        remove_all_language_files()
-                        print(Fore.GREEN + "All translated languages removed.")
-                        input("\nPress Enter to continue...")
-                        continue
-                    else:
-                        lang_codes = [l.strip() for l in langs.split(',')]
-                        removed = remove_language_files(lang_codes)
-                        if removed:
-                            print(Fore.GREEN + f"Removed: {', '.join(removed)}")
-                        input("\nPress Enter to continue...")
-                        continue
-                elif sub_choice == '2':
-                    if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
-                        continue
-                    langs = input(Fore.CYAN + "Enter README language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                    if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
-                        continue
-                    lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
-                    removed = remove_readme_files(lang_codes)
-                    if removed:
-                        print(Fore.GREEN + f"Removed README: {', '.join(removed)}")
-                    input("\nPress Enter to continue...")
-                    continue
-                elif sub_choice == '3':
-                    if not configure_runtime_paths(target_dir, output_base_dir):
-                        input("\nPress Enter to continue...")
-                        continue
-                    langs = input(Fore.CYAN + "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                    if not langs:
-                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
-                        continue
-                    lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
-                    removed = remove_changelog_selected(lang_codes)
-                    if removed:
-                        print(Fore.GREEN + "Selected CHANGELOG files removed.")
-                    input("\nPress Enter to continue...")
-                    continue
-                
-                else:
-                    print(Fore.RED + "Invalid option.")
-                    input("\nPress Enter to continue...")
-                    continue
-            # End of remove submenu loop
-        elif choice == '3':
-            if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
-                continue
-            while True:
-                os.system('cls' if os.name == 'nt' else 'clear')
-                protected = load_protected_phrases()
-                status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
-                print("\n" + f"{Fore.WHITE}Status: {Style.RESET_ALL}", end="")
-                if is_protect_enabled():
-                    print(f"{Fore.GREEN}{status}{Style.RESET_ALL}")
-                else:
-                    print(f"{Fore.RED}{status}{Style.RESET_ALL}")
-                
-                print(f"\n{Fore.CYAN}Protected Phrases:{Style.RESET_ALL}")
-                if protected['protected_phrases']:
-                    for phrase in protected['protected_phrases']:
-                        print(f"- {phrase}")
-                else:
-                    print("- No protected phrases configured.")
-                
-                print()
-                print(f"{Fore.GREEN}[1] Toggle Protection Status{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[2] Add Protected Phrase{Style.RESET_ALL}")
-                print(f"{Fore.GREEN}[3] Remove Protected Phrase{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}[4] Reset to Default{Style.RESET_ALL}")
-                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
-                
-                p_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
-                
-                if p_choice == '1':
-                    set_protect_status(not is_protect_enabled())
-                elif p_choice == '2':
-                    phrase = input(Fore.CYAN + "Enter phrase to protect (leave empty to cancel): " + Fore.WHITE).strip()
-                    if phrase:
-                        protected['protected_phrases'].append(phrase)
-                        save_protected_phrases(protected)
-                        print(Fore.GREEN + f"Added: {phrase}")
-                        time.sleep(1)
-                elif p_choice == '3':
-                    phrase = input(Fore.CYAN + "Enter phrase to remove (leave empty to cancel): " + Fore.WHITE).strip()
-                    if phrase:
-                        if phrase in protected['protected_phrases']:
-                            protected['protected_phrases'].remove(phrase)
-                            save_protected_phrases(protected)
-                            print(Fore.GREEN + f"Removed: {phrase}")
-                        else:
-                            print(Fore.RED + "Phrase not found.")
-                        time.sleep(1)
-                elif p_choice == '4':
-                    save_protected_phrases(DEFAULT_PROTECTED)
-                    print(Fore.GREEN + "Reset to defaults.")
-                    time.sleep(1)
-                elif p_choice == '0':
-                    break
-
-        elif choice == '4':
-            # Auto Setup Changelog Section (was option 6)
-            if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+        if choice == "0":
+            print(f"{Fore.GREEN}Exiting...{Style.RESET_ALL}")
+            return
+        elif choice == "1":
+            # Translate submenu
+            translate_menu()
+        elif choice == "2":
+            # Remove Translated Languages submenu
+            remove_menu()
+        elif choice == "3":
+            # Protection Settings submenu
+            protection_menu()
+        elif choice == "4":
+            # Auto Setup Changelog Section
+            if not output_base_dir:
+                print(f"{Fore.YELLOW}⚠️  Output directory not set! Please use option [7] Setup Paths first.{Style.RESET_ALL}")
+                input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
                 continue
             if add_changelog_section_to_readme():
-                print(Fore.GREEN + "Changelog setup completed.")
+                print(f"{Fore.GREEN}Changelog setup completed.{Style.RESET_ALL}")
             else:
-                print(Fore.RED + "Changelog setup failed.")
-            input("\nPress Enter to continue...")
-            
-        elif choice == '5':
-            # Detect GitHub URL (was option 7)
-            if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+                print(f"{Fore.RED}Changelog setup failed.{Style.RESET_ALL}")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "5":
+            # Detect GitHub URL
+            if not output_base_dir:
+                print(f"{Fore.YELLOW}⚠️  Output directory not set! Please use option [7] Setup Paths first.{Style.RESET_ALL}")
+                input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
                 continue
             detect_github_url()
-            input("\nPress Enter to continue...")
-            
-        elif choice == '6':
-            # Repair Translations (was option 8)
-            if not configure_runtime_paths(target_dir, output_base_dir):
-                input("\nPress Enter to continue...")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "6":
+            # Repair Translations
+            if not output_base_dir:
+                print(f"{Fore.YELLOW}⚠️  Output directory not set! Please use option [7] Setup Paths first.{Style.RESET_ALL}")
+                input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
                 continue
             repair_translations(target_dir=target_dir, output_base_dir=output_base_dir)
-            input("\nPress Enter to continue...")
-            
-        elif choice == '7':
-            # Setup Paths (NEW)
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        elif choice == "7":
+            # Setup Paths submenu
             setup_paths_menu()
-            
-        elif choice == '0':
-            print(Fore.GREEN + "Exiting...")
-            break
+        elif choice == "8":
+            # Toggle Debug Mode
+            current_debug = os.getenv("DEBUG", "0") in ("1", "true", "True")
+            new_debug = not current_debug
+            os.environ["DEBUG"] = "1" if new_debug else "0"
+            if new_debug:
+                print(t("debug_enabled"))
+            else:
+                print(t("debug_disabled"))
+            print(f"{t('debug_current')} DEBUG={os.environ['DEBUG']}")
+            input(f"{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Invalid option.{Style.RESET_ALL}")
+            time.sleep(1)
+
 
 # ---------------------- MAIN PROGRAM ----------------------
 def main():
