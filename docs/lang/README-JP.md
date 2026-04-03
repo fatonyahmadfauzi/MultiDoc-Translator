@@ -25,8 +25,7 @@
 - ⚙️ **自動変更ログ管理** — `CHANGELOG.md` を検出し、変更ログ セクションが見つからない場合は `README.md` に追加し、それを翻訳します。
 - 🔗 **GitHub URL の自動検出** — `package.json` または `.git/config` からリポジトリ URL を取得して、正確なリリース リンクを作成します。
 - 🔒 **高度なフレーズ保護** — コード ブロック、インライン コード、URL、技術用語、ブランド名、カスタム フレーズを保護します (正規表現をサポート)。サイドバーから保護されたフレーズを追加、削除、リスト、またはリセットできます。
-- 💬 生成された各 README に言語スイッチャー ブロックを追加します (例: `> 🌐 他の言語で利用可能: [Polski](docs/lang/README-PL.md) | [中文](docs/lang/README-ZH.md) | [日本語](docs/lang/README-JP.md) | [ドイツ語](docs/lang/README-DE.md) | [フランス語](docs/lang/README-FR.md) | [スペイン語](docs/lang/README-ES.md) | [Русский](docs/lang/README-RU.md) | [ポルトガル語](docs/lang/README-PT.md) | [インドネシア語](docs/lang/README-ID.md) | [한국어](docs/lang/README-KR.md)
-- 🧠 組み込みの Google 翻訳を使用します。アカウントやカスタム API キーは必要ありません。
+- 💬 生成された各 README に言語スイッチャー ブロックを追加します (例: `- 🧠 組み込みの Google 翻訳を使用します - アカウントやカスタム API キーは必要ありません。
 - 🖱️ 言語の選択、保護の管理、翻訳の実行を行うためのユーザーフレンドリーなサイドバーインターフェイス。
 - 📊 詳細な翻訳進行状況の出力を表示します。
 
@@ -80,7 +79,7 @@
 |保護を無効にする | `multi-doc-translator.disableProtect` | - |フレーズ保護システムを無効にする |
 |保護ステータスを確認する | `multi-doc-translator.statusProtect` | - |現在の保護ステータスを表示 (有効/無効) |
 |進行状況の出力を表示 | `multi-doc-translator.showProgress` | - | 「翻訳の進行状況」出力パネルを開きます |
-|自動セットアップ変更ログ | `multi-doc-translator.autoSetupChangelog` | - |不足している場合は、README.md に変更ログセクションを追加します。
+|自動セットアップの変更履歴 | `multi-doc-translator.autoSetupChangelog` | - |不足している場合は、README.md に変更ログセクションを追加します。
 |変更履歴のみを翻訳 | `multi-doc-translator.translateChangelog` | - | `CHANGELOG.md` ファイルのみを翻訳する |
 | GitHub URL を検出 | `multi-doc-translator.detectGitHubUrl` | - | GitHub リポジトリ URL を検出して表示する |
 
@@ -156,6 +155,30 @@ Licence MIT © [Your Name](../../LICENSE)
 
 ---
 
+## 💻 CLI の使用法 (スタンドアロン Python スクリプト)
+
+VS Code を開かずに、トランスレータをスタンドアロンのコマンド ライン インターフェイス (CLI) アプリケーションとして使用することもできます。
+
+**要件：**
+```bash
+pip install deep-translator tqdm colorama
+```
+
+**使用法：**
+ターミナルからスクリプトを直接実行します。美しいインタラクティブなメニューが付属しています。
+
+```bash
+# Start the interactive UI menu
+python path/to/multidoc_translator.py
+
+# Or use command-line arguments directly:
+python multidoc_translator.py --lang jp,zh
+python multidoc_translator.py --translate-changelog all
+python multidoc_translator.py --auto-setup-changelog
+```
+
+---
+
 ## 🛠️ 開発
 
 **TypeScript をコンパイルします : **
@@ -164,7 +187,7 @@ Licence MIT © [Your Name](../../LICENSE)
 npm run compile
 ```
 
-**Lint コード : **
+**コードをリントします:**
 
 ```bash
 npm run lint
@@ -183,7 +206,7 @@ npm test
 1. このリポジトリをフォークします。
 2. `npm install` を実行して依存関係をインストールします。
 3. 変更を加えます。
-4. TypeScript: `npm run compile` をコンパイルします。
+4. TypeScript をコンパイルします: `npm run compile`。
 5. VS Code でテストします (`F5` → _Extension Development Host_)。
 6. プルリクエストを送信します。
 
@@ -191,17 +214,17 @@ npm test
 
 ## 🐞 バグと問題
 
-問題や提案があれば [GitHub 問題ページ](https://github.com/fatonyahmadfauzi/MultiDoc-Translator/issues). で報告してください。
+[GitHub Issues Page](https://github.com/fatonyahmadfauzi/MultiDoc-Translator/issues) に関する問題や提案があれば報告してください。
 
 ---
 
 ## 🧾 変更履歴
 
 [変更履歴](CHANGELOG-JP.md) ファイル内の各バージョンの注目すべき変更点をすべて参照してください。
-📦 [GitHub リリース ページ](https://github.com/fatonyahmadfauzi/MultiDoc-Translator/releases). でリリース ノートを直接表示することもできます。
+📦 [GitHub Releases page](https://github.com/fatonyahmadfauzi/MultiDoc-Translator/releases) でリリース ノートを直接表示することもできます。
 
 ---
 
 ## 🧾 ライセンス
 
-MIT License © [ファトニャフマドファウジ](../../LICENSE)
+MIT License © [ファトンヤマドファウジ](../../LICENSE)

@@ -15,12 +15,13 @@ from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import colorama
 from colorama import Fore, Style, init
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
-from rich.align import Align
-from rich.table import Table
-from rich import box
+
+init(autoreset=True)
+
+# Fix emoji encoding for Windows
+import io
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 SOURCE_FILE = "README.md"
 CHANGELOG_FILE = "CHANGELOG.md"
@@ -1767,15 +1768,14 @@ def detect_github_url():
         return False
 
 def create_square_panel(content, title=None, align_center=False, expand=True):
-    panel_content = Align.center(content) if align_center else content
-    return Panel(
-        panel_content,
-        title=title,
-        title_align="left",
-        border_style="cyan",
-        box=box.SQUARE,
-        expand=expand
-    )
+    """Create a simple text box using print statements"""
+    # For now, just return the content as is for compatibility
+    # The text will be printed separately using print_box or print_header
+    if isinstance(content, str):
+        return content
+    else:
+        # Handle Text objects by converting to string
+        return str(content)
 
 
 def get_translation_file_names(lang_code):
@@ -1797,24 +1797,32 @@ def get_translation_file_names(lang_code):
 
 
 def resolve_translation_output_dirs(base_output_dir=None, target_dir=None):
+    """Resolve possible output directories for translation files"""
     candidate_dirs = []
 
     if base_output_dir:
         candidate_dirs.append(base_output_dir)
-        nested_output_dir = os.path.join(base_output_dir, OUTPUT_DIR)
+        nested_output_dir = os.path.join(base_output_dir, 'docs', 'lang')
         if nested_output_dir not in candidate_dirs:
             candidate_dirs.append(nested_output_dir)
     elif target_dir:
-        candidate_dirs.append(os.path.join(target_dir, OUTPUT_DIR))
+        candidate_dirs.append(os.path.join(target_dir, 'docs', 'lang'))
     else:
-        candidate_dirs.append(os.path.abspath(OUTPUT_DIR))
+        candidate_dirs.append(OUTPUT_DIR)
 
     return candidate_dirs
 
 
 def get_runtime_output_dir(target_dir, output_base_dir=None):
-    base_dir = output_base_dir if output_base_dir else target_dir
-    return os.path.join(base_dir, OUTPUT_DIR)
+    """Get the runtime output directory path"""
+    if output_base_dir:
+        # Check if output_base_dir already ends with docs/lang
+        if output_base_dir.endswith(os.path.join('docs', 'lang')) or output_base_dir.endswith(os.path.join('docs', 'lang').replace('\\', '/')):
+            return output_base_dir
+        else:
+            return os.path.join(output_base_dir, 'docs', 'lang')
+    else:
+        return os.path.join(target_dir, 'docs', 'lang')
 
 
 def configure_runtime_paths(target_dir, output_base_dir=None):
@@ -1836,36 +1844,59 @@ def configure_runtime_paths(target_dir, output_base_dir=None):
     return True
 
 
-def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
-    table = Table(
-        show_header=True,
-        header_style="bold cyan",
-        box=box.SIMPLE_HEAVY,
-        expand=True,
-        pad_edge=False
-    )
-    table.add_column("Code / Language", style="cyan", ratio=3)
-    if include_readme:
-        table.add_column("README", justify="center", ratio=2)
-    if include_changelog:
-        table.add_column("CHANGELOG", justify="center", ratio=2)
+def wcswidth(text):
+    """Compute terminal display width for text with East Asian characters."""
+    import unicodedata
 
+    width = 0
+    for ch in text:
+        ea = unicodedata.east_asian_width(ch)
+        if ea in ('F', 'W'):
+            width += 2
+        else:
+            width += 1
+    return width
+
+
+def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
+    """Create a simple text-based table showing translation status"""
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
+    
+    # Compute max widths for alignment with East Asian width support
+    max_lang_code = max(len(lang_code.upper()) for lang_code in LANGUAGES.keys())
+    max_lang_name = max(wcswidth(lang_name) for lang_name, _, _ in LANGUAGES.values())
+
+    # Build table data
+    rows = []
+    status_column_width = len("AVAILABLE")
 
     for lang_code, (lang_name, _, _) in LANGUAGES.items():
         readme_name, changelog_name = get_translation_file_names(lang_code)
         readme_available = any(os.path.exists(os.path.join(output_dir, readme_name)) for output_dir in output_dirs)
         changelog_available = any(os.path.exists(os.path.join(output_dir, changelog_name)) for output_dir in output_dirs)
-        row = [f"{lang_code.upper()} | {lang_name}"]
+
+        lang_code_field = f"{lang_code.upper():<{max_lang_code}}"
+        pad_spaces = max_lang_name - wcswidth(lang_name)
+        lang_name_field = f"{lang_name}{' ' * pad_spaces}"
+
+        row = f"{lang_code_field} {lang_name_field}"
 
         if include_readme:
-            row.append("[bold green]AVAILABLE[/bold green]" if readme_available else "[bold red]MISSING[/bold red]")
+            readme_status_text = "AVAILABLE" if readme_available else "MISSING"
+            readme_status_display = readme_status_text.ljust(status_column_width)
+            readme_status = f"{Fore.GREEN}{readme_status_display}{Style.RESET_ALL}" if readme_available else f"{Fore.RED}{readme_status_display}{Style.RESET_ALL}"
+            row += f"  {readme_status}"
+
         if include_changelog:
-            row.append("[bold green]AVAILABLE[/bold green]" if changelog_available else "[bold red]MISSING[/bold red]")
+            changelog_status_text = "AVAILABLE" if changelog_available else "MISSING"
+            changelog_status_display = changelog_status_text.ljust(status_column_width)
+            changelog_status = f"{Fore.GREEN}{changelog_status_display}{Style.RESET_ALL}" if changelog_available else f"{Fore.RED}{changelog_status_display}{Style.RESET_ALL}"
+            row += f"  {changelog_status}"
 
-        table.add_row(*row)
+        rows.append(row)
 
-    return table
+    # Return as formatted string
+    return rows
 
 
 def has_translation_output_files(base_output_dir=None, target_dir=None):
@@ -1884,11 +1915,25 @@ def has_translation_output_files(base_output_dir=None, target_dir=None):
 
 
 def cleanup_output_dirs_if_empty():
+    """Recursively remove empty directories starting from OUTPUT_DIR up to docs if empty"""
     try:
+        # First, recursively remove any empty subdirectories
+        for root, dirs, files in os.walk(OUTPUT_DIR, topdown=False):
+            for dir_name in dirs:
+                dir_path = os.path.join(root, dir_name)
+                try:
+                    if not os.listdir(dir_path):
+                        shutil.rmtree(dir_path)
+                        print(t("folder_deleted", folder=dir_path))
+                except Exception as e:
+                    print(t("failed_delete_folder", error=e))
+        
+        # Then check if OUTPUT_DIR itself is empty
         if os.path.exists(OUTPUT_DIR) and not os.listdir(OUTPUT_DIR):
             shutil.rmtree(OUTPUT_DIR)
             print(t("folder_deleted", folder=OUTPUT_DIR))
-
+            
+            # Check if docs folder is also empty
             docs_dir = os.path.dirname(OUTPUT_DIR)
             if os.path.exists(docs_dir) and not os.listdir(docs_dir):
                 shutil.rmtree(docs_dir)
@@ -1896,13 +1941,40 @@ def cleanup_output_dirs_if_empty():
             return True
     except Exception as e:
         print(t("failed_delete_folder", error=e))
-
+    
     return False
+
+
+def set_output_to_docs_lang(project_dir, config, config_file):
+    """Set output_base_dir to docs/lang within the specified project directory."""
+    project_dir = os.path.abspath(project_dir)
+    lang_dir = None
+
+    # Find existing docs/lang inside project directory
+    for root, dirs, files in os.walk(project_dir):
+        if os.path.basename(root).lower() == 'lang' and os.path.basename(os.path.dirname(root)).lower() == 'docs':
+            lang_dir = root
+            break
+
+    if not lang_dir:
+        lang_dir = os.path.join(project_dir, 'docs', 'lang')
+
+    if not os.path.exists(lang_dir):
+        os.makedirs(lang_dir, exist_ok=True)
+        print(Fore.GREEN + f"✅ Created directory: {lang_dir}")
+    else:
+        print(Fore.GREEN + f"✅ Using existing directory: {lang_dir}")
+
+    config['output_base_dir'] = lang_dir
+    with open(config_file, 'w', encoding='utf-8') as f:
+        json.dump(config, f, ensure_ascii=False, indent=2)
+
+    print(Fore.GREEN + f"✅ Output directory set to: {config['output_base_dir']}")
+    time.sleep(1)
 
 
 def setup_paths_menu():
     """Setup paths for input and output directories using .path_config"""
-    console = Console(width=90)
     config_file = PATH_CONFIG_FILE
     
     while True:
@@ -1918,26 +1990,54 @@ def setup_paths_menu():
         target_dir = config.get('target_dir') or os.getcwd()
         output_base_dir = config.get('output_base_dir') or None
         
-        # Header Panel
-        header_text = Text("Setup Paths", style="bold green")
-        console.print(create_square_panel(header_text, align_center=True))
+        # Header
+        print(f"\n{Fore.CYAN}Setup Paths{Style.RESET_ALL}")
+        print()  # Add spacing between title and content
         
-        # Menu Panel
-        menu_text = Text()
-        menu_text.append("[1] Set Target Directory\n", style="green")
-        menu_text.append(f"    Current: {target_dir}\n\n", style="dim")
-        menu_text.append("[2] Set Output Base Directory\n", style="green")
-        menu_text.append(f"    Current: {output_base_dir if output_base_dir else 'Not set'}\n\n", style="dim")
-        menu_text.append("[3] View Current Config\n", style="green")
-        menu_text.append("[0] Back", style="white")
-        console.print(create_square_panel(menu_text, title="Setup Paths"))
+        # Check project status
+        readme_exists = os.path.isfile(os.path.join(target_dir, SOURCE_FILE))
+        changelog_exists = os.path.isfile(os.path.join(target_dir, CHANGELOG_FILE))
+        
+        # Detect project folder name
+        project_folder = os.path.basename(target_dir)
+        print(f"{Fore.CYAN}📂 Folder Project: {project_folder}{Style.RESET_ALL}")
+        print()
+        
+        # Source Files Status
+        readme_color = Fore.GREEN if readme_exists else Fore.RED
+        readme_status = "AVAILABLE" if readme_exists else "NOT FOUND"
+        print(f"{readme_color}{'✅' if readme_exists else '❌'} README.md: {readme_status}{Style.RESET_ALL}")
+        
+        changelog_color = Fore.GREEN if changelog_exists else Fore.RED
+        changelog_status = "AVAILABLE" if changelog_exists else "NOT FOUND"
+        print(f"{changelog_color}{'✅' if changelog_exists else '❌'} CHANGELOG.md: {changelog_status}{Style.RESET_ALL}\n")
+        
+        # Menu
+        print(f"{Fore.GREEN}[1] Set Target Directory{Style.RESET_ALL}")
+        print(f"    Current: {target_dir}")
+        print()
+        print(f"{Fore.GREEN}[2] Set Output Base Directory{Style.RESET_ALL}")
+        print(f"    Current: {output_base_dir if output_base_dir else 'Not set'}")
 
-        choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
+        # Warning if output_base_dir is outside current target project directory
+        if output_base_dir:
+            try:
+                project_root = os.path.abspath(target_dir)
+                output_abs = os.path.abspath(output_base_dir)
+                if not os.path.commonpath([project_root, output_abs]) == project_root:
+                    print(Fore.YELLOW + "\n⚠️  WARNING: Output Directory is in a different project!")
+                    print(Fore.LIGHTBLACK_EX + "(Path is outside the current project folder)")
+            except Exception:
+                pass
+
+        print()
+        print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
         
         if choice == '1':
             print(Fore.CYAN + "Enter target directory path:")
             print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
-            print(Fore.LIGHTBLACK_EX + "  • Type '.' for current directory")
             print(Fore.LIGHTBLACK_EX + "  • Leave empty to cancel")
             new_target = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
             
@@ -1945,8 +2045,8 @@ def setup_paths_menu():
                 print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
                 time.sleep(1)
             elif new_target.lower() == 'root':
-                # Get project root (parent of script directory)
-                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                # Get project root (two levels up from scripts/python)
+                project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
                 # Show confirmation if changing existing directory
                 if target_dir != project_root:
                     print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
@@ -1961,11 +2061,15 @@ def setup_paths_menu():
                 with open(config_file, 'w', encoding='utf-8') as f:
                     json.dump(config, f, ensure_ascii=False, indent=2)
                 print(Fore.GREEN + f"✅ Target directory set to project root: {config['target_dir']}")
+                if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                    set_output_to_docs_lang(project_root, config, config_file)
                 time.sleep(1)
             elif new_target == '.':
                 current_path = os.getcwd()
-                # Show confirmation if changing existing directory
-                if target_dir != current_path:
+                if target_dir == current_path:
+                    print(Fore.YELLOW + "⚠️  Target directory already set to current working directory.")
+                    time.sleep(1)
+                else:
                     print(Fore.YELLOW + f"⚠️  This will replace the current directory:")
                     print(Fore.LIGHTBLACK_EX + f"   Old: {target_dir}")
                     print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
@@ -1974,11 +2078,13 @@ def setup_paths_menu():
                         print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
                         time.sleep(1)
                         continue
-                config['target_dir'] = current_path
-                with open(config_file, 'w', encoding='utf-8') as f:
-                    json.dump(config, f, ensure_ascii=False, indent=2)
-                print(Fore.GREEN + f"✅ Target directory set to current: {config['target_dir']}")
-                time.sleep(1)
+                    config['target_dir'] = current_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Target directory set to current: {config['target_dir']}")
+                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                        set_output_to_docs_lang(current_path, config, config_file)
+                    time.sleep(1)
             else:
                 # Validate path exists - check if it's a file or directory
                 if os.path.isfile(new_target):
@@ -1999,6 +2105,8 @@ def setup_paths_menu():
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
                     print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
+                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                        set_output_to_docs_lang(abs_path, config, config_file)
                     time.sleep(1)
                 elif os.path.isdir(new_target):
                     abs_path = os.path.abspath(new_target)
@@ -2016,6 +2124,8 @@ def setup_paths_menu():
                     with open(config_file, 'w', encoding='utf-8') as f:
                         json.dump(config, f, ensure_ascii=False, indent=2)
                     print(Fore.GREEN + f"✅ Target directory set to: {config['target_dir']}")
+                    if input(Fore.CYAN + "Set output base directory to docs/lang in this project? (y/n): " + Fore.WHITE).strip().lower() == 'y':
+                        set_output_to_docs_lang(abs_path, config, config_file)
                     time.sleep(1)
                 else:
                     print(Fore.RED + f"❌ Path not found: {new_target}")
@@ -2025,29 +2135,16 @@ def setup_paths_menu():
         elif choice == '2':
             print(Fore.CYAN + "Enter output base directory path:")
             print(Fore.LIGHTBLACK_EX + "  • Type 'root' to use project root")
-            print(Fore.LIGHTBLACK_EX + "  • Type '.' for current directory")
-            print(Fore.LIGHTBLACK_EX + "  • Leave empty to unset (use default docs/lang)")
+            print(Fore.LIGHTBLACK_EX + "  • Type 'auto' to find/use docs/lang in current project")
+            print(Fore.LIGHTBLACK_EX + "  • Leave empty to cancel")
             new_output = input(Fore.CYAN + "Path: " + Fore.WHITE).strip()
             
             if not new_output:
-                # Show confirmation if unsetting existing directory
-                if output_base_dir:
-                    print(Fore.YELLOW + f"⚠️  This will unset the output directory:")
-                    print(Fore.LIGHTBLACK_EX + f"   Current: {output_base_dir}")
-                    print(Fore.LIGHTBLACK_EX + f"   Will use default: {OUTPUT_DIR}")
-                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
-                    if confirm != 'y':
-                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
-                        time.sleep(1)
-                        continue
-                config['output_base_dir'] = None
-                with open(config_file, 'w', encoding='utf-8') as f:
-                    json.dump(config, f, ensure_ascii=False, indent=2)
-                print(Fore.GREEN + f"✅ Output directory unset (will use default: {OUTPUT_DIR})")
+                print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
                 time.sleep(1)
             elif new_output.lower() == 'root':
-                # Get project root
-                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                # Get project root (two levels up from scripts/python)
+                project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
                 # Show confirmation if changing existing directory
                 if output_base_dir and output_base_dir != project_root:
                     print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
@@ -2063,23 +2160,65 @@ def setup_paths_menu():
                     json.dump(config, f, ensure_ascii=False, indent=2)
                 print(Fore.GREEN + f"✅ Output directory set to project root: {config['output_base_dir']}")
                 time.sleep(1)
-            elif new_output == '.':
-                current_path = os.getcwd()
-                # Show confirmation if changing existing directory
-                if output_base_dir and output_base_dir != current_path:
-                    print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
-                    print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
-                    print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
-                    confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
-                    if confirm != 'y':
-                        print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+            elif new_output.lower() == 'auto':
+                project_root = target_dir
+                found_path = None
+                for root, dirs, files in os.walk(project_root):
+                    if os.path.basename(root).lower() == 'lang' and os.path.basename(os.path.dirname(root)).lower() == 'docs':
+                        found_path = root
+                        break
+
+                if found_path:
+                    config['output_base_dir'] = found_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Found docs/lang in project, output directory set to: {found_path}")
+                    time.sleep(1)
+                else:
+                    print(Fore.YELLOW + "⚠️  docs/lang tidak ditemukan di project saat ini.")
+                    print(Fore.CYAN + "Lokasi project saat ini: " + Fore.WHITE + f"{project_root}")
+                    print(Fore.GREEN + "Pilih opsi:")
+                    script_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    print(Fore.GREEN + "  [1] Buat docs/lang di root (script root): " + os.path.join(script_root, 'docs', 'lang'))
+                    print(Fore.GREEN + "  [2] Buat docs/lang di path project saat ini: " + os.path.join(project_root, 'docs', 'lang'))
+                    print(Fore.GREEN + "  [0] Batal")
+                    choice_new = input(Fore.CYAN + "Pilihan: " + Fore.WHITE).strip()
+                    if choice_new == '1':
+                        make_path = os.path.join(script_root, 'docs', 'lang')
+                    elif choice_new == '2':
+                        make_path = os.path.join(project_root, 'docs', 'lang')
+                    else:
+                        print(Fore.YELLOW + "⏭️  Tidak ada perubahan.")
                         time.sleep(1)
                         continue
-                config['output_base_dir'] = current_path
-                with open(config_file, 'w', encoding='utf-8') as f:
-                    json.dump(config, f, ensure_ascii=False, indent=2)
-                print(Fore.GREEN + f"✅ Output directory set to current: {config['output_base_dir']}")
-                time.sleep(1)
+
+                    os.makedirs(make_path, exist_ok=True)
+                    config['output_base_dir'] = make_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Folder dibuat dan output directory diset ke: {make_path}")
+                    time.sleep(1)
+
+            elif new_output == '.':
+                current_path = os.getcwd()
+                if output_base_dir == current_path:
+                    print(Fore.YELLOW + "⚠️  Output directory already set to current working directory.")
+                    time.sleep(1)
+                else:
+                    if output_base_dir:
+                        print(Fore.YELLOW + f"⚠️  This will replace the current output directory:")
+                        print(Fore.LIGHTBLACK_EX + f"   Old: {output_base_dir}")
+                        print(Fore.LIGHTBLACK_EX + f"   New: {current_path}")
+                        confirm = input(Fore.YELLOW + "Do you want to continue? (y/n): " + Fore.WHITE).strip().lower()
+                        if confirm != 'y':
+                            print(Fore.YELLOW + "⏭️  Cancelled. No changes made.")
+                            time.sleep(1)
+                            continue
+                    config['output_base_dir'] = current_path
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                    print(Fore.GREEN + f"✅ Output directory set to current: {config['output_base_dir']}")
+                    time.sleep(1)
             else:
                 # Validate path exists - check if it's a file or directory
                 if os.path.isfile(new_output):
@@ -2122,11 +2261,6 @@ def setup_paths_menu():
                     print(Fore.RED + f"❌ Path not found: {new_output}")
                     print(Fore.LIGHTBLACK_EX + f"   Please check if directory or file exists.")
                     time.sleep(2)
-        
-        elif choice == '3':
-            print(Fore.CYAN + "\nCurrent Configuration:")
-            print(json.dumps(config, indent=2, ensure_ascii=False))
-            input(Fore.YELLOW + "\nPress Enter to continue...")
         
         elif choice == '0':
             break
@@ -2372,7 +2506,23 @@ def get_existing_translated_languages():
             existing_langs.append(code)
     return existing_langs
 
-def update_language_switcher(new_languages=None, removed_languages=None):
+def has_translated_files(output_dir=None):
+    """Check if there are any translated README or CHANGELOG files"""
+    check_dir = output_dir or OUTPUT_DIR
+    if not os.path.exists(check_dir):
+        return False
+    
+    translation_files = [
+        filename for filename in os.listdir(check_dir)
+        if (
+            (filename.startswith("README-") or filename.startswith("CHANGELOG-"))
+            and filename.endswith(".md")
+        )
+    ]
+    
+    return len(translation_files) > 0
+
+def update_language_switcher(new_languages=None, removed_languages=None, target_dir=None, output_base_dir=None):
     """Update language switcher in main README and all translated READMEs"""
     
     # Get all existing languages
@@ -2390,6 +2540,22 @@ def update_language_switcher(new_languages=None, removed_languages=None):
             if lang in existing_langs:
                 existing_langs.remove(lang)
     
+    # Determine runtime output directory first (can be in config or default)
+    runtime_output_dir = get_runtime_output_dir(target_dir or os.getcwd(), output_base_dir)
+
+    # Calculate path from main README (target_dir) to translated language files
+    try:
+        main_relative_path = os.path.relpath(runtime_output_dir, target_dir or os.getcwd()).replace('\\', '/')
+    except Exception:
+        main_relative_path = 'docs/lang'
+
+    def build_english_link(from_dir):
+        try:
+            link = os.path.relpath(os.path.join(target_dir or os.getcwd(), SOURCE_FILE), from_dir).replace('\\', '/')
+            return f"[English]({link})"
+        except Exception:
+            return f"[English](../../README.md)"
+    
     # Update main README (English)
     try:
         with open(SOURCE_FILE, "r", encoding="utf-8") as f:
@@ -2406,13 +2572,13 @@ def update_language_switcher(new_languages=None, removed_languages=None):
                 name = LANGUAGES[code][0]
                 # Special filename format for links
                 if code == "jp":
-                    lang_links.append(f"[{name}](docs/lang/README-JP.md)")
+                    lang_links.append(f"[{name}]({main_relative_path}/README-JP.md)")
                 elif code == "zh":
-                    lang_links.append(f"[{name}](docs/lang/README-ZH.md)")
+                    lang_links.append(f"[{name}]({main_relative_path}/README-ZH.md)")
                 elif code == "kr":
-                    lang_links.append(f"[{name}](docs/lang/README-KR.md)")
+                    lang_links.append(f"[{name}]({main_relative_path}/README-KR.md)")
                 else:
-                    lang_links.append(f"[{name}](docs/lang/README-{code.upper()}.md)")
+                    lang_links.append(f"[{name}]({main_relative_path}/README-{code.upper()}.md)")
         
         if lang_links:
             switcher = f"> 🌐 Available in other languages: {' | '.join(lang_links)}"
@@ -2471,8 +2637,11 @@ def update_language_switcher(new_languages=None, removed_languages=None):
                     with open(readme_path, "r", encoding="utf-8") as f:
                         content = f.read()
                     
+                    # Calculate relative path from translation folder to target README for English link
+                    english_link = build_english_link(runtime_output_dir)
+                    
                     # Create link list for this language (all languages except itself)
-                    links = ["[English](../../README.md)"]
+                    links = [english_link]
                     # Order: pl, zh, jp, de, fr, es, ru, pt, id, kr
                     ordered_langs = ["pl", "zh", "jp", "de", "fr", "es", "ru", "pt", "id", "kr"]
                     ordered_others = [code for code in ordered_langs if code in existing_langs and code != lang_code]
@@ -2564,19 +2733,7 @@ def remove_language_files(lang_codes):
         update_language_switcher(removed_languages=removed_langs)
         
         # Remove docs/lang folder if empty, then docs if also empty
-        if not get_existing_translated_languages():
-            try:
-                if os.path.exists(OUTPUT_DIR) and not os.listdir(OUTPUT_DIR):
-                    shutil.rmtree(OUTPUT_DIR)
-                    print(t("folder_deleted", folder=OUTPUT_DIR))
-                    
-                    # Check if docs folder is also empty, if yes remove
-                    docs_dir = os.path.dirname(OUTPUT_DIR)
-                    if os.path.exists(docs_dir) and not os.listdir(docs_dir):
-                        shutil.rmtree(docs_dir)
-                        print(t("folder_deleted", folder=docs_dir))
-            except Exception as e:
-                print(t("failed_delete_folder", error=e))
+        cleanup_output_dirs_if_empty()
     
     return removed_langs
 
@@ -2643,21 +2800,7 @@ def remove_all_language_files():
             print(t("failed_delete_file", filename=filename, error=e))
     
     # Remove docs/lang folder if empty, then docs if also empty
-    try:
-        if os.path.exists(OUTPUT_DIR):
-            if not os.listdir(OUTPUT_DIR):
-                shutil.rmtree(OUTPUT_DIR)
-                print(t("folder_deleted", folder=OUTPUT_DIR))
-                
-                # Check if docs folder is also empty, if yes remove
-                docs_dir = os.path.dirname(OUTPUT_DIR)
-                if os.path.exists(docs_dir) and not os.listdir(docs_dir):
-                    shutil.rmtree(docs_dir)
-                    print(t("folder_deleted", folder=docs_dir))
-            else:
-                print(t("folder_not_empty", folder=OUTPUT_DIR))
-    except Exception as e:
-        print(t("failed_delete_folder", error=e))
+    cleanup_output_dirs_if_empty()
     
     if removed_readme_langs:
         update_language_switcher(removed_languages=removed_readme_langs)
@@ -2685,17 +2828,34 @@ def remove_all_language_files():
 def protect_specific_phrases(text, lang_code):
     """Special protection for important phrases after translation"""
     
-    # Protection for version
-    text = re.sub(r'(\*\*)?1\.85\.0(\*\*)?', '**1.85.0**', text)
+    # Protection for version (generic pattern)
+    text = re.sub(r'(\*\*)?v?\d+\.\d+\.\d+(\*\*)?', lambda m: m.group(0), text)
     
-    # Protection for operating systems
-    text = re.sub(r'(\*\*)?Windows(\*\*)?', '**Windows**', text, flags=re.IGNORECASE)
-    text = re.sub(r'(\*\*)?macOS(\*\*)?', '**macOS**', text, flags=re.IGNORECASE)
-    text = re.sub(r'(\*\*)?Linux(\*\*)?', '**Linux**', text, flags=re.IGNORECASE)
+    # Protection for dates (YYYY-MM-DD format)
+    text = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', lambda m: m.group(0), text)
     
-    # Special protection for OS list format
-    text = re.sub(r'\*\*Windows\*\*,?\s*\*\*macOS\*\*,?\s*(et|and|und|y|и)\s*\*\*Linux\*\*', '**Windows**, **macOS** et **Linux**', text, flags=re.IGNORECASE)
-    text = re.sub(r'\*\*Windows\*\*,?\s*\*\*macOS\*\*,?\s*\*\*Linux\*\*', '**Windows**, **macOS** et **Linux**', text, flags=re.IGNORECASE)
+    # Protection for product names and technical terms
+    text = re.sub(r'\bPixiv OAuth Token\b', 'Pixiv OAuth Token', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bOAuth\b', 'OAuth', text)
+    text = re.sub(r'\bCLI\b', 'CLI', text)
+    text = re.sub(r'\bGUI\b', 'GUI', text)
+    text = re.sub(r'\bAPI\b', 'API', text)
+    text = re.sub(r'\bGitHub\b', 'GitHub', text)
+    text = re.sub(r'\bVercel\b', 'Vercel', text)
+    text = re.sub(r'\bPython\b', 'Python', text)
+    text = re.sub(r'\bWindows\b', 'Windows', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bmacOS\b', 'macOS', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bLinux\b', 'Linux', text, flags=re.IGNORECASE)
+    
+    # Protection for file extensions and paths
+    text = re.sub(r'\b\w+\.\w+\b(?!\s*\))', lambda m: m.group(0) if '.' in m.group(0) else m.group(0), text)
+    
+    # Protection for emoji
+    text = re.sub(r'[🌐🧾🐞✨🔜📦⚙]', lambda m: m.group(0), text)
+    
+    # Protection for version ranges and build codes
+    text = re.sub(r'\bREL-U\d+\b', lambda m: m.group(0), text)
+    text = re.sub(r'\bBUILD-UNKNOWN\b', lambda m: m.group(0), text)
     
     return text
 
@@ -2795,6 +2955,23 @@ def translate_changelog(lang_code, lang_info, protected):
             temp_line = protect(r"`[^`]+`", temp_line)                     # Inline code
             temp_line = protect(r"\[.*?\]\([^)]+\)", temp_line)            # Markdown links
             temp_line = protect(r"\[[\d\.]+\]:\s*\S+", temp_line)          # Version links
+            
+            # Additional protection for file paths, versions, dates, and technical terms
+            temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)     # File paths
+            temp_line = protect(r'\b\w+\.\w+\b', temp_line)                # File extensions
+            temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)          # Versions
+            temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)       # Dates
+            temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
+            temp_line = protect(r'\bOAuth\b', temp_line)
+            temp_line = protect(r'\bCLI\b', temp_line)
+            temp_line = protect(r'\bGUI\b', temp_line)
+            temp_line = protect(r'\bAPI\b', temp_line)
+            temp_line = protect(r'\bGitHub\b', temp_line)
+            temp_line = protect(r'\bVercel\b', temp_line)
+            temp_line = protect(r'\bPython\b', temp_line)
+            temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)             # Emoji
+            temp_line = protect(r'\bREL-U\d+\b', temp_line)                # Build codes
+            temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
             
             # Translate text
             translated = translate_text(temp_line, translate_code)
@@ -3048,20 +3225,7 @@ def remove_changelog_only():
                     print(f"❌ Failed to remove: {file}")
             
             # Remove empty directories
-            try:
-                if os.path.exists(output_dir):
-                    remaining_files = os.listdir(output_dir)
-                    if not remaining_files:
-                        shutil.rmtree(output_dir)
-                        print(f"📁 Folder {output_dir} deleted (empty)")
-                        
-                        # Check if docs folder is also empty
-                        docs_dir = os.path.dirname(output_dir)
-                        if os.path.exists(docs_dir) and not os.listdir(docs_dir):
-                            shutil.rmtree(docs_dir)
-                            print(f"📁 Folder {docs_dir} deleted (empty)")
-            except Exception as e:
-                print(f"❌ Failed to delete folder: {e}")
+            cleanup_output_dirs_if_empty()
                 
         except Exception as e:
             print(f"❌ Error reading directory: {e}")
@@ -3073,12 +3237,22 @@ def remove_changelog_only():
         print(t("info.noChangelogFiles"))
         return False
 
-def translate_with_changelog(lang_codes, with_changelog=True):
+def print_translation_progress(current, total, width=40):
+    """Print inline progress bar with percentage and count."""
+    if total <= 0:
+        return
+    filled = int(width * current / total)
+    bar = "█" * filled + "─" * (width - filled)
+    percent = int(100 * current / total)
+    print(f"  Progress: [{bar}] {current}/{total} ({percent}%)", end='\r', flush=True)
+
+
+def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, output_base_dir=None):
     """
     Translate README with option to include CHANGELOG
     """
     if not lang_codes:
-        print(t("errors.noLanguagesSelected"))
+        print(t("errors.noLanguagesSelected"), flush=True)
         return False
     
     valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
@@ -3109,8 +3283,11 @@ def translate_with_changelog(lang_codes, with_changelog=True):
                         lang_name=lang_name, 
                         current=i+1, 
                         total=len(valid_langs))
-        print(progress_msg)
-        
+        print(progress_msg, flush=True)
+
+        # Show inline visual progress bar per language
+        print_translation_progress(i+1, len(valid_langs))
+
         try:
             # Translate README first
             translate_readme(lang_code, LANGUAGES[lang_code], protected, include_changelog=with_changelog)
@@ -3121,22 +3298,25 @@ def translate_with_changelog(lang_codes, with_changelog=True):
             success_count += 1
             
             # Delay to avoid rate limiting
-            print(t("progress.waiting", seconds=3))
+            print(t("progress.waiting", seconds=3), flush=True)
             time.sleep(3)
             
         except Exception as e:
             error_msg = t("errors.translationFailed", lang_code=lang_code, error=str(e))
-            print(f"❌ {error_msg}")
+            print(f"❌ {error_msg}", flush=True)
     
+    # Complete progress line (remove carriage return overlay)
+    print("", flush=True)
+
     # Update language switcher for ALL existing languages (including English)
     all_langs_for_switcher = ['en'] + valid_langs
-    update_language_switcher(all_langs_for_switcher)
+    update_language_switcher(all_langs_for_switcher, target_dir=target_dir, output_base_dir=output_base_dir)
     
     # Show summary
-    print(t("progress.completed"))
+    print(t("progress.completed"), flush=True)
     
     mode_summary = t("success.filesSavedWithChangelog") if with_changelog else t("success.filesSavedReadmeOnly")
-    print(t("progress.filesSaved", path=os.path.join(OUTPUT_DIR)))
+    print(t("progress.filesSaved", path=os.path.join(OUTPUT_DIR)), flush=True)
     
     success_message = (t("success.translationCompletedWithChangelog", count=success_count) 
                       if with_changelog else 
@@ -3183,9 +3363,17 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
     
     # Get all existing languages to create language switcher
     existing_langs = get_existing_translated_languages()
-    
+
     # Create language switcher for this language
-    links = ["[English](../../README.md)"]
+    # Calculate correct relative path to root README from the translated file location
+    current_file_dir = os.path.dirname(dest_path)
+    english_link = ''
+    try:
+        english_link = os.path.relpath(os.path.join(os.getcwd(), SOURCE_FILE), current_file_dir).replace('\\', '/')
+    except Exception:
+        english_link = '../../README.md'
+
+    links = [f"[English]({english_link})"]
     for code in existing_langs:
         if code != lang_code:
             name = LANGUAGES[code][0]
@@ -3275,11 +3463,30 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
         temp_line = protect(r"`[^`]+`", temp_line)                       # Inline code
         temp_line = protect(r"`auto-translate-readmes\.run`", temp_line) # Command ID
         
-        # Special protection for version and operating systems
-        temp_line = protect(r"\*\*1\.85\.0\*\*", temp_line)             # Specific version 1.85.0
-        temp_line = protect(r"\*\*Windows\*\*", temp_line)              # Windows
-        temp_line = protect(r"\*\*macOS\*\*", temp_line)                # macOS
-        temp_line = protect(r"\*\*Linux\*\*", temp_line)                # Linux
+        # Protection for file paths and names
+        temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)       # File paths like app/pixiv_login.py
+        temp_line = protect(r'\b\w+\.\w+\b', temp_line)                  # File extensions like README.md
+        
+        # Protection for version numbers and dates
+        temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)            # Versions like v1.0.4
+        temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)         # Dates like 2026-03-29
+        
+        # Protection for technical terms and product names
+        temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
+        temp_line = protect(r'\bOAuth\b', temp_line)
+        temp_line = protect(r'\bCLI\b', temp_line)
+        temp_line = protect(r'\bGUI\b', temp_line)
+        temp_line = protect(r'\bAPI\b', temp_line)
+        temp_line = protect(r'\bGitHub\b', temp_line)
+        temp_line = protect(r'\bVercel\b', temp_line)
+        temp_line = protect(r'\bPython\b', temp_line)
+        
+        # Protection for emoji
+        temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)
+        
+        # Protection for build codes
+        temp_line = protect(r'\bREL-U\d+\b', temp_line)
+        temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
         
         # Translate text
         translated = translate_text(temp_line, translate_code)
@@ -3422,13 +3629,13 @@ def translate_markdown_table(content: str, lang_code: str) -> str:
     return content
 
 # ---------------------- INTERACTIVE MENU ----------------------
-def repair_translations():
+def repair_translations(target_dir=None, output_base_dir=None):
     """Repair language switchers positioning, remove duplicates, and detect translation failures."""
     print(Fore.CYAN + "\n[+] Starting Translation Repair Tool...")
     
     # 1. Update/fix all switchers globally
     print(Fore.YELLOW + "1. Cleaning up duplicate switchers and fixing their positions in all READMEs...")
-    update_language_switcher()
+    update_language_switcher(target_dir=target_dir, output_base_dir=output_base_dir)
     
     # 2. Detect translation failures
     print(Fore.YELLOW + "\n2. Scanning translated documents for failures (API errors / unchanged English)...")
@@ -3485,7 +3692,7 @@ def repair_translations():
                 
     if failed_langs:
         print(Fore.CYAN + f"\n3. Re-translating {len(failed_langs)} failed files: {', '.join(failed_langs)}")
-        translate_with_changelog(failed_langs, with_changelog=has_changelog_file())
+        translate_with_changelog(failed_langs, with_changelog=has_changelog_file(), target_dir=target_dir, output_base_dir=output_base_dir)
         print(Fore.GREEN + "\nRepair completed! Missing translations have been fixed.")
     else:
         print(Fore.GREEN + "\nNo failed translations detected. All files are clean and fully repaired!")
@@ -3522,7 +3729,6 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
-    console = Console(width=90)
 
     while True:
         # Clear screen
@@ -3539,98 +3745,145 @@ def interactive_menu():
             target_dir = os.getcwd()
             output_base_dir = None
 
+        # Set OUTPUT_DIR based on configuration
+        if output_base_dir:
+            # Check if output_base_dir already ends with docs/lang
+            if output_base_dir.endswith(os.path.join('docs', 'lang')) or output_base_dir.endswith(os.path.join('docs', 'lang').replace('\\', '/')):
+                runtime_output_dir = output_base_dir
+            else:
+                runtime_output_dir = os.path.join(output_base_dir, 'docs', 'lang')
+        else:
+            runtime_output_dir = os.path.join(target_dir, 'docs', 'lang')
+        
+        # Set OUTPUT_DIR to the resolved path
+        OUTPUT_DIR = runtime_output_dir
+
         # Check project status
         readme_exists = os.path.isfile(os.path.join(target_dir, SOURCE_FILE))
         changelog_exists = os.path.isfile(os.path.join(target_dir, CHANGELOG_FILE))
 
-        # Header Panel
-        header_text = Text()
-        header_text.append("🌍 MultiDoc Translator - CLI Menu\n", style="bold green")
-        header_text.append("Developer: Fatony Ahmad Fauzi", style="green")
-        console.print(create_square_panel(header_text, align_center=True, expand=True))
+        # Header
+        print(f"\n{Fore.WHITE}🌍 MultiDoc Translator{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}Developer: Fatony Ahmad Fauzi{Style.RESET_ALL}\n")
 
-        # Current Status Panel
-        status_text = Text()
-        status_text.append("✅ ", style="bold green")
-        status_text.append(f"Current project path: {target_dir}\n", style="white")
+        # Current Status
+        print(f"{Fore.GREEN}✅ Current project path: {target_dir}{Style.RESET_ALL}")
         output_display = output_base_dir if output_base_dir else 'Not set'
-        status_text.append("📁 ", style="yellow")
-        status_text.append(f"Output Directory: {output_display}", style="white")
-        console.print(create_square_panel(status_text, title="Current Status"))
+        print(f"{Fore.YELLOW}📁 Output Directory: {output_display}{Style.RESET_ALL}")
+        
+        # Validate output directory path
+        if output_base_dir:
+            normalized_output = os.path.abspath(output_base_dir)
+            normalized_target = os.path.abspath(target_dir)
+            # Check if output directory is within the project directory
+            if not normalized_output.startswith(normalized_target):
+                print(f"{Fore.RED}⚠️  WARNING: Output Directory is in a different project!{Style.RESET_ALL}")
+                print(f"{Fore.RED}(Path is outside the current project folder){Style.RESET_ALL}")
+        
+        # Detect project folder name
+        project_folder = os.path.basename(target_dir)
+        print(f"{Fore.CYAN}📂 Folder Project: {project_folder}{Style.RESET_ALL}\n")
 
-        # Source Files Panel
-        files_text = Text()
-        files_text.append("✅ " if readme_exists else "❌ ", style="bold green" if readme_exists else "red")
-        files_text.append(f"README.md: {'AVAILABLE' if readme_exists else 'NOT FOUND'}\n", style="white")
-        files_text.append("✅ " if changelog_exists else "❌ ", style="bold green" if changelog_exists else "red")
-        files_text.append(f"CHANGELOG.md: {'AVAILABLE' if changelog_exists else 'NOT FOUND'}", style="white")
-        console.print(create_square_panel(files_text, title="Source Files"))
+        # Source Files
+        readme_color = Fore.GREEN if readme_exists else Fore.RED
+        readme_status = "AVAILABLE" if readme_exists else "NOT FOUND"
+        print(f"{readme_color}{'✅' if readme_exists else '❌'} README.md: {readme_status}{Style.RESET_ALL}")
+        
+        changelog_color = Fore.GREEN if changelog_exists else Fore.RED
+        changelog_status = "AVAILABLE" if changelog_exists else "NOT FOUND"
+        print(f"{changelog_color}{'✅' if changelog_exists else '❌'} CHANGELOG.md: {changelog_status}{Style.RESET_ALL}\n")
 
         # Warning message if output directory not set
         if not output_base_dir:
-            warning_text = Text()
-            warning_text.append("⚠️ ", style="bold yellow")
-            warning_text.append("Output directory not set!\n", style="bold yellow")
-            warning_text.append("Please use option [7] Setup Paths first.", style="yellow")
-            console.print(create_square_panel(warning_text, title="Warning"))
+            print(f"{Fore.YELLOW}⚠️  Output directory not set!{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Please use option [7] Setup Paths first.{Style.RESET_ALL}\n")
 
         actions_locked = not output_base_dir
+        remove_disabled = not has_translated_files(OUTPUT_DIR)
 
-        # Main Menu Panel
-        menu_text = Text()
-        locked_style = "dim"
-        menu_text.append("[1] Translate\n", style=locked_style if actions_locked else "green")
-        menu_text.append("[2] Remove Translated Languages\n", style=locked_style if actions_locked else "green")
-        menu_text.append("[3] Protection Settings (Phrases)\n", style=locked_style if actions_locked else "green")
-        menu_text.append("[4] Auto Setup Changelog Section\n", style=locked_style if actions_locked else "green")
-        menu_text.append("[5] Detect GitHub URL\n", style=locked_style if actions_locked else "green")
-        menu_text.append("[6] Repair Translations (Fix Duplicates & Failures)\n", style=locked_style if actions_locked else "red")
-        menu_text.append("[7] Setup Paths\n", style="green")
-        menu_text.append("[0] Exit", style="white")
-        console.print(create_square_panel(menu_text, title="Main Menu"))
+        # Main Menu
+        menu_color = Fore.LIGHTBLACK_EX if actions_locked else Fore.GREEN
+        remove_color = Fore.LIGHTBLACK_EX if remove_disabled or actions_locked else Fore.GREEN
+        print(f"{menu_color}[1] Translate{Style.RESET_ALL}")
+        print(f"{remove_color}[2] Remove Translated Languages{Style.RESET_ALL}")
+        print(f"{menu_color}[3] Protection Settings (Phrases){Style.RESET_ALL}")
+        print(f"{menu_color}[4] Auto Setup Changelog Section{Style.RESET_ALL}")
+        print(f"{menu_color}[5] Detect GitHub URL{Style.RESET_ALL}")
+        print(f"{Fore.RED}[6] Repair Translations (Fix Duplicates & Failures){Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[7] Setup Paths{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] Exit{Style.RESET_ALL}")
 
         # Get user input
-        choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
+        choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+        
+        # Check if remove option is disabled
+        if choice == '2' and remove_disabled:
+            print(f"\n{Fore.YELLOW}⚠️  No translated files found to remove.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}There are no README or CHANGELOG files in the output directory.{Style.RESET_ALL}")
+            input("\nPress Enter to continue...")
+            continue
+        
         if actions_locked and choice in {'1', '2', '3', '4', '5', '6'}:
-            fallback_text = Text()
-            fallback_text.append("⚠️ ", style="bold yellow")
-            fallback_text.append("This action is locked because Output Directory is not set.\n", style="bold yellow")
-            fallback_text.append("Please use [7] Setup Paths first, then return to the main menu.", style="yellow")
-            console.print(create_square_panel(fallback_text, title="Action Locked"))
+            print(f"\n{Fore.YELLOW}⚠️  This action is locked because Output Directory is not set.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Please use [7] Setup Paths first, then return to the main menu.{Style.RESET_ALL}")
             input("\nPress Enter to continue...")
             continue
 
         if choice == '1':
             # Show translate submenu
             os.system('cls' if os.name == 'nt' else 'clear')
-            translation_status_table = create_translation_status_table(
+            translation_status_rows = create_translation_status_table(
                 output_base_dir,
                 target_dir,
                 include_readme=readme_exists,
                 include_changelog=changelog_exists
             )
-            console.print(
-                create_square_panel(
-                    translation_status_table,
-                    title="Translation Status"
-                )
-            )
+            
+            # Print translation status table
+            print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
+            for row in translation_status_rows:
+                print(row)
+            print()  # Add empty line below translation status
 
-            translate_menu = Text()
-            if readme_exists and changelog_exists:
-                translate_menu.append("[1] Translate README & CHANGELOG\n", style="green")
-                translate_menu.append("[2] Translate README Only\n", style="green")
-                translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
-            elif readme_exists:
-                translate_menu.append("[2] Translate README Only\n", style="green")
-            elif changelog_exists:
-                translate_menu.append("[3] Translate CHANGELOG Only\n", style="green")
-            else:
-                translate_menu.append("No source files available for translation.\n", style="red")
-            translate_menu.append("[0] Back", style="white")
-            console.print(create_square_panel(translate_menu, title="Translation Options"))
+            # Translation menu options
+            print()
+            # Determine colors based on file availability
+            readme_changelog_color = Fore.GREEN if readme_exists and changelog_exists else Fore.LIGHTBLACK_EX
+            readme_only_color = Fore.GREEN if readme_exists else Fore.LIGHTBLACK_EX
+            changelog_only_color = Fore.GREEN if changelog_exists else Fore.LIGHTBLACK_EX
+            
+            print(f"{readme_changelog_color}[1] Translate README & CHANGELOG{Style.RESET_ALL}")
+            print(f"{readme_only_color}[2] Translate README Only{Style.RESET_ALL}")
+            print(f"{changelog_only_color}[3] Translate CHANGELOG Only{Style.RESET_ALL}")
+            print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
 
-            trans_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
+            trans_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+            
+            # Handle disabled options
+            if trans_choice == '1' and not (readme_exists and changelog_exists):
+                if not readme_exists and changelog_exists:
+                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}README.md is missing. Use option [2] to translate README only.{Style.RESET_ALL}")
+                elif readme_exists and not changelog_exists:
+                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}CHANGELOG.md is missing. Use option [3] to translate CHANGELOG only.{Style.RESET_ALL}")
+                else:
+                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}Both README.md and CHANGELOG.md are missing.{Style.RESET_ALL}")
+                input("\nPress Enter to continue...")
+                continue
+            
+            if trans_choice == '2' and not readme_exists:
+                print(f"\n{Fore.YELLOW}⚠️  Cannot translate README only.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}README.md is missing.{Style.RESET_ALL}")
+                input("\nPress Enter to continue...")
+                continue
+            
+            if trans_choice == '3' and not changelog_exists:
+                print(f"\n{Fore.YELLOW}⚠️  Cannot translate CHANGELOG only.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}CHANGELOG.md is missing.{Style.RESET_ALL}")
+                input("\nPress Enter to continue...")
+                continue
             
             if trans_choice == '1' and readme_exists and changelog_exists:
                 # Translate README & CHANGELOG
@@ -3643,7 +3896,7 @@ def interactive_menu():
                 else:
                     langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
                 if langs_list:
-                    translate_with_changelog(langs_list, with_changelog=True)
+                    translate_with_changelog(langs_list, with_changelog=True, target_dir=target_dir, output_base_dir=output_base_dir)
                 else:
                     print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
@@ -3659,7 +3912,7 @@ def interactive_menu():
                 else:
                     langs_list = [l.strip() for l in langs.split(',') if l.strip() in LANGUAGES]
                 if langs_list:
-                    translate_with_changelog(langs_list, with_changelog=False)
+                    translate_with_changelog(langs_list, with_changelog=False, target_dir=target_dir, output_base_dir=output_base_dir)
                 else:
                     print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
@@ -3680,76 +3933,99 @@ def interactive_menu():
                     print(Fore.RED + "Invalid languages.")
                 input("\nPress Enter to continue...")
             elif trans_choice != '0':
-                print(Fore.RED + "Selected option is not available for the current source files.")
+                print(Fore.RED + "Invalid option.")
                 input("\nPress Enter to continue...")
             
         elif choice == '2':
             # Remove Translated Languages (was option 4)
             if not has_translation_output_files(output_base_dir, target_dir):
-                empty_remove_text = Text()
-                empty_remove_text.append("⚠️ ", style="bold yellow")
-                empty_remove_text.append("No translated files found.\n", style="bold yellow")
-                empty_remove_text.append("The docs/lang folder is empty or no translation results exist yet.", style="yellow")
-                console.print(create_square_panel(empty_remove_text, title="Remove Translations"))
+                print(f"\n{Fore.YELLOW}⚠️  No translated files found.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}The docs/lang folder is empty or no translation results exist yet.{Style.RESET_ALL}")
                 input("\nPress Enter to continue...")
                 continue
 
             os.system('cls' if os.name == 'nt' else 'clear')
-            remove_status_table = create_translation_status_table(
-                output_base_dir,
-                target_dir,
-                include_readme=readme_exists,
-                include_changelog=changelog_exists
-            )
-            console.print(
-                create_square_panel(
-                    remove_status_table,
-                    title="Translation Status"
+            while True:
+                remove_status_rows = create_translation_status_table(
+                    output_base_dir,
+                    target_dir,
+                    include_readme=readme_exists,
+                    include_changelog=changelog_exists
                 )
-            )
-            remove_menu = Text()
-            remove_menu.append("[1] Remove README & CHANGELOG\n", style="green")
-            remove_menu.append("[2] Remove README Only\n", style="green")
-            remove_menu.append("[3] Remove CHANGELOG Only\n", style="green")
-            remove_menu.append("[0] Back", style="white")
-            console.print(create_square_panel(remove_menu, title="Remove Translations"))
+                
+                # Print translation status table
+                print(f"\n{Fore.CYAN}Translation Status:{Style.RESET_ALL}\n")
+                for row in remove_status_rows:
+                    print(row)
+                print()  # Add empty line below translation status
 
-            sub_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
-            if sub_choice == '1':
-                if not configure_runtime_paths(target_dir, output_base_dir):
-                    input("\nPress Enter to continue...")
-                    continue
-                langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                if langs.lower() == 'all':
-                    remove_all_language_files()
-                    print(Fore.GREEN + "All translated languages removed.")
-                else:
-                    lang_codes = [l.strip() for l in langs.split(',')]
-                    removed = remove_language_files(lang_codes)
+                # Remove menu options
+                print()
+                print(f"{Fore.GREEN}[1] Remove README & CHANGELOG{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[2] Remove README Only{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[3] Remove CHANGELOG Only{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+
+                sub_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+                
+                if sub_choice == '0':
+                    break  # Exit remove submenu
+                
+                elif sub_choice == '1':
+                    if not configure_runtime_paths(target_dir, output_base_dir):
+                        input("\nPress Enter to continue...")
+                        continue
+                    langs = input(Fore.CYAN + "Enter language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    if not langs:
+                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        continue
+                    if langs.lower() == 'all':
+                        remove_all_language_files()
+                        print(Fore.GREEN + "All translated languages removed.")
+                        input("\nPress Enter to continue...")
+                        continue
+                    else:
+                        lang_codes = [l.strip() for l in langs.split(',')]
+                        removed = remove_language_files(lang_codes)
+                        if removed:
+                            print(Fore.GREEN + f"Removed: {', '.join(removed)}")
+                        input("\nPress Enter to continue...")
+                        continue
+                elif sub_choice == '2':
+                    if not configure_runtime_paths(target_dir, output_base_dir):
+                        input("\nPress Enter to continue...")
+                        continue
+                    langs = input(Fore.CYAN + "Enter README language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    if not langs:
+                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        continue
+                    lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
+                    removed = remove_readme_files(lang_codes)
                     if removed:
-                        print(Fore.GREEN + f"Removed: {', '.join(removed)}")
-            elif sub_choice == '2':
-                if not configure_runtime_paths(target_dir, output_base_dir):
+                        print(Fore.GREEN + f"Removed README: {', '.join(removed)}")
                     input("\nPress Enter to continue...")
                     continue
-                langs = input(Fore.CYAN + "Enter README language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
-                removed = remove_readme_files(lang_codes)
-                if removed:
-                    print(Fore.GREEN + f"Removed README: {', '.join(removed)}")
-            elif sub_choice == '3':
-                if not configure_runtime_paths(target_dir, output_base_dir):
+                elif sub_choice == '3':
+                    if not configure_runtime_paths(target_dir, output_base_dir):
+                        input("\nPress Enter to continue...")
+                        continue
+                    langs = input(Fore.CYAN + "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
+                    if not langs:
+                        print(Fore.YELLOW + "Action cancelled. Returning to remove menu...\n")
+                        continue
+                    lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
+                    removed = remove_changelog_selected(lang_codes)
+                    if removed:
+                        print(Fore.GREEN + "Selected CHANGELOG files removed.")
                     input("\nPress Enter to continue...")
                     continue
-                langs = input(Fore.CYAN + "Enter CHANGELOG language codes to remove (comma-separated, or 'all'): " + Fore.WHITE).strip()
-                lang_codes = list(LANGUAGES.keys()) if langs.lower() == 'all' else [l.strip() for l in langs.split(',')]
-                removed = remove_changelog_selected(lang_codes)
-                if removed:
-                    print(Fore.GREEN + "Selected CHANGELOG files removed.")
-            input("\nPress Enter to continue...")
-            
+                
+                else:
+                    print(Fore.RED + "Invalid option.")
+                    input("\nPress Enter to continue...")
+                    continue
+            # End of remove submenu loop
         elif choice == '3':
-            # Protection Settings (was option 5)
             if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
@@ -3757,26 +4033,27 @@ def interactive_menu():
                 os.system('cls' if os.name == 'nt' else 'clear')
                 protected = load_protected_phrases()
                 status = "ACTIVE" if is_protect_enabled() else "INACTIVE"
-                protection_text = Text()
-                protection_text.append("Status: ", style="white")
-                protection_text.append(
-                    f"{status}\n",
-                    style="bold green" if is_protect_enabled() else "bold red"
-                )
-                protection_text.append("\nProtected Phrases:\n", style="bold cyan")
+                print("\n" + f"{Fore.WHITE}Status: {Style.RESET_ALL}", end="")
+                if is_protect_enabled():
+                    print(f"{Fore.GREEN}{status}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}{status}{Style.RESET_ALL}")
+                
+                print(f"\n{Fore.CYAN}Protected Phrases:{Style.RESET_ALL}")
                 if protected['protected_phrases']:
                     for phrase in protected['protected_phrases']:
-                        protection_text.append(f"- {phrase}\n", style="white")
+                        print(f"- {phrase}")
                 else:
-                    protection_text.append("- No protected phrases configured.\n", style="dim")
-                protection_text.append("\n", style="white")
-                protection_text.append("[1] Toggle Protection Status\n", style="green")
-                protection_text.append("[2] Add Protected Phrase\n", style="green")
-                protection_text.append("[3] Remove Protected Phrase\n", style="green")
-                protection_text.append("[4] Reset to Default\n", style="yellow")
-                protection_text.append("[0] Back", style="white")
-                console.print(create_square_panel(protection_text, title="Protection Settings"))
-                p_choice = console.input("\n[bold yellow][+] Select option: [/bold yellow]").strip()
+                    print("- No protected phrases configured.")
+                
+                print()
+                print(f"{Fore.GREEN}[1] Toggle Protection Status{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[2] Add Protected Phrase{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[3] Remove Protected Phrase{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[4] Reset to Default{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] Back{Style.RESET_ALL}")
+                
+                p_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
                 
                 if p_choice == '1':
                     set_protect_status(not is_protect_enabled())
@@ -3828,13 +4105,12 @@ def interactive_menu():
             if not configure_runtime_paths(target_dir, output_base_dir):
                 input("\nPress Enter to continue...")
                 continue
-            repair_translations()
+            repair_translations(target_dir=target_dir, output_base_dir=output_base_dir)
             input("\nPress Enter to continue...")
             
         elif choice == '7':
             # Setup Paths (NEW)
             setup_paths_menu()
-            input("\nPress Enter to continue...")
             
         elif choice == '0':
             print(Fore.GREEN + "Exiting...")
@@ -4029,13 +4305,13 @@ def main():
         
         if valid_langs:
             # Translate selected languages with CHANGELOG option
-            translate_with_changelog(valid_langs, with_changelog)
+            translate_with_changelog(valid_langs, with_changelog, target_dir=os.getcwd(), output_base_dir=OUTPUT_DIR)
         else:
             print(t("no_valid_language"))
     else:
         # Translate all languages with CHANGELOG option
         all_langs = list(LANGUAGES.keys())
-        translate_with_changelog(all_langs, with_changelog)
+        translate_with_changelog(all_langs, with_changelog, target_dir=os.getcwd(), output_base_dir=OUTPUT_DIR)
     
     print("\n" + t("all_translated") + "\n")
 

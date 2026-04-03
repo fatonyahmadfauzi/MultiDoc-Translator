@@ -16,6 +16,16 @@
     "GitHub",
     "README\\.md",
     "CHANGELOG\\.md",
-    "Markdown"
+    "Markdown",
+    "Pixiv OAuth Token",
+    "OAuth",
+    "CLI",
+    "GUI",
+    "Vercel",
+    "Python",
+    "v\\d+\\.\\d+\\.\\d+",
+    "\\d{4}-\\d{2}-\\d{2}",
+    "REL-U\\d+",
+    "BUILD-UNKNOWN"
   ]
 }
