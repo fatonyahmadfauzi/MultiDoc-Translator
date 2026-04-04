@@ -238,11 +238,22 @@ Examples:
         # NEW: Progress messages for CHANGELOG only
         "progress.translatingWithChangelog": "Translating README + CHANGELOG",
         "progress.translatingReadmeOnly": "Translating README only",
-        "success.filesSavedWithChangelog": "READMEs and CHANGELOGs", 
+        "progress.translatingChangelogOnly": "Translating CHANGELOG only",
+        "success.filesSavedWithChangelog": "READMEs and CHANGELOGs",
         "success.filesSavedReadmeOnly": "READMEs only",
+        "success.filesSavedChangelogOnly": "CHANGELOGs only",
         "success.translationCompletedWithChangelog": "✅ {count} READMEs and CHANGELOGs successfully translated!",
         "success.translationCompletedReadmeOnly": "✅ {count} READMEs successfully translated!",
+        "success.translationCompletedChangelogOnly": "✅ {count} CHANGELOGs successfully translated!",
         "info.noChangelogFileSkipping": "⚠️ CHANGELOG.md not found - skipping CHANGELOG translation",
+        "ui.cannotTranslateBoth": "⚠️  Cannot translate README & CHANGELOG.",
+        "ui.missingReadmeForBoth": "README.md is missing. Use option [2] to translate README only.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md is missing. Use option [3] to translate CHANGELOG only.",
+        "ui.missingBothFiles": "Both README.md and CHANGELOG.md are missing.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Cannot translate README only.",
+        "ui.missingReadme": "README.md is missing.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Cannot translate CHANGELOG only.",
+        "ui.missingChangelog": "CHANGELOG.md is missing.",
         
         # NEW: Error and success messages for CHANGELOG only
         "errors.changelogGenerateFailed": "❌ CHANGELOG generation failed",
@@ -388,6 +399,8 @@ Examples:
         "ui.checkPkgRepo": "• package.json has 'repository' field",
         "ui.checkGitRemote": "• .git/config has remote URL",
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
+        "ui.noTranslatedFilesRemove": "⚠️  No translated files found to remove.",
+        "ui.noFilesInOutputDir": "There are no CHANGELOG files in the output directory.",
     },
     "id": {
         "ui.codeLanguage": "Kode/Bahasa",
@@ -636,6 +649,18 @@ Contoh:
         "ui.checkPkgRepo": "• package.json memiliki field 'repository'",
         "ui.checkGitRemote": "• .git/config memiliki URL remote",
         "ui.checkReadmeUrl": "• Atau tambahkan URL GitHub secara manual ke README",
+        "ui.noTranslatedFilesRemove": "⚠️  Tidak ada file terjemahan yang ditemukan untuk dihapus.",
+        "ui.noFilesInOutputDir": "Tidak ada file Changelog (Log Perubahan) di direktori output.",
+        "progress.translatingChangelogOnly": "Menerjemahkan hanya Changelog (Log Perubahan)",
+        "success.translationCompletedChangelogOnly": "✅ {count} Changelog (Log Perubahan) berhasil diterjemahkan!",
+        "ui.cannotTranslateBoth": "⚠️  Tidak bisa menerjemahkan README & CHANGELOG.",
+        "ui.missingReadmeForBoth": "README.md tidak ada. Gunakan opsi [2] untuk menerjemahkan README saja.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md tidak ada. Gunakan opsi [3] untuk menerjemahkan CHANGELOG saja.",
+        "ui.missingBothFiles": "README.md dan CHANGELOG.md keduanya tidak ada.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Tidak bisa menerjemahkan README saja.",
+        "ui.missingReadme": "README.md tidak ditemukan.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Tidak bisa menerjemahkan CHANGELOG saja.",
+        "ui.missingChangelog": "CHANGELOG.md tidak ditemukan.",
     },
     "jp": {
         "ui.codeLanguage": "コード/言語",
@@ -885,6 +910,18 @@ Contoh:
         "ui.checkPkgRepo": "• package.json に 'repository' フィールドがあるか",
         "ui.checkGitRemote": "• .git/config にリモート URL があるか",
         "ui.checkReadmeUrl": "• または GitHub URL を README に手動で追加してください",
+        "ui.noTranslatedFilesRemove": "⚠️  削除する翻訳ファイルが見つかりません。",
+        "ui.noFilesInOutputDir": "出力ディレクトリにチェンジログ (CHANGELOG) ファイルがありません。",
+        "progress.translatingChangelogOnly": "チェンジログ (CHANGELOG) のみ翻訳中",
+        "success.translationCompletedChangelogOnly": "✅ {count} 個のチェンジログ (CHANGELOG) の翻訳が完了しました！",
+        "ui.cannotTranslateBoth": "⚠️  README と CHANGELOG の両方を翻訳できません。",
+        "ui.missingReadmeForBoth": "README.md がありません。オプション [2] で README のみを翻訳してください。",
+        "ui.missingChangelogForBoth": "CHANGELOG.md がありません。オプション [3] で CHANGELOG のみを翻訳してください。",
+        "ui.missingBothFiles": "README.md と CHANGELOG.md の両方がありません。",
+        "ui.cannotTranslateReadmeOnly": "⚠️  README のみを翻訳できません。",
+        "ui.missingReadme": "README.md が見つかりません。",
+        "ui.cannotTranslateChangelogOnly": "⚠️  チェンジログのみを翻訳できません。",
+        "ui.missingChangelog": "CHANGELOG.md が見つかりません。",
     },
     "de": {
         "ui.codeLanguage": "Code/Sprache",
@@ -1133,6 +1170,18 @@ Beispiele:
         "ui.checkPkgRepo": "• package.json has 'repository' field",
         "ui.checkGitRemote": "• .git/config has remote URL",
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
+        "ui.noTranslatedFilesRemove": "⚠️  Keine übersetzten Dateien zum Entfernen gefunden.",
+        "ui.noFilesInOutputDir": "Es gibt keine CHANGELOG-Dateien im Ausgabeverzeichnis.",
+        "progress.translatingChangelogOnly": "Nur Änderungsprotokoll (CHANGELOG) übersetzen",
+        "success.translationCompletedChangelogOnly": "✅ {count} Änderungsprotokolle (CHANGELOGs) erfolgreich übersetzt!",
+        "ui.cannotTranslateBoth": "⚠️  README & CHANGELOG können nicht übersetzt werden.",
+        "ui.missingReadmeForBoth": "README.md fehlt. Verwende Option [2] um nur README zu übersetzen.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md fehlt. Verwende Option [3] um nur CHANGELOG zu übersetzen.",
+        "ui.missingBothFiles": "Sowohl README.md als auch CHANGELOG.md fehlen.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Nur-README-Übersetzung nicht möglich.",
+        "ui.missingReadme": "README.md fehlt.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Nur-CHANGELOG-Übersetzung nicht möglich.",
+        "ui.missingChangelog": "CHANGELOG.md fehlt.",
     },
     "es": {
         "ui.codeLanguage": "Código/Idioma",
@@ -1381,6 +1430,18 @@ Ejemplos:
         "ui.checkPkgRepo": "• Que package.json tenga el campo 'repository'",
         "ui.checkGitRemote": "• Que .git/config tenga una URL remota",
         "ui.checkReadmeUrl": "• O añada la URL de GitHub manualmente al README",
+        "ui.noTranslatedFilesRemove": "⚠️  No se encontraron archivos traducidos para eliminar.",
+        "ui.noFilesInOutputDir": "No hay archivos CHANGELOG (Registro de Cambios) en el directorio de salida.",
+        "progress.translatingChangelogOnly": "Traduciendo solo CHANGELOG (Registro de Cambios)",
+        "success.translationCompletedChangelogOnly": "✅ ¡{count} CHANGELOG (Registros de Cambios) traducidos exitosamente!",
+        "ui.cannotTranslateBoth": "⚠️  No se puede traducir README & CHANGELOG.",
+        "ui.missingReadmeForBoth": "Falta README.md. Use la opción [2] para traducir solo el README.",
+        "ui.missingChangelogForBoth": "Falta CHANGELOG.md. Use la opción [3] para traducir solo el CHANGELOG.",
+        "ui.missingBothFiles": "Faltan tanto README.md como CHANGELOG.md.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  No se puede traducir solo el README.",
+        "ui.missingReadme": "Falta README.md.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  No se puede traducir solo el CHANGELOG.",
+        "ui.missingChangelog": "Falta CHANGELOG.md.",
     },
     "fr": {
         "ui.codeLanguage": "Code/Langue",
@@ -1629,6 +1690,18 @@ Exemples :
         "ui.checkPkgRepo": "• package.json contient le champ 'repository'",
         "ui.checkGitRemote": "• .git/config contient l'URL distante",
         "ui.checkReadmeUrl": "• Ou ajoutez l'URL GitHub manuellement dans README",
+        "ui.noTranslatedFilesRemove": "⚠️  Aucun fichier traduit trouvé à supprimer.",
+        "ui.noFilesInOutputDir": "Il n'y a pas de fichiers CHANGELOG (Journal des Changements) dans le répertoire de sortie.",
+        "progress.translatingChangelogOnly": "Traduction du Journal des Changements (CHANGELOG) uniquement",
+        "success.translationCompletedChangelogOnly": "✅ {count} Journaux des Changements (CHANGELOG) traduits avec succès !",
+        "ui.cannotTranslateBoth": "⚠️  Impossible de traduire README & CHANGELOG.",
+        "ui.missingReadmeForBoth": "README.md est manquant. Utilisez l'option [2] pour traduire uniquement le README.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md est manquant. Utilisez l'option [3] pour traduire uniquement le CHANGELOG.",
+        "ui.missingBothFiles": "README.md et CHANGELOG.md sont tous les deux manquants.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Impossible de traduire uniquement le README.",
+        "ui.missingReadme": "README.md est manquant.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Impossible de traduire uniquement le CHANGELOG.",
+        "ui.missingChangelog": "CHANGELOG.md est manquant.",
         "progress.barLabel": "Progression :",
     },
     "kr": {
@@ -1878,6 +1951,18 @@ Exemples :
         "ui.checkPkgRepo": "• package.json에 'repository' 필드가 있는지",
         "ui.checkGitRemote": "• .git/config에 원격 URL이 있는지",
         "ui.checkReadmeUrl": "• 또는 GitHub URL을 README에 수동으로 추가하세요",
+        "ui.noTranslatedFilesRemove": "⚠️  제거할 번역 파일을 찾을 수 없습니다.",
+        "ui.noFilesInOutputDir": "출력 디렉토리에 변경 로그 (CHANGELOG) 파일이 없습니다.",
+        "progress.translatingChangelogOnly": "변경 로그 (CHANGELOG)만 번역 중",
+        "success.translationCompletedChangelogOnly": "✅ {count}개 변경 로그 (CHANGELOG) 번역 성공!",
+        "ui.cannotTranslateBoth": "⚠️  README 와 CHANGELOG를 번역할 수 없습니다.",
+        "ui.missingReadmeForBoth": "README.md가 없습니다. [2]로 README만 번역하세요.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md가 없습니다. [3]으로 CHANGELOG만 번역하세요.",
+        "ui.missingBothFiles": "README.md와 CHANGELOG.md 둘 다 없습니다.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  README만 번역할 수 없습니다.",
+        "ui.missingReadme": "README.md를 찾을 수 없습니다.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  CHANGELOG만 번역할 수 없습니다.",
+        "ui.missingChangelog": "CHANGELOG.md를 찾을 수 없습니다.",
     },
     "pl": {
         "ui.codeLanguage": "Kod/język",
@@ -2126,6 +2211,18 @@ Przykłady:
         "ui.checkPkgRepo": "• package.json has 'repository' field",
         "ui.checkGitRemote": "• .git/config has remote URL",
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
+        "ui.noTranslatedFilesRemove": "⚠️  Nie znaleziono przetłumaczonych plików do usunięcia.",
+        "ui.noFilesInOutputDir": "W katalogu wyjściowym nie ma plików CHANGELOG (Log Zmian).",
+        "progress.translatingChangelogOnly": "Tłumaczenie tylko CHANGELOG (Log Zmian)",
+        "success.translationCompletedChangelogOnly": "✅ {count} CHANGELOG (Log Zmian) przetłumaczone pomyślnie!",
+        "ui.cannotTranslateBoth": "⚠️  Nie można przetłumaczyć README i CHANGELOG.",
+        "ui.missingReadmeForBoth": "Brak README.md. Użyj opcji [2] aby przełumaczyć tylko README.",
+        "ui.missingChangelogForBoth": "Brak CHANGELOG.md. Użyj opcji [3] aby przełumaczyć tylko CHANGELOG.",
+        "ui.missingBothFiles": "Brak zarówno README.md jak i CHANGELOG.md.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Nie można przełumaczyć tylko README.",
+        "ui.missingReadme": "Brak pliku README.md.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Nie można przełumaczyć tylko CHANGELOG.",
+        "ui.missingChangelog": "Brak pliku CHANGELOG.md.",
     },
     "pt": {
         "ui.codeLanguage": "Código/Idioma",
@@ -2374,6 +2471,18 @@ Exemplos:
         "ui.checkPkgRepo": "• package.json has 'repository' field",
         "ui.checkGitRemote": "• .git/config has remote URL",
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
+        "ui.noTranslatedFilesRemove": "⚠️  Nenhum arquivo traduzido encontrado para remover.",
+        "ui.noFilesInOutputDir": "Não há arquivos CHANGELOG (Registro de Alterações) no diretório de saída.",
+        "progress.translatingChangelogOnly": "Traduzindo apenas CHANGELOG (Registro de Alterações)",
+        "success.translationCompletedChangelogOnly": "✅ {count} CHANGELOG (Registros de Alterações) traduzidos com sucesso!",
+        "ui.cannotTranslateBoth": "⚠️  Não é possível traduzir README & CHANGELOG.",
+        "ui.missingReadmeForBoth": "README.md está ausente. Use a opção [2] para traduzir apenas o README.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md está ausente. Use a opção [3] para traduzir apenas o CHANGELOG.",
+        "ui.missingBothFiles": "Tanto README.md quanto CHANGELOG.md estão ausentes.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Não é possível traduzir apenas o README.",
+        "ui.missingReadme": "README.md está ausente.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Não é possível traduzir apenas o CHANGELOG.",
+        "ui.missingChangelog": "CHANGELOG.md está ausente.",
     },
     "ru": {
         "ui.codeLanguage": "Код/Язык",
@@ -2622,6 +2731,18 @@ Exemplos:
         "ui.checkPkgRepo": "• package.json has 'repository' field",
         "ui.checkGitRemote": "• .git/config has remote URL",
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
+        "ui.noTranslatedFilesRemove": "⚠️  Не найдено переведённых файлов для удаления.",
+        "ui.noFilesInOutputDir": "В выходном каталоге нет файлов ИЗМЕНЕНИЙ (CHANGELOG).",
+        "progress.translatingChangelogOnly": "Перевод только ИЗМЕНЕНИЙ (CHANGELOG)",
+        "success.translationCompletedChangelogOnly": "✅ {count} файлов ИЗМЕНЕНИЙ (CHANGELOG) успешно переведено!",
+        "ui.cannotTranslateBoth": "⚠️  Невозможно перевести README и CHANGELOG.",
+        "ui.missingReadmeForBoth": "README.md отсутствует. Используйте опцию [2] для перевода только README.",
+        "ui.missingChangelogForBoth": "CHANGELOG.md отсутствует. Используйте опцию [3] для перевода только CHANGELOG.",
+        "ui.missingBothFiles": "Отсутствуют как README.md, так и CHANGELOG.md.",
+        "ui.cannotTranslateReadmeOnly": "⚠️  Невозможно перевести только README.",
+        "ui.missingReadme": "README.md отсутствует.",
+        "ui.cannotTranslateChangelogOnly": "⚠️  Невозможно перевести только CHANGELOG.",
+        "ui.missingChangelog": "CHANGELOG.md отсутствует.",
     },
     "zh": {
         "ui.codeLanguage": "Code/Language",
@@ -2870,6 +2991,18 @@ Exemplos:
         "ui.checkPkgRepo": "• package.json 包含 'repository' 字段",
         "ui.checkGitRemote": "• .git/config 包含远程网址 (remote URL)",
         "ui.checkReadmeUrl": "• 或将 GitHub URL 手动添加到 README 中",
+        "ui.noTranslatedFilesRemove": "⚠️  未找到要删除的翻译文件。",
+        "ui.noFilesInOutputDir": "输出目录中没有更改日志 (CHANGELOG) 文件。",
+        "progress.translatingChangelogOnly": "仅翻译更改日志 (CHANGELOG)",
+        "success.translationCompletedChangelogOnly": "✅ {count} 个更改日志 (CHANGELOG) 翻译成功！",
+        "ui.cannotTranslateBoth": "⚠️  无法翻译 README 和 CHANGELOG。",
+        "ui.missingReadmeForBoth": "README.md 不存在。请使用选项 [2] 仅翻译 README。",
+        "ui.missingChangelogForBoth": "CHANGELOG.md 不存在。请使用选项 [3] 仅翻译 CHANGELOG。",
+        "ui.missingBothFiles": "README.md 和 CHANGELOG.md 都不存在。",
+        "ui.cannotTranslateReadmeOnly": "⚠️  无法仅翻译 README。",
+        "ui.missingReadme": "README.md 不存在。",
+        "ui.cannotTranslateChangelogOnly": "⚠️  无法仅翻译 CHANGELOG。",
+        "ui.missingChangelog": "CHANGELOG.md 不存在。",
     }
 }
 
@@ -4401,26 +4534,61 @@ def translate_changelog_only(lang_codes=None):
     if not has_changelog_file():
         print(t("no_changelog_file"))
         return False
-    
+
+    # Internet connection check
+    if not check_internet_connection():
+        print(t("no_internet"))
+        return False
+
     protected = load_protected_phrases()
-    
-    # If no languages specified, use all languages
+
+    # Filter valid language codes
     if not lang_codes:
-        lang_codes = LANGUAGES.keys()
-    
+        lang_codes = list(LANGUAGES.keys())
+    valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
+
+    if not valid_langs:
+        print(t("errors.noLanguagesSelected"))
+        return False
+
+    # Show progress mode header
+    mode_text = t("progress.translatingChangelogOnly")
+    print(t("progress.startingTranslation", count=len(valid_langs), mode_text=mode_text))
+
     success_count = 0
-    for lang_code in lang_codes:
-        if lang_code in LANGUAGES:
+    for i, lang_code in enumerate(valid_langs):
+        lang_name = LANGUAGES[lang_code][0]
+        progress_msg = t("progress.translatingLanguage",
+                        lang_name=lang_name,
+                        current=i + 1,
+                        total=len(valid_langs))
+        print(progress_msg, flush=True)
+
+        # Show inline visual progress bar
+        print_translation_progress(i + 1, len(valid_langs))
+
+        try:
             if translate_changelog(lang_code, LANGUAGES[lang_code], protected):
                 success_count += 1
-                
-                # Update links in README if it exists
+                # Update links in translated README if it exists
                 update_changelog_links_in_readme(lang_code, LANGUAGES[lang_code])
-            
-            time.sleep(1)  # Delay to avoid rate limiting
-    
+
+            # Delay to avoid rate limiting
+            print(t("progress.waiting", seconds=2), flush=True)
+            time.sleep(2)
+
+        except Exception as e:
+            error_msg = t("errors.translationFailed", lang_code=lang_code, error=str(e))
+            print(f"\n❌ {error_msg}", flush=True)
+
+    # Complete progress line
+    print("", flush=True)
+
+    print(t("progress.completed"), flush=True)
+    print(t("progress.filesSaved", path=OUTPUT_DIR), flush=True)
+
     if success_count > 0:
-        print(t("changelog_translated", count=success_count))
+        print(t("success.translationCompletedChangelogOnly", count=success_count))
         return True
     else:
         print(t("no_changelog_translated"))
@@ -5166,8 +5334,8 @@ def interactive_menu():
         
         # Check if remove option is disabled
         if choice == '3' and remove_disabled:
-            print(f"\n{Fore.YELLOW}⚠️  No translated files found to remove.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}There are no README or CHANGELOG files in the output directory.{Style.RESET_ALL}")
+            print(f"\n{Fore.YELLOW}{t('ui.noTranslatedFilesRemove')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{t('ui.noFilesInOutputDir')}{Style.RESET_ALL}")
             input(f"\n{t('ui.pressEnter')}")
             continue
         
@@ -5245,26 +5413,26 @@ def interactive_menu():
             # Handle disabled options
             if trans_choice == '1' and not (readme_exists and changelog_exists):
                 if not readme_exists and changelog_exists:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}README.md is missing. Use option [2] to translate README only.{Style.RESET_ALL}")
+                    print(f"\n{Fore.YELLOW}{t('ui.cannotTranslateBoth')}{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}{t('ui.missingReadmeForBoth')}{Style.RESET_ALL}")
                 elif readme_exists and not changelog_exists:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}CHANGELOG.md is missing. Use option [3] to translate CHANGELOG only.{Style.RESET_ALL}")
+                    print(f"\n{Fore.YELLOW}{t('ui.cannotTranslateBoth')}{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}{t('ui.missingChangelogForBoth')}{Style.RESET_ALL}")
                 else:
-                    print(f"\n{Fore.YELLOW}⚠️  Cannot translate README & CHANGELOG.{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}Both README.md and CHANGELOG.md are missing.{Style.RESET_ALL}")
+                    print(f"\n{Fore.YELLOW}{t('ui.cannotTranslateBoth')}{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}{t('ui.missingBothFiles')}{Style.RESET_ALL}")
                 input(f"\n{t('ui.pressEnter')}")
                 continue
-            
+
             if trans_choice == '2' and not readme_exists:
-                print(f"\n{Fore.YELLOW}⚠️  Cannot translate README only.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}README.md is missing.{Style.RESET_ALL}")
+                print(f"\n{Fore.YELLOW}{t('ui.cannotTranslateReadmeOnly')}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}{t('ui.missingReadme')}{Style.RESET_ALL}")
                 input(f"\n{t('ui.pressEnter')}")
                 continue
-            
+
             if trans_choice == '3' and not changelog_exists:
-                print(f"\n{Fore.YELLOW}⚠️  Cannot translate CHANGELOG only.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}CHANGELOG.md is missing.{Style.RESET_ALL}")
+                print(f"\n{Fore.YELLOW}{t('ui.cannotTranslateChangelogOnly')}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}{t('ui.missingChangelog')}{Style.RESET_ALL}")
                 input(f"\n{t('ui.pressEnter')}")
                 continue
             

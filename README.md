@@ -10,6 +10,9 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
+
+> 🌐 Available in other languages: [中文](docs/lang/README-ZH.md)
+
 ---
 
 A Visual Studio Code extension that automatically generates multilingual documentation files (`README.md` and `CHANGELOG.md`) using the **free Google Translate API** — no API key required.
