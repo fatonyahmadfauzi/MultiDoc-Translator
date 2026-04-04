@@ -11,6 +11,7 @@ import time
 import argparse
 import shutil
 import sys
+import webbrowser
 import urllib.request
 import requests
 from deep_translator import GoogleTranslator
@@ -456,6 +457,60 @@ Examples:
         "ui.provider_microsoft": "Microsoft Azure Translator (token required — free tier 2M chars/month)",
         "ui.provider_papago": "Papago / Naver (best for Korean — client_id:secret_key format)",
         "ui.provider_custom": "Custom REST API (any HTTP endpoint with Bearer token)",
+        "ui.aiSettings": "AI Settings (Optional)",
+        "ui.aiMenuTitle": "🤖 AI Settings — Optional AI Providers",
+        "ui.aiSavedNote": "💡 AI config saved in ai_config.json (keep private!)",
+        "ui.aiNoEntries": "No AI providers configured.",
+        "ui.aiAdd": "Add AI Provider",
+        "ui.aiEdit": "Edit AI Provider",
+        "ui.aiDelete": "Delete AI Provider",
+        "ui.aiToggle": "Enable/Disable AI Provider",
+        "ui.aiActive": "🟢 Active",
+        "ui.aiInactive": "🔴 Inactive",
+        "ui.aiActiveCount": "Active AI: {count}/{total}",
+        "ui.aiUsingDefault": "Using standard translation APIs (default)",
+        "ui.aiAdded": "✅ AI '{name}' added.",
+        "ui.aiDeleted": "🗑️ AI '{name}' deleted.",
+        "ui.aiUpdated": "✅ AI '{name}' updated.",
+        "ui.aiEnabled": "🟢 AI '{name}' enabled.",
+        "ui.aiDisabled": "🔴 AI '{name}' disabled.",
+        "ui.aiSelectProvider": "Select AI provider",
+        "ui.aiProviders": "AI Providers:",
+        "ui.aiEnterName": "Enter a name for this AI",
+        "ui.aiAuthType": "Authentication method",
+        "ui.aiAuthKey": "[1] API Key",
+        "ui.aiAuthBrowser": "[2] Login via browser",
+        "ui.aiEnterKey": "Enter API key",
+        "ui.aiBrowserOpening": "🌐 Opening browser for login...",
+        "ui.aiBrowserNote": "Browser opened. Log in, then press Enter to continue.",
+        "ui.aiSelectToEdit": "Enter AI number to edit",
+        "ui.aiSelectToDelete": "Enter AI number to delete",
+        "ui.aiSelectToToggle": "Enter AI number to enable/disable",
+        "ui.aiConfirmDelete": "Delete AI '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Invalid AI number.",
+        "ui.aiActiveLabel": "active",
+        "ui.aiTableName": "Name",
+        "ui.aiTableProvider": "Provider",
+        "ui.aiTableStatus": "Status",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Editing: {name} ({provider})",
+        "ui.aiNewName": "New name [{name}] (Enter to keep, q=cancel)",
+        "ui.aiNewKey": "New API key (Enter to keep, q=cancel)",
+        "ui.aiCancelHint": "(empty to cancel)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API key)",
+        "ui.ai_provider_gemini": "Google Gemini (API key)",
+        "ui.ai_provider_claude": "Anthropic Claude (API key)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
+        "ui.ai_provider_mistral": "Mistral AI (API key)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API key)",
+        "ui.ai_provider_custom": "Custom AI (API endpoint + key)",
+        "ui.tableLimit": "Limit",
+        "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
+        "ui.limitDefault": "Default: {value}",
+        "ui.apiLimit": "Limit (Recharge)",
+        "ui.aiLimit": "Limit (Recharge)",
+        "ui.tableAccount": "Account",
+        "ui.enterAccount": "Account username (optional, ex: fatonyahmadfauzi)",
     },
     "id": {
         "ui.codeLanguage": "Kode/Bahasa",
@@ -771,6 +826,60 @@ Contoh:
         "ui.provider_microsoft": "Microsoft Azure Translator (memerlukan token — tier gratis 2M kar/bulan)",
         "ui.provider_papago": "Papago / Naver (terbaik untuk Korea — format client_id:secret_key)",
         "ui.provider_custom": "Custom REST API (endpoint HTTP apapun dengan Bearer token)",
+        "ui.aiSettings": "Pengaturan AI (Opsional)",
+        "ui.aiMenuTitle": "🤖 Pengaturan AI — Provider AI Opsional",
+        "ui.aiSavedNote": "💡 Konfigurasi AI disimpan di ai_config.json (jaga kerahasiaannya!)",
+        "ui.aiNoEntries": "Tidak ada provider AI yang dikonfigurasi.",
+        "ui.aiAdd": "Tambah Provider AI",
+        "ui.aiEdit": "Edit Provider AI",
+        "ui.aiDelete": "Hapus Provider AI",
+        "ui.aiToggle": "Aktifkan/Nonaktifkan Provider AI",
+        "ui.aiActive": "🟢 Aktif",
+        "ui.aiInactive": "🔴 Nonaktif",
+        "ui.aiActiveCount": "AI Aktif: {count}/{total}",
+        "ui.aiUsingDefault": "Menggunakan API terjemahan standar (default)",
+        "ui.aiAdded": "✅ AI '{name}' berhasil ditambahkan.",
+        "ui.aiDeleted": "🗑️ AI '{name}' dihapus.",
+        "ui.aiUpdated": "✅ AI '{name}' diperbarui.",
+        "ui.aiEnabled": "🟢 AI '{name}' diaktifkan.",
+        "ui.aiDisabled": "🔴 AI '{name}' dinonaktifkan.",
+        "ui.aiSelectProvider": "Pilih provider AI",
+        "ui.aiProviders": "Provider AI:",
+        "ui.aiEnterName": "Masukkan nama untuk AI ini",
+        "ui.aiAuthType": "Metode autentikasi",
+        "ui.aiAuthKey": "[1] API Key",
+        "ui.aiAuthBrowser": "[2] Login via browser",
+        "ui.aiEnterKey": "Masukkan API key",
+        "ui.aiBrowserOpening": "🌐 Membuka browser untuk login...",
+        "ui.aiBrowserNote": "Browser dibuka. Login, lalu tekan Enter untuk melanjutkan.",
+        "ui.aiSelectToEdit": "Masukkan nomor AI untuk diedit",
+        "ui.aiSelectToDelete": "Masukkan nomor AI untuk dihapus",
+        "ui.aiSelectToToggle": "Masukkan nomor AI untuk aktifkan/nonaktifkan",
+        "ui.aiConfirmDelete": "Hapus AI '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Nomor AI tidak valid.",
+        "ui.aiActiveLabel": "aktif",
+        "ui.aiTableName": "Nama",
+        "ui.aiTableProvider": "Provider",
+        "ui.aiTableStatus": "Status",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Mengedit: {name} ({provider})",
+        "ui.aiNewName": "Nama baru [{name}] (Enter untuk pertahankan, q=batal)",
+        "ui.aiNewKey": "API key baru (Enter untuk pertahankan, q=batal)",
+        "ui.aiCancelHint": "(kosongkan untuk batal)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API key atau login browser)",
+        "ui.ai_provider_gemini": "Google Gemini (API key atau login browser)",
+        "ui.ai_provider_claude": "Anthropic Claude (API key atau login browser)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (login browser)",
+        "ui.ai_provider_mistral": "Mistral AI (API key atau login browser)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API key atau login browser)",
+        "ui.ai_provider_custom": "AI Kustom (endpoint API + key)",
+        "ui.tableLimit": "Limit",
+        "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
+        "ui.limitDefault": "Default: {value}",
+        "ui.apiLimit": "Limit (Recharge)",
+        "ui.aiLimit": "Limit (Recharge)",
+        "ui.tableAccount": "Akun",
+        "ui.enterAccount": "Username akun (opsional, cth: fatonyahmadfauzi)",
     },
     "jp": {
         "ui.codeLanguage": "コード/言語",
@@ -1087,6 +1196,60 @@ Contoh:
         "ui.provider_microsoft": "Microsoft Azure翻訳（トークン必要 — 無料枠月200万文字）",
         "ui.provider_papago": "Papago / Naver（韓国語最適 — client_id:secret_key形式）",
         "ui.provider_custom": "カスタムREST API（Bearerトークン付きのHTTPエンドポイント）",
+        "ui.aiSettings": "AI設定（オプション）",
+        "ui.aiMenuTitle": "🤖 AI設定 — オプションAIプロバイダー",
+        "ui.aiSavedNote": "💡 AI設定はai_config.jsonに保存されます（非公開に！）",
+        "ui.aiNoEntries": "AIプロバイダーが設定されていません。",
+        "ui.aiAdd": "AIプロバイダーを追加",
+        "ui.aiEdit": "AIプロバイダーを編集",
+        "ui.aiDelete": "AIプロバイダーを削除",
+        "ui.aiToggle": "AIプロバイダーを有効/無効",
+        "ui.aiActive": "🟢 有効",
+        "ui.aiInactive": "🔴 無効",
+        "ui.aiActiveCount": "有効なAI: {count}/{total}",
+        "ui.aiUsingDefault": "標準翻訳APIを使用中（デフォルト）",
+        "ui.aiAdded": "✅ AI '{name}' を追加しました。",
+        "ui.aiDeleted": "🗑️ AI '{name}' を削除しました。",
+        "ui.aiUpdated": "✅ AI '{name}' を更新しました。",
+        "ui.aiEnabled": "🟢 AI '{name}' を有効にしました。",
+        "ui.aiDisabled": "🔴 AI '{name}' を無効にしました。",
+        "ui.aiSelectProvider": "AIプロバイダーを選択",
+        "ui.aiProviders": "AIプロバイダー一覧:",
+        "ui.aiEnterName": "このAIの名前を入力",
+        "ui.aiAuthType": "認証方法",
+        "ui.aiAuthKey": "[1] APIキー",
+        "ui.aiAuthBrowser": "[2] ブラウザでログイン",
+        "ui.aiEnterKey": "APIキーを入力",
+        "ui.aiBrowserOpening": "🌐 ブラウザを開いています...",
+        "ui.aiBrowserNote": "ブラウザが開きました。ログイン後、Enterを押してください。",
+        "ui.aiSelectToEdit": "編集するAI番号を入力",
+        "ui.aiSelectToDelete": "削除するAI番号を入力",
+        "ui.aiSelectToToggle": "有効/無効にするAI番号を入力",
+        "ui.aiConfirmDelete": "AI '{name}' を削除しますか？ [y/N]",
+        "ui.aiInvalidNumber": "無効なAI番号です。",
+        "ui.aiActiveLabel": "アクティブ",
+        "ui.aiTableName": "名前",
+        "ui.aiTableProvider": "プロバイダー",
+        "ui.aiTableStatus": "ステータス",
+        "ui.aiTableAuth": "認証",
+        "ui.aiEditing": "編集中: {name} ({provider})",
+        "ui.aiNewName": "新しい名前 [{name}] (Enter=そのまま, q=中止)",
+        "ui.aiNewKey": "新しいAPIキー (Enter=そのまま, q=中止)",
+        "ui.aiCancelHint": "（空で中止）",
+        "ui.ai_provider_openai": "OpenAI ChatGPT（APIキーまたはブラウザログイン）",
+        "ui.ai_provider_gemini": "Google Gemini（APIキーまたはブラウザログイン）",
+        "ui.ai_provider_claude": "Anthropic Claude（APIキーまたはブラウザログイン）",
+        "ui.ai_provider_copilot": "Microsoft Copilot（ブラウザログイン）",
+        "ui.ai_provider_mistral": "Mistral AI（APIキーまたはブラウザログイン）",
+        "ui.ai_provider_perplexity": "Perplexity AI（APIキーまたはブラウザログイン）",
+        "ui.ai_provider_custom": "カスタムAI（APIエンドポイント＋キー）",
+        "ui.tableLimit": "制限",
+        "ui.enterLimit": "使用制限 (Enterでデフォルト使用、例: 50万文字/月)",
+        "ui.limitDefault": "デフォルト: {value}",
+        "ui.apiLimit": "制限 (再充電が必要)",
+        "ui.aiLimit": "制限 (再充電が必要)",
+        "ui.tableAccount": "アカウント",
+        "ui.enterAccount": "アカウント名 (任意, 例: fatonyahmadfauzi)",
     },
     "de": {
         "ui.codeLanguage": "Code/Sprache",
@@ -1402,6 +1565,60 @@ Beispiele:
         "ui.provider_microsoft": "Microsoft Azure Übersetzer (Token erforderlich — kostenlose Stufe 2M Zeichen/Monat)",
         "ui.provider_papago": "Papago / Naver (am besten für Koreanisch — client_id:secret_key Format)",
         "ui.provider_custom": "Benutzerdefinierte REST API (beliebiger HTTP-Endpunkt mit Bearer-Token)",
+        "ui.aiSettings": "KI-Einstellungen (Optional)",
+        "ui.aiMenuTitle": "🤖 KI-Einstellungen — Optionale KI-Anbieter",
+        "ui.aiSavedNote": "💡 KI-Konfiguration in ai_config.json gespeichert (privat halten!)",
+        "ui.aiNoEntries": "Keine KI-Anbieter konfiguriert.",
+        "ui.aiAdd": "KI-Anbieter hinzufügen",
+        "ui.aiEdit": "KI-Anbieter bearbeiten",
+        "ui.aiDelete": "KI-Anbieter löschen",
+        "ui.aiToggle": "KI-Anbieter aktivieren/deaktivieren",
+        "ui.aiActive": "🟢 Aktiv",
+        "ui.aiInactive": "🔴 Inaktiv",
+        "ui.aiActiveCount": "Aktive KI: {count}/{total}",
+        "ui.aiUsingDefault": "Standard-Übersetzungs-APIs werden verwendet (Standard)",
+        "ui.aiAdded": "✅ KI '{name}' hinzugefügt.",
+        "ui.aiDeleted": "🗑️ KI '{name}' gelöscht.",
+        "ui.aiUpdated": "✅ KI '{name}' aktualisiert.",
+        "ui.aiEnabled": "🟢 KI '{name}' aktiviert.",
+        "ui.aiDisabled": "🔴 KI '{name}' deaktiviert.",
+        "ui.aiSelectProvider": "KI-Anbieter auswählen",
+        "ui.aiProviders": "KI-Anbieter:",
+        "ui.aiEnterName": "Name für diese KI eingeben",
+        "ui.aiAuthType": "Authentifizierungsmethode",
+        "ui.aiAuthKey": "[1] API-Schlüssel",
+        "ui.aiAuthBrowser": "[2] Browser-Login",
+        "ui.aiEnterKey": "API-Schlüssel eingeben",
+        "ui.aiBrowserOpening": "🌐 Browser wird geöffnet...",
+        "ui.aiBrowserNote": "Browser geöffnet. Einloggen, dann Enter drücken.",
+        "ui.aiSelectToEdit": "KI-Nummer zum Bearbeiten eingeben",
+        "ui.aiSelectToDelete": "KI-Nummer zum Löschen eingeben",
+        "ui.aiSelectToToggle": "KI-Nummer zum Aktivieren/Deaktivieren eingeben",
+        "ui.aiConfirmDelete": "KI '{name}' löschen? [y/N]",
+        "ui.aiInvalidNumber": "Ungültige KI-Nummer.",
+        "ui.aiActiveLabel": "aktiv",
+        "ui.aiTableName": "Name",
+        "ui.aiTableProvider": "Anbieter",
+        "ui.aiTableStatus": "Status",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Bearbeitung: {name} ({provider})",
+        "ui.aiNewName": "Neuer Name [{name}] (Enter=behalten, q=abbrechen)",
+        "ui.aiNewKey": "Neuer API-Schlüssel (Enter=behalten, q=abbrechen)",
+        "ui.aiCancelHint": "(leer = abbrechen)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API-Schlüssel)",
+        "ui.ai_provider_gemini": "Google Gemini (API-Schlüssel)",
+        "ui.ai_provider_claude": "Anthropic Claude (API-Schlüssel)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API-Schlüssel)",
+        "ui.ai_provider_mistral": "Mistral AI (API-Schlüssel)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API-Schlüssel)",
+        "ui.ai_provider_custom": "Benutzerdefinierte KI (API-Endpunkt + Schlüssel)",
+        "ui.tableLimit": "Limit",
+        "ui.enterLimit": "Nutzungslimit (Enter für Standard, z.B. 500k/Monat)",
+        "ui.limitDefault": "Standard: {value}",
+        "ui.apiLimit": "Limit (Aufladen)",
+        "ui.aiLimit": "Limit (Aufladen)",
+        "ui.tableAccount": "Konto",
+        "ui.enterAccount": "Kontoname (optional, Bsp.: fatonyahmadfauzi)",
     },
     "es": {
         "ui.codeLanguage": "Código/Idioma",
@@ -1717,6 +1934,60 @@ Ejemplos:
         "ui.provider_microsoft": "Microsoft Azure Translator (token requerido — nivel gratuito 2M car/mes)",
         "ui.provider_papago": "Papago / Naver (mejor para coreano — formato client_id:secret_key)",
         "ui.provider_custom": "API REST personalizada (cualquier endpoint HTTP con Bearer token)",
+        "ui.aiSettings": "Configuración de IA (Opcional)",
+        "ui.aiMenuTitle": "🤖 Configuración de IA — Proveedores de IA opcionales",
+        "ui.aiSavedNote": "💡 Configuración de IA guardada en ai_config.json (¡manténgalo privado!)",
+        "ui.aiNoEntries": "No hay proveedores de IA configurados.",
+        "ui.aiAdd": "Agregar proveedor de IA",
+        "ui.aiEdit": "Editar proveedor de IA",
+        "ui.aiDelete": "Eliminar proveedor de IA",
+        "ui.aiToggle": "Activar/Desactivar proveedor de IA",
+        "ui.aiActive": "🟢 Activo",
+        "ui.aiInactive": "🔴 Inactivo",
+        "ui.aiActiveCount": "IA activas: {count}/{total}",
+        "ui.aiUsingDefault": "Usando APIs de traducción estándar (por defecto)",
+        "ui.aiAdded": "✅ IA '{name}' agregada.",
+        "ui.aiDeleted": "🗑️ IA '{name}' eliminada.",
+        "ui.aiUpdated": "✅ IA '{name}' actualizada.",
+        "ui.aiEnabled": "🟢 IA '{name}' activada.",
+        "ui.aiDisabled": "🔴 IA '{name}' desactivada.",
+        "ui.aiSelectProvider": "Seleccionar proveedor de IA",
+        "ui.aiProviders": "Proveedores de IA:",
+        "ui.aiEnterName": "Ingrese un nombre para esta IA",
+        "ui.aiAuthType": "Método de autenticación",
+        "ui.aiAuthKey": "[1] Clave API",
+        "ui.aiAuthBrowser": "[2] Iniciar sesión en el navegador",
+        "ui.aiEnterKey": "Ingrese la clave API",
+        "ui.aiBrowserOpening": "🌐 Abriendo el navegador para iniciar sesión...",
+        "ui.aiBrowserNote": "Navegador abierto. Inicie sesión y presione Enter.",
+        "ui.aiSelectToEdit": "Ingrese el número de IA a editar",
+        "ui.aiSelectToDelete": "Ingrese el número de IA a eliminar",
+        "ui.aiSelectToToggle": "Ingrese el número de IA a activar/desactivar",
+        "ui.aiConfirmDelete": "¿Eliminar IA '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Número de IA inválido.",
+        "ui.aiActiveLabel": "activo",
+        "ui.aiTableName": "Nombre",
+        "ui.aiTableProvider": "Proveedor",
+        "ui.aiTableStatus": "Estado",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Editando: {name} ({provider})",
+        "ui.aiNewName": "Nuevo nombre [{name}] (Enter=mantener, q=cancelar)",
+        "ui.aiNewKey": "Nueva clave API (Enter=mantener, q=cancelar)",
+        "ui.aiCancelHint": "(vacío para cancelar)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (clave API o inicio de sesión en navegador)",
+        "ui.ai_provider_gemini": "Google Gemini (clave API o inicio de sesión en navegador)",
+        "ui.ai_provider_claude": "Anthropic Claude (clave API o inicio de sesión en navegador)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (inicio de sesión en navegador)",
+        "ui.ai_provider_mistral": "Mistral AI (clave API o inicio de sesión en navegador)",
+        "ui.ai_provider_perplexity": "Perplexity AI (clave API o inicio de sesión en navegador)",
+        "ui.ai_provider_custom": "IA personalizada (endpoint API + clave)",
+        "ui.tableLimit": "Límite",
+        "ui.enterLimit": "Límite de uso (Enter para default, ej. 500k/mes)",
+        "ui.limitDefault": "Predeterminado: {value}",
+        "ui.apiLimit": "Límite (Recargar)",
+        "ui.aiLimit": "Límite (Recargar)",
+        "ui.tableAccount": "Cuenta",
+        "ui.enterAccount": "Nombre de cuenta (opcional, ej: fatonyahmadfauzi)",
     },
     "fr": {
         "ui.codeLanguage": "Code/Langue",
@@ -2034,6 +2305,60 @@ Exemples :
         "ui.provider_microsoft": "Microsoft Azure Traduction (jeton requis — niveau gratuit 2M car/mois)",
         "ui.provider_papago": "Papago / Naver (meilleur pour le coréen — format client_id:secret_key)",
         "ui.provider_custom": "API REST personnalisée (tout endpoint HTTP avec jeton Bearer)",
+        "ui.aiSettings": "Paramètres IA (Optionnel)",
+        "ui.aiMenuTitle": "🤖 Paramètres IA — Fournisseurs IA optionnels",
+        "ui.aiSavedNote": "💡 Config IA sauvegardée dans ai_config.json (garder privé !)",
+        "ui.aiNoEntries": "Aucun fournisseur IA configuré.",
+        "ui.aiAdd": "Ajouter un fournisseur IA",
+        "ui.aiEdit": "Modifier un fournisseur IA",
+        "ui.aiDelete": "Supprimer un fournisseur IA",
+        "ui.aiToggle": "Activer/Désactiver un fournisseur IA",
+        "ui.aiActive": "🟢 Actif",
+        "ui.aiInactive": "🔴 Inactif",
+        "ui.aiActiveCount": "IA actives : {count}/{total}",
+        "ui.aiUsingDefault": "Utilisation des APIs de traduction standard (défaut)",
+        "ui.aiAdded": "✅ IA '{name}' ajoutée.",
+        "ui.aiDeleted": "🗑️ IA '{name}' supprimée.",
+        "ui.aiUpdated": "✅ IA '{name}' mise à jour.",
+        "ui.aiEnabled": "🟢 IA '{name}' activée.",
+        "ui.aiDisabled": "🔴 IA '{name}' désactivée.",
+        "ui.aiSelectProvider": "Sélectionner un fournisseur IA",
+        "ui.aiProviders": "Fournisseurs IA :",
+        "ui.aiEnterName": "Entrez un nom pour cette IA",
+        "ui.aiAuthType": "Méthode d'authentification",
+        "ui.aiAuthKey": "[1] Clé API",
+        "ui.aiAuthBrowser": "[2] Connexion via le navigateur",
+        "ui.aiEnterKey": "Entrez la clé API",
+        "ui.aiBrowserOpening": "🌐 Ouverture du navigateur pour la connexion...",
+        "ui.aiBrowserNote": "Navigateur ouvert. Connectez-vous, puis appuyez sur Enter.",
+        "ui.aiSelectToEdit": "Entrez le numéro de l'IA à modifier",
+        "ui.aiSelectToDelete": "Entrez le numéro de l'IA à supprimer",
+        "ui.aiSelectToToggle": "Entrez le numéro de l'IA à activer/désactiver",
+        "ui.aiConfirmDelete": "Supprimer l'IA '{name}' ? [y/N]",
+        "ui.aiInvalidNumber": "Numéro d'IA invalide.",
+        "ui.aiActiveLabel": "actif",
+        "ui.aiTableName": "Nom",
+        "ui.aiTableProvider": "Fournisseur",
+        "ui.aiTableStatus": "Statut",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Modification : {name} ({provider})",
+        "ui.aiNewName": "Nouveau nom [{name}] (Enter=garder, q=annuler)",
+        "ui.aiNewKey": "Nouvelle clé API (Enter=garder, q=annuler)",
+        "ui.aiCancelHint": "(vide pour annuler)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (clé API ou connexion navigateur)",
+        "ui.ai_provider_gemini": "Google Gemini (clé API ou connexion navigateur)",
+        "ui.ai_provider_claude": "Anthropic Claude (clé API ou connexion navigateur)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (connexion navigateur)",
+        "ui.ai_provider_mistral": "Mistral AI (clé API ou connexion navigateur)",
+        "ui.ai_provider_perplexity": "Perplexity AI (clé API ou connexion navigateur)",
+        "ui.ai_provider_custom": "IA personnalisée (endpoint API + clé)",
+        "ui.tableLimit": "Limite",
+        "ui.enterLimit": "Limite d'utilisation (Enter pour défaut, ex. 500k/mois)",
+        "ui.limitDefault": "Défaut : {value}",
+        "ui.apiLimit": "Limite (Recharger)",
+        "ui.aiLimit": "Limite (Recharger)",
+        "ui.tableAccount": "Compte",
+        "ui.enterAccount": "Nom de compte (optionnel, ex: fatonyahmadfauzi)",
         "progress.barLabel": "Progression :",
     },
     "kr": {
@@ -2350,6 +2675,60 @@ Exemples :
         "ui.provider_microsoft": "Microsoft Azure 번역 (토큰 필요 — 무료 티어 월 200만 자)",
         "ui.provider_papago": "Papago / Naver (한국어에 최적 — client_id:secret_key 형식)",
         "ui.provider_custom": "커스텀 REST API (Bearer 토큰이 있는 HTTP 엔드포인트)",
+        "ui.aiSettings": "AI 설정 (선택)",
+        "ui.aiMenuTitle": "🤖 AI 설정 — 선택적 AI 제공자",
+        "ui.aiSavedNote": "💡 AI 설정이 ai_config.json에 저장됩니다 (비공개 유지!)",
+        "ui.aiNoEntries": "AI 제공자가 없습니다.",
+        "ui.aiAdd": "AI 제공자 추가",
+        "ui.aiEdit": "AI 제공자 편집",
+        "ui.aiDelete": "AI 제공자 삭제",
+        "ui.aiToggle": "AI 제공자 활성/비활성화",
+        "ui.aiActive": "🟢 활성",
+        "ui.aiInactive": "🔴 비활성",
+        "ui.aiActiveCount": "활성 AI: {count}/{total}",
+        "ui.aiUsingDefault": "표준 번역 API 사용 중 (기본값)",
+        "ui.aiAdded": "✅ AI '{name}' 추가됨.",
+        "ui.aiDeleted": "🗑️ AI '{name}' 삭제됨.",
+        "ui.aiUpdated": "✅ AI '{name}' 업데이트됨.",
+        "ui.aiEnabled": "🟢 AI '{name}' 활성화됨.",
+        "ui.aiDisabled": "🔴 AI '{name}' 비활성화됨.",
+        "ui.aiSelectProvider": "AI 제공자 선택",
+        "ui.aiProviders": "AI 제공자 목록:",
+        "ui.aiEnterName": "이 AI의 이름을 입력하세요",
+        "ui.aiAuthType": "인증 방법",
+        "ui.aiAuthKey": "[1] API 키",
+        "ui.aiAuthBrowser": "[2] 브라우저로 로그인",
+        "ui.aiEnterKey": "API 키를 입력하세요",
+        "ui.aiBrowserOpening": "🌐 브라우저를 열는 중...",
+        "ui.aiBrowserNote": "브라우저가 열렸습니다. 로그인 후 Enter를 누르세요.",
+        "ui.aiSelectToEdit": "편집할 AI 번호를 입력하세요",
+        "ui.aiSelectToDelete": "삭제할 AI 번호를 입력하세요",
+        "ui.aiSelectToToggle": "활성/비활성화할 AI 번호를 입력하세요",
+        "ui.aiConfirmDelete": "AI '{name}' 을 삭제하시겠습니까? [y/N]",
+        "ui.aiInvalidNumber": "유효하지 않은 AI 번호입니다.",
+        "ui.aiActiveLabel": "활성",
+        "ui.aiTableName": "이름",
+        "ui.aiTableProvider": "제공자",
+        "ui.aiTableStatus": "상태",
+        "ui.aiTableAuth": "인증",
+        "ui.aiEditing": "편집 중: {name} ({provider})",
+        "ui.aiNewName": "새 이름 [{name}] (Enter=유지, q=취소)",
+        "ui.aiNewKey": "새 API 키 (Enter=유지, q=취소)",
+        "ui.aiCancelHint": "(비워서 취소)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API 키)",
+        "ui.ai_provider_gemini": "Google Gemini (API 키)",
+        "ui.ai_provider_claude": "Anthropic Claude (API 키)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API 키)",
+        "ui.ai_provider_mistral": "Mistral AI (API 키)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API 키)",
+        "ui.ai_provider_custom": "커스텀 AI (API 엔드포인트 + 키)",
+        "ui.tableLimit": "제한",
+        "ui.enterLimit": "사용 제한 (기본값 Enter, 예: 50만/월)",
+        "ui.limitDefault": "기본값: {value}",
+        "ui.apiLimit": "제한 (충전 필요)",
+        "ui.aiLimit": "제한 (충전 필요)",
+        "ui.tableAccount": "계정",
+        "ui.enterAccount": "계정 이름 (선택, 예: fatonyahmadfauzi)",
     },
     "pl": {
         "ui.codeLanguage": "Kod/język",
@@ -2665,6 +3044,60 @@ Przykłady:
         "ui.provider_microsoft": "Microsoft Azure Tłumacz (wymagany token — bezpłatny poziom 2M znaków/mies.)",
         "ui.provider_papago": "Papago / Naver (najlepszy dla koreańskiego — format client_id:secret_key)",
         "ui.provider_custom": "Niestandardowe API REST (dowolny endpoint HTTP z tokenem Bearer)",
+        "ui.aiSettings": "Ustawienia AI (Opcjonalne)",
+        "ui.aiMenuTitle": "🤖 Ustawienia AI — Opcjonalni dostawcy AI",
+        "ui.aiSavedNote": "💡 Konfiguracja AI zapisana w ai_config.json (zachowaj prywatność!)",
+        "ui.aiNoEntries": "Brak skonfigurowanych dostawców AI.",
+        "ui.aiAdd": "Dodaj dostawcę AI",
+        "ui.aiEdit": "Edytuj dostawcę AI",
+        "ui.aiDelete": "Usuń dostawcę AI",
+        "ui.aiToggle": "Włącz/Wyłącz dostawcę AI",
+        "ui.aiActive": "🟢 Aktywny",
+        "ui.aiInactive": "🔴 Nieaktywny",
+        "ui.aiActiveCount": "Aktywne AI: {count}/{total}",
+        "ui.aiUsingDefault": "Korzystam ze standardowych API tłumaczeń (domyślne)",
+        "ui.aiAdded": "✅ AI '{name}' dodane.",
+        "ui.aiDeleted": "🗑️ AI '{name}' usunięte.",
+        "ui.aiUpdated": "✅ AI '{name}' zaktualizowane.",
+        "ui.aiEnabled": "🟢 AI '{name}' włączone.",
+        "ui.aiDisabled": "🔴 AI '{name}' wyłączone.",
+        "ui.aiSelectProvider": "Wybierz dostawcę AI",
+        "ui.aiProviders": "Dostawcy AI:",
+        "ui.aiEnterName": "Podaj nazwę dla tego AI",
+        "ui.aiAuthType": "Metoda uwierzytelniania",
+        "ui.aiAuthKey": "[1] Klucz API",
+        "ui.aiAuthBrowser": "[2] Logowanie przez przeglądarkę",
+        "ui.aiEnterKey": "Podaj klucz API",
+        "ui.aiBrowserOpening": "🌐 Otwieranie przeglądarki do logowania...",
+        "ui.aiBrowserNote": "Przeglądarka otwarta. Zaloguj się, następnie naciśnij Enter.",
+        "ui.aiSelectToEdit": "Podaj numer AI do edycji",
+        "ui.aiSelectToDelete": "Podaj numer AI do usunięcia",
+        "ui.aiSelectToToggle": "Podaj numer AI do włączenia/wyłączenia",
+        "ui.aiConfirmDelete": "Usunąć AI '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Nieprawidłowy numer AI.",
+        "ui.aiActiveLabel": "aktywne",
+        "ui.aiTableName": "Nazwa",
+        "ui.aiTableProvider": "Dostawca",
+        "ui.aiTableStatus": "Status",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Edytowanie: {name} ({provider})",
+        "ui.aiNewName": "Nowa nazwa [{name}] (Enter=zachowaj, q=anuluj)",
+        "ui.aiNewKey": "Nowy klucz API (Enter=zachowaj, q=anuluj)",
+        "ui.aiCancelHint": "(puste = anuluj)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (klucz API lub logowanie przeglądarką)",
+        "ui.ai_provider_gemini": "Google Gemini (klucz API lub logowanie przeglądarką)",
+        "ui.ai_provider_claude": "Anthropic Claude (klucz API lub logowanie przeglądarką)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (logowanie przeglądarką)",
+        "ui.ai_provider_mistral": "Mistral AI (klucz API lub logowanie przeglądarką)",
+        "ui.ai_provider_perplexity": "Perplexity AI (klucz API lub logowanie przeglądarką)",
+        "ui.ai_provider_custom": "Niestandardowe AI (endpoint API + klucz)",
+        "ui.tableLimit": "Limit",
+        "ui.enterLimit": "Limit użycia (Enter dla domyślnego, np. 500k/mies.)",
+        "ui.limitDefault": "Domyślny: {value}",
+        "ui.apiLimit": "Limit (Doładuj)",
+        "ui.aiLimit": "Limit (Doładuj)",
+        "ui.tableAccount": "Konto",
+        "ui.enterAccount": "Nazwa konta (opcjonalnie, np: fatonyahmadfauzi)",
     },
     "pt": {
         "ui.codeLanguage": "Código/Idioma",
@@ -2980,6 +3413,60 @@ Exemplos:
         "ui.provider_microsoft": "Microsoft Azure Tradutor (token necessário — nível gratuito 2M car/mês)",
         "ui.provider_papago": "Papago / Naver (melhor para coreano — formato client_id:secret_key)",
         "ui.provider_custom": "API REST personalizada (qualquer endpoint HTTP com token Bearer)",
+        "ui.aiSettings": "Configurações de IA (Opcional)",
+        "ui.aiMenuTitle": "🤖 Configurações de IA — Provedores de IA opcionais",
+        "ui.aiSavedNote": "💡 Configuração de IA salva em ai_config.json (manter privado!)",
+        "ui.aiNoEntries": "Nenhum provedor de IA configurado.",
+        "ui.aiAdd": "Adicionar provedor de IA",
+        "ui.aiEdit": "Editar provedor de IA",
+        "ui.aiDelete": "Excluir provedor de IA",
+        "ui.aiToggle": "Ativar/Desativar provedor de IA",
+        "ui.aiActive": "🟢 Ativo",
+        "ui.aiInactive": "🔴 Inativo",
+        "ui.aiActiveCount": "IA ativas: {count}/{total}",
+        "ui.aiUsingDefault": "Usando APIs de tradução padrão (padrão)",
+        "ui.aiAdded": "✅ IA '{name}' adicionada.",
+        "ui.aiDeleted": "🗑️ IA '{name}' excluída.",
+        "ui.aiUpdated": "✅ IA '{name}' atualizada.",
+        "ui.aiEnabled": "🟢 IA '{name}' ativada.",
+        "ui.aiDisabled": "🔴 IA '{name}' desativada.",
+        "ui.aiSelectProvider": "Selecionar provedor de IA",
+        "ui.aiProviders": "Provedores de IA:",
+        "ui.aiEnterName": "Digite um nome para esta IA",
+        "ui.aiAuthType": "Método de autenticação",
+        "ui.aiAuthKey": "[1] Chave API",
+        "ui.aiAuthBrowser": "[2] Login pelo navegador",
+        "ui.aiEnterKey": "Digite a chave API",
+        "ui.aiBrowserOpening": "🌐 Abrindo o navegador para login...",
+        "ui.aiBrowserNote": "Navegador aberto. Faça login e pressione Enter.",
+        "ui.aiSelectToEdit": "Digite o número da IA para editar",
+        "ui.aiSelectToDelete": "Digite o número da IA para excluir",
+        "ui.aiSelectToToggle": "Digite o número da IA para ativar/desativar",
+        "ui.aiConfirmDelete": "Excluir IA '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Número de IA inválido.",
+        "ui.aiActiveLabel": "ativo",
+        "ui.aiTableName": "Nome",
+        "ui.aiTableProvider": "Provedor",
+        "ui.aiTableStatus": "Status",
+        "ui.aiTableAuth": "Auth",
+        "ui.aiEditing": "Editando: {name} ({provider})",
+        "ui.aiNewName": "Novo nome [{name}] (Enter=manter, q=cancelar)",
+        "ui.aiNewKey": "Nova chave API (Enter=manter, q=cancelar)",
+        "ui.aiCancelHint": "(vazio para cancelar)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (chave API ou login pelo navegador)",
+        "ui.ai_provider_gemini": "Google Gemini (chave API ou login pelo navegador)",
+        "ui.ai_provider_claude": "Anthropic Claude (chave API ou login pelo navegador)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (login pelo navegador)",
+        "ui.ai_provider_mistral": "Mistral AI (chave API ou login pelo navegador)",
+        "ui.ai_provider_perplexity": "Perplexity AI (chave API ou login pelo navegador)",
+        "ui.ai_provider_custom": "IA personalizada (endpoint API + chave)",
+        "ui.tableLimit": "Limite",
+        "ui.enterLimit": "Limite de uso (Enter para padrão, ex. 500k/mês)",
+        "ui.limitDefault": "Padrão: {value}",
+        "ui.apiLimit": "Limite (Recarregar)",
+        "ui.aiLimit": "Limite (Recarregar)",
+        "ui.tableAccount": "Conta",
+        "ui.enterAccount": "Nome de usuário (opcional, ex: fatonyahmadfauzi)",
     },
     "ru": {
         "ui.codeLanguage": "Код/Язык",
@@ -3295,6 +3782,60 @@ Exemplos:
         "ui.provider_microsoft": "Microsoft Azure Переводчик (требуется токен — бесплатный уровень 2М сим/мес)",
         "ui.provider_papago": "Papago / Naver (лучший для корейского — формат client_id:secret_key)",
         "ui.provider_custom": "Пользовательский REST API (любой HTTP-эндпоинт с Bearer-токеном)",
+        "ui.aiSettings": "Настройки ИИ (Опционально)",
+        "ui.aiMenuTitle": "🤖 Настройки ИИ — Опциональные провайдеры ИИ",
+        "ui.aiSavedNote": "💡 Конфиг ИИ сохранён в ai_config.json (храните в тайне!)",
+        "ui.aiNoEntries": "Провайдеры ИИ не настроены.",
+        "ui.aiAdd": "Добавить провайдер ИИ",
+        "ui.aiEdit": "Редактировать провайдер ИИ",
+        "ui.aiDelete": "Удалить провайдер ИИ",
+        "ui.aiToggle": "Включить/выключить провайдер ИИ",
+        "ui.aiActive": "🟢 Активен",
+        "ui.aiInactive": "🔴 Неактивен",
+        "ui.aiActiveCount": "Активных ИИ: {count}/{total}",
+        "ui.aiUsingDefault": "Используются стандартные API (по умолчанию)",
+        "ui.aiAdded": "✅ ИИ '{name}' добавлена.",
+        "ui.aiDeleted": "🗑️ ИИ '{name}' удалена.",
+        "ui.aiUpdated": "✅ ИИ '{name}' обновлена.",
+        "ui.aiEnabled": "🟢 ИИ '{name}' включена.",
+        "ui.aiDisabled": "🔴 ИИ '{name}' выключена.",
+        "ui.aiSelectProvider": "Выберите провайдер ИИ",
+        "ui.aiProviders": "Провайдеры ИИ:",
+        "ui.aiEnterName": "Введите название для этой ИИ",
+        "ui.aiAuthType": "Метод авторизации",
+        "ui.aiAuthKey": "[1] API-токен",
+        "ui.aiAuthBrowser": "[2] Вход через браузер",
+        "ui.aiEnterKey": "Введите API-токен",
+        "ui.aiBrowserOpening": "🌐 Открываем браузер...",
+        "ui.aiBrowserNote": "Браузер открыт. Войдите, затем нажмите Enter.",
+        "ui.aiSelectToEdit": "Введите номер ИИ для редактирования",
+        "ui.aiSelectToDelete": "Введите номер ИИ для удаления",
+        "ui.aiSelectToToggle": "Введите номер ИИ для вкл/выкл",
+        "ui.aiConfirmDelete": "Удалить ИИ '{name}'? [y/N]",
+        "ui.aiInvalidNumber": "Неверный номер ИИ.",
+        "ui.aiActiveLabel": "активных",
+        "ui.aiTableName": "Название",
+        "ui.aiTableProvider": "Провайдер",
+        "ui.aiTableStatus": "Статус",
+        "ui.aiTableAuth": "Аутент",
+        "ui.aiEditing": "Редактирование: {name} ({provider})",
+        "ui.aiNewName": "Новое название [{name}] (Enter=оставить, q=отмена)",
+        "ui.aiNewKey": "Новый API-токен (Enter=оставить, q=отмена)",
+        "ui.aiCancelHint": "(пусто = отмена)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API-токен или вход через браузер)",
+        "ui.ai_provider_gemini": "Google Gemini (API-токен или вход через браузер)",
+        "ui.ai_provider_claude": "Anthropic Claude (API-токен или вход через браузер)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API ключ)",
+        "ui.ai_provider_mistral": "Mistral AI (API-токен или вход через браузер)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API-токен или вход через браузер)",
+        "ui.ai_provider_custom": "Пользовательский ИИ (HTTP-эндпоинт + токен)",
+        "ui.tableLimit": "Лимит",
+        "ui.enterLimit": "Лимит использования (Enter для умолчания, напр. 500k/мес)",
+        "ui.limitDefault": "По умолчанию: {value}",
+        "ui.apiLimit": "Лимит (Пополнить)",
+        "ui.aiLimit": "Лимит (Пополнить)",
+        "ui.tableAccount": "Аккаунт",
+        "ui.enterAccount": "Имя аккаунта (необязательно, напр: fatonyahmadfauzi)",
     },
     "zh": {
         "ui.codeLanguage": "Code/Language",
@@ -3610,6 +4151,60 @@ Exemplos:
         "ui.provider_microsoft": "Microsoft Azure 翻译（需要令牌 — 免费套餐每月200万字符）",
         "ui.provider_papago": "Papago / Naver（最适合韩语 — client_id:secret_key 格式）",
         "ui.provider_custom": "自定义 REST API（支持 Bearer 令牌的任意 HTTP 端点）",
+        "ui.aiSettings": "AI 设置（可选）",
+        "ui.aiMenuTitle": "🤖 AI 设置 — 可选 AI 服务商",
+        "ui.aiSavedNote": "💡 AI 配置已保存到 ai_config.json（请保密！）",
+        "ui.aiNoEntries": "未配置任何 AI 服务商。",
+        "ui.aiAdd": "添加 AI 服务商",
+        "ui.aiEdit": "编辑 AI 服务商",
+        "ui.aiDelete": "删除 AI 服务商",
+        "ui.aiToggle": "启用/禁用 AI 服务商",
+        "ui.aiActive": "🟢 已启用",
+        "ui.aiInactive": "🔴 已禁用",
+        "ui.aiActiveCount": "已启用 AI: {count}/{total}",
+        "ui.aiUsingDefault": "正在使用标准翻译 API（默认）",
+        "ui.aiAdded": "✅ AI '{name}' 已添加。",
+        "ui.aiDeleted": "🗑️ AI '{name}' 已删除。",
+        "ui.aiUpdated": "✅ AI '{name}' 已更新。",
+        "ui.aiEnabled": "🟢 AI '{name}' 已启用。",
+        "ui.aiDisabled": "🔴 AI '{name}' 已禁用。",
+        "ui.aiSelectProvider": "选择 AI 服务商",
+        "ui.aiProviders": "AI 服务商列表：",
+        "ui.aiEnterName": "输入此 AI 的名称",
+        "ui.aiAuthType": "认证方式",
+        "ui.aiAuthKey": "[1] API 密钥",
+        "ui.aiAuthBrowser": "[2] 通过浏览器登录",
+        "ui.aiEnterKey": "输入 API 密钥",
+        "ui.aiBrowserOpening": "🌐 正在打开浏览器...",
+        "ui.aiBrowserNote": "浏览器已打开。登录后请按 Enter 继续。",
+        "ui.aiSelectToEdit": "输入要编辑的 AI 编号",
+        "ui.aiSelectToDelete": "输入要删除的 AI 编号",
+        "ui.aiSelectToToggle": "输入要启用/禁用的 AI 编号",
+        "ui.aiConfirmDelete": "删除 AI '{name}'？ [y/N]",
+        "ui.aiInvalidNumber": "无效的 AI 编号。",
+        "ui.aiActiveLabel": "已激活",
+        "ui.aiTableName": "名称",
+        "ui.aiTableProvider": "服务商",
+        "ui.aiTableStatus": "状态",
+        "ui.aiTableAuth": "认证",
+        "ui.aiEditing": "编辑: {name} ({provider})",
+        "ui.aiNewName": "新名称 [{name}] (Enter=保留，q=取消)",
+        "ui.aiNewKey": "新 API 密钥 (Enter=保留，q=取消)",
+        "ui.aiCancelHint": "（留空取消）",
+        "ui.ai_provider_openai": "OpenAI ChatGPT（API 密钥或浏览器登录）",
+        "ui.ai_provider_gemini": "Google Gemini（API 密钥或浏览器登录）",
+        "ui.ai_provider_claude": "Anthropic Claude（API 密钥或浏览器登录）",
+        "ui.ai_provider_copilot": "Microsoft Copilot（浏览器登录）",
+        "ui.ai_provider_mistral": "Mistral AI（API 密钥或浏览器登录）",
+        "ui.ai_provider_perplexity": "Perplexity AI（API 密钥或浏览器登录）",
+        "ui.ai_provider_custom": "自定义 AI（API 端点 + 密钥）",
+        "ui.tableLimit": "限额",
+        "ui.enterLimit": "使用限额（Enter使用默认，如 50万/月）",
+        "ui.limitDefault": "默认：{value}",
+        "ui.apiLimit": "额度受限 (充值)",
+        "ui.aiLimit": "额度受限 (充值)",
+        "ui.tableAccount": "账号",
+        "ui.enterAccount": "账号用户名 (可选, 例: fatonyahmadfauzi)",
     }
 }
 
@@ -3904,6 +4499,13 @@ def wcswidth(text):
         else:
             width += 1
     return width
+
+
+def cjk_ljust(text, width):
+    """Left justify text taking East Asian character widths into account."""
+    text_str = str(text)
+    pad_len = max(0, width - wcswidth(text_str))
+    return text_str + (' ' * pad_len)
 
 
 def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
@@ -4555,6 +5157,18 @@ SUPPORTED_PROVIDERS = {
     "custom":         "Custom REST API (any HTTP endpoint with Bearer token)",
 }
 
+# Default quota/limits per translation provider
+PROVIDER_DEFAULT_LIMITS = {
+    "google":         "Unlimited",
+    "deepl":          "500k chars/month",
+    "mymemory":       "1k req/day",
+    "libretranslate": "Varies",
+    "yandex":         "1M chars/month",
+    "microsoft":      "2M chars/month",
+    "papago":         "10k chars/day",
+    "custom":         "Varies",
+}
+
 
 def load_api_config() -> dict:
     """Load API configuration from api_config.json."""
@@ -4576,7 +5190,7 @@ def save_api_config(config: dict):
         print(Fore.RED + f"❌ Failed to save API config: {e}" + Style.RESET_ALL)
 
 
-def add_api(name: str, provider: str, token: str, active: bool = True) -> str:
+def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
     entry = {
@@ -4584,7 +5198,9 @@ def add_api(name: str, provider: str, token: str, active: bool = True) -> str:
         "name": name,
         "provider": provider.lower(),
         "token": token,
-        "active": active,
+        "limit": limit or PROVIDER_DEFAULT_LIMITS.get(provider.lower(), ""),
+        "status": status,
+        "active": status == "active",
     }
     config["apis"].append(entry)
     save_api_config(config)
@@ -4609,23 +5225,167 @@ def delete_api(api_id: str):
     save_api_config(config)
 
 
-def toggle_api(api_id: str) -> bool:
-    """Toggle active/inactive for an API. Returns new state."""
+def toggle_api(api_id: str) -> str:
+    """Toggle API status (active -> limit -> inactive). Returns new status."""
     config = load_api_config()
-    new_state = False
+    new_status = "active"
     for entry in config["apis"]:
         if entry["id"] == api_id:
-            entry["active"] = not entry.get("active", False)
-            new_state = entry["active"]
+            curr_status = entry.get("status")
+            if not curr_status:
+                curr_status = "active" if entry.get("active", False) else "inactive"
+            
+            if curr_status == "active":
+                new_status = "limit"
+            elif curr_status == "limit":
+                new_status = "inactive"
+            else:
+                new_status = "active"
+                
+            entry["status"] = new_status
+            entry["active"] = (new_status == "active")
             break
     save_api_config(config)
-    return new_state
+    return new_status
 
 
 def get_active_apis() -> list:
     """Return list of active API entries (excluding default google)."""
     config = load_api_config()
-    return [e for e in config["apis"] if e.get("active", False) and e["provider"] != "google"]
+    return [
+        e for e in config["apis"] 
+        if e.get("status", "active" if e.get("active", False) else "inactive") == "active" 
+        and e["provider"] != "google"
+    ]
+
+
+# ---------------------- AI MANAGEMENT SYSTEM ----------------------
+
+# AI config file path
+AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
+
+# Supported AI providers
+SUPPORTED_AI_PROVIDERS = {
+    "openai":      "OpenAI ChatGPT",
+    "gemini":      "Google Gemini",
+    "claude":      "Anthropic Claude",
+    "copilot":     "Microsoft Copilot",
+    "mistral":     "Mistral AI",
+    "perplexity":  "Perplexity AI",
+    "custom":      "Custom AI Endpoint",
+}
+
+# Default quota/limits per AI provider
+AI_PROVIDER_DEFAULT_LIMITS = {
+    "openai":      "Pay-per-use",
+    "gemini":      "60 req/min (free)",
+    "claude":      "Pay-per-use",
+    "copilot":     "Unlimited (browser)",
+    "mistral":     "Pay-per-use",
+    "perplexity":  "5 req/min (free)",
+    "custom":      "Varies",
+}
+
+# Browser login URLs for each AI provider
+AI_PROVIDER_URLS = {
+    "openai":      "https://chat.openai.com",
+    "gemini":      "https://gemini.google.com",
+    "claude":      "https://claude.ai",
+    "copilot":     "https://copilot.microsoft.com",
+    "mistral":     "https://chat.mistral.ai",
+    "perplexity":  "https://www.perplexity.ai",
+    "custom":      None,
+}
+
+
+def load_ai_config() -> dict:
+    """Load AI configuration from ai_config.json."""
+    if os.path.exists(AI_CONFIG_FILE):
+        try:
+            with open(AI_CONFIG_FILE, encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"ais": []}
+
+
+def save_ai_config(config: dict):
+    """Save AI configuration to ai_config.json."""
+    try:
+        with open(AI_CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(Fore.RED + f"❌ Failed to save AI config: {e}" + Style.RESET_ALL)
+
+
+def add_ai(name: str, provider: str, token: str = "", auth_type: str = "key", limit: str = "", account: str = "", status: str = "active") -> str:
+    """Add a new AI provider entry. Returns the new entry id."""
+    config = load_ai_config()
+    entry = {
+        "id": str(uuid.uuid4()),
+        "name": name,
+        "provider": provider.lower(),
+        "auth_type": auth_type,
+        "token": token,
+        "limit": limit or AI_PROVIDER_DEFAULT_LIMITS.get(provider.lower(), ""),
+        "account": account,
+        "status": status,
+        "active": status == "active",
+    }
+    config["ais"].append(entry)
+    save_ai_config(config)
+    return entry["id"]
+
+
+def edit_ai(ai_id: str, **kwargs):
+    """Edit an existing AI entry by id."""
+    config = load_ai_config()
+    for entry in config["ais"]:
+        if entry["id"] == ai_id:
+            for k, v in kwargs.items():
+                entry[k] = v
+            break
+    save_ai_config(config)
+
+
+def delete_ai(ai_id: str):
+    """Delete an AI entry by id."""
+    config = load_ai_config()
+    config["ais"] = [e for e in config["ais"] if e["id"] != ai_id]
+    save_ai_config(config)
+
+
+def toggle_ai(ai_id: str) -> str:
+    """Toggle AI status (active -> limit -> inactive). Returns new status."""
+    config = load_ai_config()
+    new_status = "active"
+    for entry in config["ais"]:
+        if entry["id"] == ai_id:
+            curr_status = entry.get("status")
+            if not curr_status:
+                curr_status = "active" if entry.get("active", False) else "inactive"
+            
+            if curr_status == "active":
+                new_status = "limit"
+            elif curr_status == "limit":
+                new_status = "inactive"
+            else:
+                new_status = "active"
+                
+            entry["status"] = new_status
+            entry["active"] = (new_status == "active")
+            break
+    save_api_config(config)
+    return new_status
+
+
+def get_active_ais() -> list:
+    """Return list of active AI entries."""
+    config = load_ai_config()
+    return [
+        e for e in config["ais"] 
+        if e.get("status", "active" if e.get("active", False) else "inactive") == "active"
+    ]
 
 
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
@@ -6124,6 +6884,17 @@ def interactive_menu():
         except Exception:
             api_label = t('ui.apiSettings')
         print(f"{Fore.CYAN}[9] {api_label}{Style.RESET_ALL}")
+        # [10] AI Settings—always accessible
+        try:
+            ai_cfg = load_ai_config()
+            ai_active = sum(1 for e in ai_cfg.get('ais', []) if e.get('active', False))
+            ai_total  = len(ai_cfg.get('ais', []))
+            ai_label  = t('ui.aiSettings')
+            if ai_total > 0:
+                ai_label += f" ({ai_active}/{ai_total} {t('ui.aiActiveLabel')})"
+        except Exception:
+            ai_label = t('ui.aiSettings')
+        print(f"{Fore.MAGENTA}[10] {ai_label}{Style.RESET_ALL}")
         print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.exit')}{Style.RESET_ALL}")
 
         # Get user input
@@ -6474,13 +7245,32 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
-                    print(f"{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider'):<16} {t('ui.apiTableStatus')}{Style.RESET_ALL}")
-                    print("─" * 55)
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), 16)
+                    h_stat = t('ui.apiTableStatus')
+                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
+                    print("─" * 56)
                     for idx, entry in enumerate(apis, 1):
-                        st = t('ui.apiActive') if entry.get('active') else t('ui.apiInactive')
-                        st_color = Fore.GREEN if entry.get('active') else Fore.RED
-                        print(f"{Fore.WHITE}{idx:<4}{Style.RESET_ALL} "
-                              f"{entry['name']:<20} {entry['provider']:<16} "
+                        status = entry.get('status')
+                        if not status:
+                            status = 'active' if entry.get('active', False) else 'inactive'
+
+                        if status == 'limit':
+                            st = t('ui.apiLimit')
+                            st_color = Fore.YELLOW
+                        elif status == 'active':
+                            st = t('ui.apiActive')
+                            st_color = Fore.GREEN
+                        else:
+                            st = t('ui.apiInactive')
+                            st_color = Fore.RED
+
+                        v_idx = cjk_ljust(idx, 4)
+                        v_name = cjk_ljust(entry['name'], 20)
+                        v_prov = cjk_ljust(entry['provider'], 16)
+                        print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
+                              f"{v_name} {v_prov} "
                               f"{st_color}{st}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
@@ -6588,7 +7378,8 @@ def interactive_menu():
                                 _api_msg = ""
                                 continue
 
-                    add_api(name_in, provider, token_in, active=True)
+                    default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
+                    add_api(name_in, provider, token_in, limit=default_lim, account="", status="active")
                     _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
 
 
@@ -6597,9 +7388,13 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
-                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider')}{Style.RESET_ALL}")
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_prov = t('ui.apiTableProvider')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
-                        print(f"  {idx2}. {e2['name']:<20} ({e2['provider']})")
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} ({e2['provider']})")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -6634,9 +7429,13 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
-                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider')}{Style.RESET_ALL}")
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_prov = t('ui.apiTableProvider')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
-                        print(f"  {idx2}. {e2['name']:<20} ({e2['provider']})")
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} ({e2['provider']})")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToDelete')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -6658,10 +7457,24 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
-                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableStatus')}{Style.RESET_ALL}")
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_stat = t('ui.apiTableStatus')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_stat}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
-                        st2 = t('ui.apiActive') if e2.get('active') else t('ui.apiInactive')
-                        print(f"  {idx2}. {e2['name']:<20} {st2}")
+                        status = e2.get('status')
+                        if not status:
+                            status = 'active' if e2.get('active', False) else 'inactive'
+                        
+                        if status == 'limit':
+                            st2 = t('ui.apiLimit')
+                        elif status == 'active':
+                            st2 = t('ui.apiActive')
+                        else:
+                            st2 = t('ui.apiInactive')
+
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} {st2}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToToggle')} (1-{len(apis)}, 0=back): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -6671,15 +7484,233 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
-                    new_state = toggle_api(entry['id'])
-                    if new_state:
+                    new_status = toggle_api(entry['id'])
+                    if new_status == "active":
                         _api_msg = Fore.GREEN + t('ui.apiEnabled', name=entry['name']) + Style.RESET_ALL
+                    elif new_status == "limit":
+                        _api_msg = Fore.YELLOW + entry['name'] + ": " + t('ui.apiLimit') + Style.RESET_ALL
                     else:
                         _api_msg = Fore.RED + t('ui.apiDisabled', name=entry['name']) + Style.RESET_ALL
             
+        elif choice == '10':
+            # AI Settings
+            _ai_msg = ""
+            while True:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                ai_cfg  = load_ai_config()
+                ais     = ai_cfg.get('ais', [])
+                ai_act  = sum(1 for e in ais if e.get('active', False))
+
+                print(f"\n{Fore.MAGENTA}{t('ui.aiMenuTitle')}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}{t('ui.aiSavedNote')}{Style.RESET_ALL}\n")
+
+                if not ais:
+                    print(f"{Fore.LIGHTBLACK_EX}{t('ui.aiNoEntries')}{Style.RESET_ALL}")
+                else:
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.aiTableName'), 20)
+                    h_prov = cjk_ljust(t('ui.aiTableProvider'), 14)
+                    h_stat = t('ui.aiTableStatus')
+                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
+                    print("─" * 50)
+                    for idx, entry in enumerate(ais, 1):
+                        status = entry.get('status')
+                        if not status:
+                            status = 'active' if entry.get('active', False) else 'inactive'
+
+                        if status == 'limit':
+                            st = t('ui.aiLimit')
+                            st_col = Fore.YELLOW
+                        elif status == 'active':
+                            st = t('ui.aiActive')
+                            st_col = Fore.GREEN
+                        else:
+                            st = t('ui.aiInactive')
+                            st_col = Fore.RED
+
+                        v_idx   = cjk_ljust(idx, 4)
+                        v_name  = cjk_ljust(entry['name'], 20)
+                        v_prov  = cjk_ljust(entry['provider'], 14)
+                        
+                        print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
+                              f"{v_name} {v_prov} "
+                              f"{st_col}{st}{Style.RESET_ALL}")
+                    print()
+                    print(f"{Fore.MAGENTA}{t('ui.aiActiveCount', count=ai_act, total=len(ais))}{Style.RESET_ALL}")
+                    if ai_act == 0:
+                        print(f"{Fore.YELLOW}  → {t('ui.aiUsingDefault')}{Style.RESET_ALL}")
+
+                print()
+                has_ais  = len(ais) > 0
+                mgmt_col = Fore.GREEN if has_ais else Fore.LIGHTBLACK_EX
+                del_col  = Fore.RED   if has_ais else Fore.LIGHTBLACK_EX
+                tog_col  = Fore.YELLOW if has_ais else Fore.LIGHTBLACK_EX
+                print(f"{Fore.GREEN}[1] {t('ui.aiAdd')}{Style.RESET_ALL}")
+                print(f"{mgmt_col}[2] {t('ui.aiEdit')}{Style.RESET_ALL}")
+                print(f"{del_col}[3] {t('ui.aiDelete')}{Style.RESET_ALL}")
+                print(f"{tog_col}[4] {t('ui.aiToggle')}{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
+
+                if _ai_msg:
+                    print(f"\n{_ai_msg}")
+                _ai_msg = ""
+
+                ai_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+
+                if ai_choice not in ('0', '1', '2', '3', '4'):
+                    _ai_msg = Fore.RED + t('ui.aiInvalidNumber') + Style.RESET_ALL
+                    continue
+
+                if ai_choice == '0':
+                    break
+
+                elif ai_choice == '1':
+                    # ── Add AI ──
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                    print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
+                    print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
+                    ai_prov_list = list(SUPPORTED_AI_PROVIDERS.keys())
+                    for pi, pk in enumerate(ai_prov_list, 1):
+                        desc = t(f'ui.ai_provider_{pk}')
+                        print(f"  [{pi}] {pk:<12} — {desc}")
+                    print(f"  {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    prov_in = input(f"\n{Fore.CYAN}{t('ui.aiSelectProvider')} (1-{len(ai_prov_list)}, 0=cancel): {Fore.WHITE}").strip()
+                    if prov_in == '0' or prov_in == '':
+                        _ai_msg = ""
+                        continue
+                    if not prov_in.isdigit() or not (1 <= int(prov_in) <= len(ai_prov_list)):
+                        _ai_msg = Fore.RED + t('ui.aiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    ai_provider = ai_prov_list[int(prov_in) - 1]
+
+                    name_in = input(f"{Fore.CYAN}{t('ui.aiEnterName')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                    if not name_in:
+                        _ai_msg = ""
+                        continue
+
+                    auth_type = 'key'
+                    token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                    if not token_in:
+                        _ai_msg = ""
+                        continue
+
+                    default_lim = AI_PROVIDER_DEFAULT_LIMITS.get(ai_provider, "")
+                    add_ai(name_in, ai_provider, token_in, auth_type, limit=default_lim, account="", status="active")
+                    _ai_msg = Fore.GREEN + t('ui.aiAdded', name=name_in) + Style.RESET_ALL
+
+                elif ai_choice == '2':
+                    # ── Edit AI ──
+                    if not ais:
+                        _ai_msg = Fore.YELLOW + t('ui.aiNoEntries') + Style.RESET_ALL
+                        continue
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.aiTableName'), 20)
+                    h_prov = t('ui.aiTableProvider')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(ais, 1):
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} ({e2['provider']})")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.aiSelectToEdit')} (1-{len(ais)}, 0=cancel): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _ai_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(ais)):
+                        _ai_msg = Fore.RED + t('ui.aiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = ais[int(num_in) - 1]
+                    print(f"\n{Fore.WHITE}{t('ui.aiEditing', name=entry['name'], provider=entry['provider'])}{Style.RESET_ALL}")
+                    new_name = input(f"{Fore.CYAN}{t('ui.aiNewName', name=entry['name'])}: {Fore.WHITE}").strip()
+                    if new_name.lower() == 'q':
+                        _ai_msg = ""
+                        continue
+                    new_key = input(f"{Fore.CYAN}{t('ui.aiNewKey')}: {Fore.WHITE}").strip()
+                    if new_key.lower() == 'q':
+                        _ai_msg = ""
+                        continue
+                    updates = {}
+                    if new_name:
+                        updates['name'] = new_name
+                    if new_key:
+                        updates['token'] = new_key
+                    if updates:
+                        edit_ai(entry['id'], **updates)
+                        _ai_msg = Fore.GREEN + t('ui.aiUpdated', name=new_name or entry['name']) + Style.RESET_ALL
+                    else:
+                        _ai_msg = ""
+
+                elif ai_choice == '3':
+                    # ── Delete AI ──
+                    if not ais:
+                        _ai_msg = Fore.YELLOW + t('ui.aiNoEntries') + Style.RESET_ALL
+                        continue
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.aiTableName'), 20)
+                    h_prov = t('ui.aiTableProvider')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(ais, 1):
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} ({e2['provider']})")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.aiSelectToDelete')} (1-{len(ais)}, 0=cancel): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _ai_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(ais)):
+                        _ai_msg = Fore.RED + t('ui.aiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = ais[int(num_in) - 1]
+                    confirm = input(Fore.RED + t('ui.aiConfirmDelete', name=entry['name']) + " " + Fore.WHITE).strip().lower()
+                    if confirm == 'y':
+                        delete_ai(entry['id'])
+                        _ai_msg = Fore.GREEN + t('ui.aiDeleted', name=entry['name']) + Style.RESET_ALL
+                    else:
+                        _ai_msg = ""
+
+                elif ai_choice == '4':
+                    # ── Toggle AI ──
+                    if not ais:
+                        _ai_msg = Fore.YELLOW + t('ui.aiNoEntries') + Style.RESET_ALL
+                        continue
+                    h_idx = cjk_ljust('#', 4)
+                    h_name = cjk_ljust(t('ui.aiTableName'), 20)
+                    h_stat = t('ui.aiTableStatus')
+                    print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_stat}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(ais, 1):
+                        status = e2.get('status')
+                        if not status:
+                            status = 'active' if e2.get('active', False) else 'inactive'
+
+                        if status == 'limit':
+                            st2 = t('ui.aiLimit')
+                        elif status == 'active':
+                            st2 = t('ui.aiActive')
+                        else:
+                            st2 = t('ui.aiInactive')
+
+                        v_name = cjk_ljust(e2['name'], 20)
+                        print(f"  {idx2}. {v_name} {st2}")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.aiSelectToToggle')} (1-{len(ais)}, 0=back): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _ai_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(ais)):
+                        _ai_msg = Fore.RED + t('ui.aiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = ais[int(num_in) - 1]
+                    new_status = toggle_ai(entry['id'])
+                    if new_status == "active":
+                        _ai_msg = Fore.GREEN + t('ui.aiEnabled', name=entry['name']) + Style.RESET_ALL
+                    elif new_status == "limit":
+                        _ai_msg = Fore.YELLOW + entry['name'] + ": " + t('ui.aiLimit') + Style.RESET_ALL
+                    else:
+                        _ai_msg = Fore.RED + t('ui.aiDisabled', name=entry['name']) + Style.RESET_ALL
+
         elif choice == '0':
             print(Fore.GREEN + t('ui.exiting'))
             break
+
 
 # ---------------------- MAIN PROGRAM ----------------------
 def main():
