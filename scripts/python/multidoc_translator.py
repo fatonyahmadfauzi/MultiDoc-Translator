@@ -5154,7 +5154,6 @@ SUPPORTED_PROVIDERS = {
     "yandex":         "Yandex Translate (token required — free tier available)",
     "microsoft":      "Microsoft Azure Translator (token required — free tier 2M chars/month)",
     "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
-    "custom":         "Custom REST API (any HTTP endpoint with Bearer token)",
 }
 
 # Default quota/limits per translation provider
@@ -5166,7 +5165,6 @@ PROVIDER_DEFAULT_LIMITS = {
     "yandex":         "1M chars/month",
     "microsoft":      "2M chars/month",
     "papago":         "10k chars/day",
-    "custom":         "Varies",
 }
 
 
@@ -5272,7 +5270,6 @@ SUPPORTED_AI_PROVIDERS = {
     "copilot":     "Microsoft Copilot",
     "mistral":     "Mistral AI",
     "perplexity":  "Perplexity AI",
-    "custom":      "Custom AI Endpoint",
 }
 
 # Default quota/limits per AI provider
@@ -5283,7 +5280,6 @@ AI_PROVIDER_DEFAULT_LIMITS = {
     "copilot":     "Unlimited (browser)",
     "mistral":     "Pay-per-use",
     "perplexity":  "5 req/min (free)",
-    "custom":      "Varies",
 }
 
 # Browser login URLs for each AI provider
@@ -5294,7 +5290,6 @@ AI_PROVIDER_URLS = {
     "copilot":     "https://copilot.microsoft.com",
     "mistral":     "https://chat.mistral.ai",
     "perplexity":  "https://www.perplexity.ai",
-    "custom":      None,
 }
 
 
@@ -5428,28 +5423,6 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 client_id=client_id, secret_key=secret,
                 source="auto", target=dest
             ).translate(text)
-        elif provider == "custom":
-            # Custom REST API — expects entry to have 'endpoint' field
-            # POST {endpoint} with JSON {q: text, target: dest}
-            # Auth header: Bearer <token> (or no auth if token is blank)
-            import urllib.request as _urllib
-            import json as _json
-            endpoint = token.split("|", 1)[1] if "|" in token else ""
-            real_token = token.split("|", 1)[0] if "|" in token else token
-            if not endpoint:
-                return None
-            payload = _json.dumps({"q": text, "target": dest, "source": "auto"}).encode()
-            req = _urllib.Request(endpoint, data=payload,
-                                  headers={"Content-Type": "application/json"})
-            if real_token:
-                req.add_header("Authorization", f"Bearer {real_token}")
-            with _urllib.urlopen(req, timeout=10) as resp:
-                data = _json.loads(resp.read())
-            # Try common response field names
-            for key in ("translatedText", "translation", "text", "result", "output"):
-                if key in data:
-                    return data[key]
-            return None
         else:
             # Unknown provider — skip
             return None
@@ -7342,16 +7315,6 @@ def interactive_menu():
                         if not token_in:
                             _api_msg = ""
                             _cancelled = True
-                    elif provider == "custom":
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Custom API: POST endpoint receiving JSON {{q, source, target}}{Style.RESET_ALL}")
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Response must contain one of: translatedText / translation / text / result / output{Style.RESET_ALL}")
-                        endpoint_in = input(f"{Fore.CYAN}  Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
-                            _api_msg = ""
-                            _cancelled = True
-                        else:
-                            token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                            token_in = f"{token_in}|{endpoint_in}"
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
                         if not token_in:
