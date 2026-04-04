@@ -5264,32 +5264,14 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
-    "openai":      "OpenAI ChatGPT",
-    "gemini":      "Google Gemini",
-    "claude":      "Anthropic Claude",
-    "copilot":     "Microsoft Copilot",
-    "mistral":     "Mistral AI",
-    "perplexity":  "Perplexity AI",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
-    "openai":      "Pay-per-use",
-    "gemini":      "60 req/min (free)",
-    "claude":      "Pay-per-use",
-    "copilot":     "Unlimited (browser)",
-    "mistral":     "Pay-per-use",
-    "perplexity":  "5 req/min (free)",
 }
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
-    "openai":      "https://chat.openai.com",
-    "gemini":      "https://gemini.google.com",
-    "claude":      "https://claude.ai",
-    "copilot":     "https://copilot.microsoft.com",
-    "mistral":     "https://chat.mistral.ai",
-    "perplexity":  "https://www.perplexity.ai",
 }
 
 
@@ -7529,6 +7511,9 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     ai_prov_list = list(SUPPORTED_AI_PROVIDERS.keys())
+                    if not ai_prov_list:
+                        _ai_msg = Fore.YELLOW + "No supported AI providers available in this build." + Style.RESET_ALL
+                        continue
                     for pi, pk in enumerate(ai_prov_list, 1):
                         desc = t(f'ui.ai_provider_{pk}')
                         print(f"  [{pi}] {pk:<12} — {desc}")
