@@ -7,6 +7,9 @@ dist
 node_modules
 .vscode-test/
 
+# API Keys (keep private)
+api_config.json
+
 # Python cache
 __pycache__/
 *.py[cod]

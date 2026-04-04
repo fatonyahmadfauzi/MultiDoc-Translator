@@ -401,6 +401,61 @@ Examples:
         "ui.checkReadmeUrl": "• Or add GitHub URL manually to README",
         "ui.noTranslatedFilesRemove": "⚠️  No translated files found to remove.",
         "ui.noFilesInOutputDir": "There are no CHANGELOG files in the output directory.",
+
+        # API Settings
+        "ui.apiSettings": "API Settings (Optional)",
+        "ui.apiList": "API List",
+        "ui.apiAdd": "Add API",
+        "ui.apiEdit": "Edit API",
+        "ui.apiDelete": "Delete API",
+        "ui.apiToggle": "Enable/Disable API",
+        "ui.apiName": "API Name",
+        "ui.apiProvider": "Provider",
+        "ui.apiToken": "API Token",
+        "ui.apiStatus": "Status",
+        "ui.apiActive": "🟢 Active",
+        "ui.apiInactive": "🔴 Inactive",
+        "ui.apiNoEntries": "No APIs configured. Using Google Translate (free) by default.",
+        "ui.apiAdded": "✅ API '{name}' added successfully.",
+        "ui.apiDeleted": "🗑️ API '{name}' deleted.",
+        "ui.apiUpdated": "✅ API '{name}' updated.",
+        "ui.apiEnabled": "🟢 API '{name}' enabled.",
+        "ui.apiDisabled": "🔴 API '{name}' disabled.",
+        "ui.apiUsing": "🔌 Using API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Falling back to Google Translate (free).",
+        "ui.apiSelectProvider": "Select provider",
+        "ui.apiEnterToken": "Enter API token (leave blank for free providers)",
+        "ui.apiEnterName": "Enter a name for this API",
+        "ui.apiSelectToEdit": "Enter API number to edit",
+        "ui.apiSelectToDelete": "Enter API number to delete",
+        "ui.apiSelectToToggle": "Enter API number to enable/disable",
+        "ui.apiConfirmDelete": "Are you sure you want to delete API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ API test successful: {result}",
+        "ui.apiTestFailed": "❌ API test failed: {error}",
+        "ui.apiTesting": "🔍 Testing API connection...",
+        "ui.apiInvalidNumber": "Invalid API number.",
+        "ui.apiSavedNote": "💡 API tokens are saved in api_config.json (keep this file private!)",
+        "ui.apiMenuTitle": "🔌 API Settings — Optional Translation APIs",
+        "ui.apiActiveCount": "Active APIs: {count}/{total}",
+        "ui.apiUsingFree": "Using Google Translate (default, no API needed)",
+        "ui.apiCancelHint": "(empty to cancel)",
+        "ui.apiTableName": "Name",
+        "ui.apiTableProvider": "Provider",
+        "ui.apiTableStatus": "Status",
+        "ui.apiProviders": "Providers:",
+        "ui.apiCancel": "Cancel",
+        "ui.apiEditing": "Editing: {name} ({provider})",
+        "ui.apiNewName": "New name [{name}] (Enter to keep, q=cancel)",
+        "ui.apiNewToken": "New token (Enter to keep, q=cancel)",
+        "ui.apiActiveLabel": "active",
+        "ui.provider_google": "Google Translate (Free, no token needed)",
+        "ui.provider_deepl": "DeepL (Free/Pro — token required)",
+        "ui.provider_mymemory": "MyMemory (Free with optional token for higher quota)",
+        "ui.provider_libretranslate": "LibreTranslate (Free self-hosted / public servers)",
+        "ui.provider_yandex": "Yandex Translate (token required — free tier available)",
+        "ui.provider_microsoft": "Microsoft Azure Translator (token required — free tier 2M chars/month)",
+        "ui.provider_papago": "Papago / Naver (best for Korean — client_id:secret_key format)",
+        "ui.provider_custom": "Custom REST API (any HTTP endpoint with Bearer token)",
     },
     "id": {
         "ui.codeLanguage": "Kode/Bahasa",
@@ -661,6 +716,61 @@ Contoh:
         "ui.missingReadme": "README.md tidak ditemukan.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Tidak bisa menerjemahkan CHANGELOG saja.",
         "ui.missingChangelog": "CHANGELOG.md tidak ditemukan.",
+
+        # API Settings
+        "ui.apiSettings": "Pengaturan API (Opsional)",
+        "ui.apiList": "Daftar API",
+        "ui.apiAdd": "Tambah API",
+        "ui.apiEdit": "Edit API",
+        "ui.apiDelete": "Hapus API",
+        "ui.apiToggle": "Aktifkan/Nonaktifkan API",
+        "ui.apiName": "Nama API",
+        "ui.apiProvider": "Provider",
+        "ui.apiToken": "Token API",
+        "ui.apiStatus": "Status",
+        "ui.apiActive": "🟢 Aktif",
+        "ui.apiInactive": "🔴 Nonaktif",
+        "ui.apiNoEntries": "Belum ada API. Menggunakan Google Translate (gratis) secara default.",
+        "ui.apiAdded": "✅ API '{name}' berhasil ditambahkan.",
+        "ui.apiDeleted": "🗑️ API '{name}' dihapus.",
+        "ui.apiUpdated": "✅ API '{name}' diperbarui.",
+        "ui.apiEnabled": "🟢 API '{name}' diaktifkan.",
+        "ui.apiDisabled": "🔴 API '{name}' dinonaktifkan.",
+        "ui.apiUsing": "🔌 Menggunakan API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Kembali ke Google Translate (gratis).",
+        "ui.apiSelectProvider": "Pilih provider",
+        "ui.apiEnterToken": "Masukkan token API (kosongkan untuk provider gratis)",
+        "ui.apiEnterName": "Masukkan nama untuk API ini",
+        "ui.apiSelectToEdit": "Masukkan nomor API untuk diedit",
+        "ui.apiSelectToDelete": "Masukkan nomor API untuk dihapus",
+        "ui.apiSelectToToggle": "Masukkan nomor API untuk aktifkan/nonaktifkan",
+        "ui.apiConfirmDelete": "Yakin ingin menghapus API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ Test API berhasil: {result}",
+        "ui.apiTestFailed": "❌ Test API gagal: {error}",
+        "ui.apiTesting": "🔍 Menguji koneksi API...",
+        "ui.apiInvalidNumber": "Nomor API tidak valid.",
+        "ui.apiSavedNote": "💡 Token API disimpan di api_config.json (jaga kerahasiaannya!)",
+        "ui.apiMenuTitle": "🔌 Pengaturan API — API Terjemahan Opsional",
+        "ui.apiActiveCount": "API Aktif: {count}/{total}",
+        "ui.apiUsingFree": "Menggunakan Google Translate (default, tidak butuh API)",
+        "ui.apiCancelHint": "(kosongkan untuk batal)",
+        "ui.apiTableName": "Nama",
+        "ui.apiTableProvider": "Provider",
+        "ui.apiTableStatus": "Status",
+        "ui.apiProviders": "Provider:",
+        "ui.apiCancel": "Batal",
+        "ui.apiEditing": "Mengedit: {name} ({provider})",
+        "ui.apiNewName": "Nama baru [{name}] (Enter untuk pertahankan, q=batal)",
+        "ui.apiNewToken": "Token baru (Enter untuk pertahankan, q=batal)",
+        "ui.apiActiveLabel": "aktif",
+        "ui.provider_google": "Google Translate (Gratis, tidak perlu token)",
+        "ui.provider_deepl": "DeepL (Gratis/Pro — memerlukan token)",
+        "ui.provider_mymemory": "MyMemory (Gratis dengan token opsional untuk kuota lebih)",
+        "ui.provider_libretranslate": "LibreTranslate (Self-hosted gratis / server publik)",
+        "ui.provider_yandex": "Yandex Translate (memerlukan token — tersedia tier gratis)",
+        "ui.provider_microsoft": "Microsoft Azure Translator (memerlukan token — tier gratis 2M kar/bulan)",
+        "ui.provider_papago": "Papago / Naver (terbaik untuk Korea — format client_id:secret_key)",
+        "ui.provider_custom": "Custom REST API (endpoint HTTP apapun dengan Bearer token)",
     },
     "jp": {
         "ui.codeLanguage": "コード/言語",
@@ -922,6 +1032,61 @@ Contoh:
         "ui.missingReadme": "README.md が見つかりません。",
         "ui.cannotTranslateChangelogOnly": "⚠️  チェンジログのみを翻訳できません。",
         "ui.missingChangelog": "CHANGELOG.md が見つかりません。",
+
+        # API Settings
+        "ui.apiSettings": "API設定（オプション）",
+        "ui.apiList": "APIリスト",
+        "ui.apiAdd": "APIを追加",
+        "ui.apiEdit": "APIを編集",
+        "ui.apiDelete": "APIを削除",
+        "ui.apiToggle": "APIを有効/無効",
+        "ui.apiName": "API名",
+        "ui.apiProvider": "プロバイダー",
+        "ui.apiToken": "APIトークン",
+        "ui.apiStatus": "ステータス",
+        "ui.apiActive": "🟢 有効",
+        "ui.apiInactive": "🔴 無効",
+        "ui.apiNoEntries": "APIが設定されていません。デフォルトでGoogle翻訳（無料）を使用します。",
+        "ui.apiAdded": "✅ API '{name}' を追加しました。",
+        "ui.apiDeleted": "🗑️ API '{name}' を削除しました。",
+        "ui.apiUpdated": "✅ API '{name}' を更新しました。",
+        "ui.apiEnabled": "🟢 API '{name}' を有効にしました。",
+        "ui.apiDisabled": "🔴 API '{name}' を無効にしました。",
+        "ui.apiUsing": "🔌 使用中のAPI: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Google翻訳（無料）にフォールバックします。",
+        "ui.apiSelectProvider": "プロバイダーを選択",
+        "ui.apiEnterToken": "APIトークンを入力（無料プロバイダーは空白可）",
+        "ui.apiEnterName": "このAPIの名前を入力",
+        "ui.apiSelectToEdit": "編集するAPI番号を入力",
+        "ui.apiSelectToDelete": "削除するAPI番号を入力",
+        "ui.apiSelectToToggle": "有効/無効にするAPI番号を入力",
+        "ui.apiConfirmDelete": "API '{name}' を削除してもよいですか？ [y/N]",
+        "ui.apiTestSuccess": "✅ APIテスト成功: {result}",
+        "ui.apiTestFailed": "❌ APIテスト失敗: {error}",
+        "ui.apiTesting": "🔍 API接続をテスト中...",
+        "ui.apiInvalidNumber": "無効なAPI番号です。",
+        "ui.apiSavedNote": "💡 APIトークンはapi_config.jsonに保存されます（非公開にしてください）",
+        "ui.apiMenuTitle": "🔌 API設定 — オプション翻訳API",
+        "ui.apiActiveCount": "有効なAPI: {count}/{total}",
+        "ui.apiUsingFree": "Google翻訳（デフォルト、API不要）を使用中",
+        "ui.apiCancelHint": "（空で中止）",
+        "ui.apiTableName": "名前",
+        "ui.apiTableProvider": "プロバイダー",
+        "ui.apiTableStatus": "ステータス",
+        "ui.apiProviders": "プロバイダー一覧:",
+        "ui.apiCancel": "キャンセル",
+        "ui.apiEditing": "編集中: {name} ({provider})",
+        "ui.apiNewName": "新しい名前 [{name}] (そのままにするにはEnter、q=キャンセル)",
+        "ui.apiNewToken": "新しいトークン (そのままにするにはEnter、q=キャンセル)",
+        "ui.apiActiveLabel": "アクティブ",
+        "ui.provider_google": "Google翻訳（無料、トークン不要）",
+        "ui.provider_deepl": "DeepL（無料/Pro — トークン必要）",
+        "ui.provider_mymemory": "MyMemory（無料、より多くのクォータにはトークン任意）",
+        "ui.provider_libretranslate": "LibreTranslate（無料セルフホスト / 公開サーバー）",
+        "ui.provider_yandex": "Yandex翻訳（トークン必要 — 無料枠あり）",
+        "ui.provider_microsoft": "Microsoft Azure翻訳（トークン必要 — 無料枠月200万文字）",
+        "ui.provider_papago": "Papago / Naver（韓国語最適 — client_id:secret_key形式）",
+        "ui.provider_custom": "カスタムREST API（Bearerトークン付きのHTTPエンドポイント）",
     },
     "de": {
         "ui.codeLanguage": "Code/Sprache",
@@ -1182,6 +1347,61 @@ Beispiele:
         "ui.missingReadme": "README.md fehlt.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Nur-CHANGELOG-Übersetzung nicht möglich.",
         "ui.missingChangelog": "CHANGELOG.md fehlt.",
+
+        # API Settings
+        "ui.apiSettings": "API-Einstellungen (Optional)",
+        "ui.apiList": "API-Liste",
+        "ui.apiAdd": "API hinzufügen",
+        "ui.apiEdit": "API bearbeiten",
+        "ui.apiDelete": "API löschen",
+        "ui.apiToggle": "API aktivieren/deaktivieren",
+        "ui.apiName": "API-Name",
+        "ui.apiProvider": "Anbieter",
+        "ui.apiToken": "API-Token",
+        "ui.apiStatus": "Status",
+        "ui.apiActive": "🟢 Aktiv",
+        "ui.apiInactive": "🔴 Inaktiv",
+        "ui.apiNoEntries": "Keine APIs konfiguriert. Standard: Google Translate (kostenlos).",
+        "ui.apiAdded": "✅ API '{name}' erfolgreich hinzugefügt.",
+        "ui.apiDeleted": "🗑️ API '{name}' gelöscht.",
+        "ui.apiUpdated": "✅ API '{name}' aktualisiert.",
+        "ui.apiEnabled": "🟢 API '{name}' aktiviert.",
+        "ui.apiDisabled": "🔴 API '{name}' deaktiviert.",
+        "ui.apiUsing": "🔌 Verwendete API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Fallback auf Google Translate (kostenlos).",
+        "ui.apiSelectProvider": "Anbieter auswählen",
+        "ui.apiEnterToken": "API-Token eingeben (bei kostenlosen Anbietern leer lassen)",
+        "ui.apiEnterName": "Name für diese API eingeben",
+        "ui.apiSelectToEdit": "API-Nummer zum Bearbeiten eingeben",
+        "ui.apiSelectToDelete": "API-Nummer zum Löschen eingeben",
+        "ui.apiSelectToToggle": "API-Nummer zum Aktivieren/Deaktivieren eingeben",
+        "ui.apiConfirmDelete": "API '{name}' wirklich löschen? [y/N]",
+        "ui.apiTestSuccess": "✅ API-Test erfolgreich: {result}",
+        "ui.apiTestFailed": "❌ API-Test fehlgeschlagen: {error}",
+        "ui.apiTesting": "🔍 API-Verbindung wird getestet...",
+        "ui.apiInvalidNumber": "Ungültige API-Nummer.",
+        "ui.apiSavedNote": "💡 API-Tokens werden in api_config.json gespeichert (privat halten!)",
+        "ui.apiMenuTitle": "🔌 API-Einstellungen — Optionale Übersetzungs-APIs",
+        "ui.apiActiveCount": "Aktive APIs: {count}/{total}",
+        "ui.apiUsingFree": "Google Translate wird verwendet (Standard, kein API erforderlich)",
+        "ui.apiCancelHint": "(leer = abbrechen)",
+        "ui.apiTableName": "Name",
+        "ui.apiTableProvider": "Anbieter",
+        "ui.apiTableStatus": "Status",
+        "ui.apiProviders": "Anbieter:",
+        "ui.apiCancel": "Abbrechen",
+        "ui.apiEditing": "Bearbeitung: {name} ({provider})",
+        "ui.apiNewName": "Neuer Name [{name}] (Enter = behalten, q=abbrechen)",
+        "ui.apiNewToken": "Neues Token (Enter = behalten, q=abbrechen)",
+        "ui.apiActiveLabel": "aktiv",
+        "ui.provider_google": "Google Translate (Kostenlos, kein Token erforderlich)",
+        "ui.provider_deepl": "DeepL (Kostenlos/Pro — Token erforderlich)",
+        "ui.provider_mymemory": "MyMemory (Kostenlos mit optionalem Token für mehr Kontingent)",
+        "ui.provider_libretranslate": "LibreTranslate (Kostenlos self-hosted / öffentliche Server)",
+        "ui.provider_yandex": "Yandex Übersetzer (Token erforderlich — kostenlose Stufe verfügbar)",
+        "ui.provider_microsoft": "Microsoft Azure Übersetzer (Token erforderlich — kostenlose Stufe 2M Zeichen/Monat)",
+        "ui.provider_papago": "Papago / Naver (am besten für Koreanisch — client_id:secret_key Format)",
+        "ui.provider_custom": "Benutzerdefinierte REST API (beliebiger HTTP-Endpunkt mit Bearer-Token)",
     },
     "es": {
         "ui.codeLanguage": "Código/Idioma",
@@ -1442,6 +1662,61 @@ Ejemplos:
         "ui.missingReadme": "Falta README.md.",
         "ui.cannotTranslateChangelogOnly": "⚠️  No se puede traducir solo el CHANGELOG.",
         "ui.missingChangelog": "Falta CHANGELOG.md.",
+
+        # API Settings
+        "ui.apiSettings": "Configuración de API (Opcional)",
+        "ui.apiList": "Lista de APIs",
+        "ui.apiAdd": "Agregar API",
+        "ui.apiEdit": "Editar API",
+        "ui.apiDelete": "Eliminar API",
+        "ui.apiToggle": "Activar/Desactivar API",
+        "ui.apiName": "Nombre de API",
+        "ui.apiProvider": "Proveedor",
+        "ui.apiToken": "Token de API",
+        "ui.apiStatus": "Estado",
+        "ui.apiActive": "🟢 Activo",
+        "ui.apiInactive": "🔴 Inactivo",
+        "ui.apiNoEntries": "Sin APIs configuradas. Usando Google Translate (gratis) por defecto.",
+        "ui.apiAdded": "✅ API '{name}' agregada exitosamente.",
+        "ui.apiDeleted": "🗑️ API '{name}' eliminada.",
+        "ui.apiUpdated": "✅ API '{name}' actualizada.",
+        "ui.apiEnabled": "🟢 API '{name}' activada.",
+        "ui.apiDisabled": "🔴 API '{name}' desactivada.",
+        "ui.apiUsing": "🔌 Usando API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Recurriendo a Google Translate (gratis).",
+        "ui.apiSelectProvider": "Seleccionar proveedor",
+        "ui.apiEnterToken": "Ingrese token de API (en blanco para proveedores gratuitos)",
+        "ui.apiEnterName": "Ingrese un nombre para esta API",
+        "ui.apiSelectToEdit": "Ingrese número de API a editar",
+        "ui.apiSelectToDelete": "Ingrese número de API a eliminar",
+        "ui.apiSelectToToggle": "Ingrese número de API a activar/desactivar",
+        "ui.apiConfirmDelete": "¿Eliminar API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ Prueba de API exitosa: {result}",
+        "ui.apiTestFailed": "❌ Prueba de API fallida: {error}",
+        "ui.apiTesting": "🔍 Probando conexión de API...",
+        "ui.apiInvalidNumber": "Número de API inválido.",
+        "ui.apiSavedNote": "💡 Los tokens se guardan en api_config.json (¡manténgalo privado!)",
+        "ui.apiMenuTitle": "🔌 Configuración de API — APIs de traducción opcionales",
+        "ui.apiActiveCount": "APIs activas: {count}/{total}",
+        "ui.apiUsingFree": "Usando Google Translate (por defecto, sin API necesaria)",
+        "ui.apiCancelHint": "(vacío para cancelar)",
+        "ui.apiTableName": "Nombre",
+        "ui.apiTableProvider": "Proveedor",
+        "ui.apiTableStatus": "Estado",
+        "ui.apiProviders": "Proveedores:",
+        "ui.apiCancel": "Cancelar",
+        "ui.apiEditing": "Editando: {name} ({provider})",
+        "ui.apiNewName": "Nuevo nombre [{name}] (Enter = mantener, q=cancelar)",
+        "ui.apiNewToken": "Nuevo token (Enter = mantener, q=cancelar)",
+        "ui.apiActiveLabel": "activo",
+        "ui.provider_google": "Google Translate (Gratis, sin token necesario)",
+        "ui.provider_deepl": "DeepL (Gratis/Pro — token requerido)",
+        "ui.provider_mymemory": "MyMemory (Gratis con token opcional para mayor cuota)",
+        "ui.provider_libretranslate": "LibreTranslate (Self-hosted gratis / servidores públicos)",
+        "ui.provider_yandex": "Yandex Translate (token requerido — nivel gratuito disponible)",
+        "ui.provider_microsoft": "Microsoft Azure Translator (token requerido — nivel gratuito 2M car/mes)",
+        "ui.provider_papago": "Papago / Naver (mejor para coreano — formato client_id:secret_key)",
+        "ui.provider_custom": "API REST personalizada (cualquier endpoint HTTP con Bearer token)",
     },
     "fr": {
         "ui.codeLanguage": "Code/Langue",
@@ -1692,8 +1967,10 @@ Exemples :
         "ui.checkReadmeUrl": "• Ou ajoutez l'URL GitHub manuellement dans README",
         "ui.noTranslatedFilesRemove": "⚠️  Aucun fichier traduit trouvé à supprimer.",
         "ui.noFilesInOutputDir": "Il n'y a pas de fichiers CHANGELOG (Journal des Changements) dans le répertoire de sortie.",
-        "progress.translatingChangelogOnly": "Traduction du Journal des Changements (CHANGELOG) uniquement",
-        "success.translationCompletedChangelogOnly": "✅ {count} Journaux des Changements (CHANGELOG) traduits avec succès !",
+        "progress.translatingChangelogOnly": "Traduction du Journal des Changements (CHANGELOG) uniquement",
+
+        "success.translationCompletedChangelogOnly": "✅ {count} Journaux des Changements (CHANGELOG) traduits avec succès !",
+
         "ui.cannotTranslateBoth": "⚠️  Impossible de traduire README & CHANGELOG.",
         "ui.missingReadmeForBoth": "README.md est manquant. Utilisez l'option [2] pour traduire uniquement le README.",
         "ui.missingChangelogForBoth": "CHANGELOG.md est manquant. Utilisez l'option [3] pour traduire uniquement le CHANGELOG.",
@@ -1702,6 +1979,61 @@ Exemples :
         "ui.missingReadme": "README.md est manquant.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Impossible de traduire uniquement le CHANGELOG.",
         "ui.missingChangelog": "CHANGELOG.md est manquant.",
+
+        # API Settings
+        "ui.apiSettings": "Paramètres API (Optionnel)",
+        "ui.apiList": "Liste des APIs",
+        "ui.apiAdd": "Ajouter une API",
+        "ui.apiEdit": "Modifier l'API",
+        "ui.apiDelete": "Supprimer l'API",
+        "ui.apiToggle": "Activer/Désactiver l'API",
+        "ui.apiName": "Nom de l'API",
+        "ui.apiProvider": "Fournisseur",
+        "ui.apiToken": "Jeton API",
+        "ui.apiStatus": "Statut",
+        "ui.apiActive": "🟢 Actif",
+        "ui.apiInactive": "🔴 Inactif",
+        "ui.apiNoEntries": "Aucune API configurée. Google Traduction (gratuit) utilisé par défaut.",
+        "ui.apiAdded": "✅ API '{name}' ajoutée avec succès.",
+        "ui.apiDeleted": "🗑️ API '{name}' supprimée.",
+        "ui.apiUpdated": "✅ API '{name}' mise à jour.",
+        "ui.apiEnabled": "🟢 API '{name}' activée.",
+        "ui.apiDisabled": "🔴 API '{name}' désactivée.",
+        "ui.apiUsing": "🔌 API utilisée : {name} ({provider})",
+        "ui.apiFallback": "⚠️  Utilisation de Google Traduction (gratuit) en repli.",
+        "ui.apiSelectProvider": "Sélectionner le fournisseur",
+        "ui.apiEnterToken": "Entrez le jeton API (laisser vide pour les fournisseurs gratuits)",
+        "ui.apiEnterName": "Entrez un nom pour cette API",
+        "ui.apiSelectToEdit": "Entrez le numéro d'API à modifier",
+        "ui.apiSelectToDelete": "Entrez le numéro d'API à supprimer",
+        "ui.apiSelectToToggle": "Entrez le numéro d'API à activer/désactiver",
+        "ui.apiConfirmDelete": "Supprimer l'API '{name}' ? [y/N]",
+        "ui.apiTestSuccess": "✅ Test API réussi : {result}",
+        "ui.apiTestFailed": "❌ Échec du test API : {error}",
+        "ui.apiTesting": "🔍 Test de connexion API en cours...",
+        "ui.apiInvalidNumber": "Numéro d'API invalide.",
+        "ui.apiSavedNote": "💡 Les jetons sont sauvegardés dans api_config.json (gardez ce fichier privé !)",
+        "ui.apiMenuTitle": "🔌 Paramètres API — APIs de traduction optionnelles",
+        "ui.apiActiveCount": "APIs actives : {count}/{total}",
+        "ui.apiUsingFree": "Google Traduction utilisé (par défaut, aucune API requise)",
+        "ui.apiCancelHint": "(vide pour annuler)",
+        "ui.apiTableName": "Nom",
+        "ui.apiTableProvider": "Fournisseur",
+        "ui.apiTableStatus": "Statut",
+        "ui.apiProviders": "Fournisseurs :",
+        "ui.apiCancel": "Annuler",
+        "ui.apiEditing": "Modification : {name} ({provider})",
+        "ui.apiNewName": "Nouveau nom [{name}] (Enter = garder, q=annuler)",
+        "ui.apiNewToken": "Nouveau jeton (Enter = garder, q=annuler)",
+        "ui.apiActiveLabel": "actif",
+        "ui.provider_google": "Google Traduction (Gratuit, aucun jeton requis)",
+        "ui.provider_deepl": "DeepL (Gratuit/Pro — jeton requis)",
+        "ui.provider_mymemory": "MyMemory (Gratuit avec jeton optionnel pour plus de quota)",
+        "ui.provider_libretranslate": "LibreTranslate (Auto-hébergé gratuit / serveurs publics)",
+        "ui.provider_yandex": "Yandex Traduction (jeton requis — niveau gratuit disponible)",
+        "ui.provider_microsoft": "Microsoft Azure Traduction (jeton requis — niveau gratuit 2M car/mois)",
+        "ui.provider_papago": "Papago / Naver (meilleur pour le coréen — format client_id:secret_key)",
+        "ui.provider_custom": "API REST personnalisée (tout endpoint HTTP avec jeton Bearer)",
         "progress.barLabel": "Progression :",
     },
     "kr": {
@@ -1963,6 +2295,61 @@ Exemples :
         "ui.missingReadme": "README.md를 찾을 수 없습니다.",
         "ui.cannotTranslateChangelogOnly": "⚠️  CHANGELOG만 번역할 수 없습니다.",
         "ui.missingChangelog": "CHANGELOG.md를 찾을 수 없습니다.",
+
+        # API Settings
+        "ui.apiSettings": "API 설정 (선택 사항)",
+        "ui.apiList": "API 목록",
+        "ui.apiAdd": "API 추가",
+        "ui.apiEdit": "API 편집",
+        "ui.apiDelete": "API 삭제",
+        "ui.apiToggle": "API 활성화/비활성화",
+        "ui.apiName": "API 이름",
+        "ui.apiProvider": "제공자",
+        "ui.apiToken": "API 토큰",
+        "ui.apiStatus": "상태",
+        "ui.apiActive": "🟢 활성",
+        "ui.apiInactive": "🔴 비활성",
+        "ui.apiNoEntries": "API가 설정되지 않았습니다. 기본값: Google 번역 (무료).",
+        "ui.apiAdded": "✅ API '{name}'이(가) 추가되었습니다.",
+        "ui.apiDeleted": "🗑️ API '{name}'이(가) 삭제되었습니다.",
+        "ui.apiUpdated": "✅ API '{name}'이(가) 업데이트되었습니다.",
+        "ui.apiEnabled": "🟢 API '{name}'이(가) 활성화되었습니다.",
+        "ui.apiDisabled": "🔴 API '{name}'이(가) 비활성화되었습니다.",
+        "ui.apiUsing": "🔌 사용 중인 API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Google 번역(무료)으로 대체합니다.",
+        "ui.apiSelectProvider": "제공자 선택",
+        "ui.apiEnterToken": "API 토큰 입력 (무료 제공자는 빈칸 가능)",
+        "ui.apiEnterName": "이 API의 이름을 입력하세요",
+        "ui.apiSelectToEdit": "편집할 API 번호 입력",
+        "ui.apiSelectToDelete": "삭제할 API 번호 입력",
+        "ui.apiSelectToToggle": "활성화/비활성화할 API 번호 입력",
+        "ui.apiConfirmDelete": "API '{name}'을(를) 삭제하시겠습니까? [y/N]",
+        "ui.apiTestSuccess": "✅ API 테스트 성공: {result}",
+        "ui.apiTestFailed": "❌ API 테스트 실패: {error}",
+        "ui.apiTesting": "🔍 API 연결 테스트 중...",
+        "ui.apiInvalidNumber": "잘못된 API 번호입니다.",
+        "ui.apiSavedNote": "💡 API 토큰은 api_config.json에 저장됩니다 (비공개 유지!)",
+        "ui.apiMenuTitle": "🔌 API 설정 — 선택적 번역 API",
+        "ui.apiActiveCount": "활성 API: {count}/{total}",
+        "ui.apiUsingFree": "Google 번역 사용 중 (기본값, API 불필요)",
+        "ui.apiCancelHint": "(비워서 취소)",
+        "ui.apiTableName": "이름",
+        "ui.apiTableProvider": "제공자",
+        "ui.apiTableStatus": "상태",
+        "ui.apiProviders": "제공자 목록:",
+        "ui.apiCancel": "취소",
+        "ui.apiEditing": "편집 중: {name} ({provider})",
+        "ui.apiNewName": "새 이름 [{name}] (Enter = 유지, q=취소)",
+        "ui.apiNewToken": "새 토큰 (Enter = 유지, q=취소)",
+        "ui.apiActiveLabel": "활성",
+        "ui.provider_google": "Google 번역 (무료, 토큰 불필요)",
+        "ui.provider_deepl": "DeepL (무료/Pro — 토큰 필요)",
+        "ui.provider_mymemory": "MyMemory (무료, 더 많은 할당량에는 선택적 토큰)",
+        "ui.provider_libretranslate": "LibreTranslate (무료 셀프호스팅 / 공개 서버)",
+        "ui.provider_yandex": "Yandex 번역 (토큰 필요 — 무료 티어 제공)",
+        "ui.provider_microsoft": "Microsoft Azure 번역 (토큰 필요 — 무료 티어 월 200만 자)",
+        "ui.provider_papago": "Papago / Naver (한국어에 최적 — client_id:secret_key 형식)",
+        "ui.provider_custom": "커스텀 REST API (Bearer 토큰이 있는 HTTP 엔드포인트)",
     },
     "pl": {
         "ui.codeLanguage": "Kod/język",
@@ -2223,6 +2610,61 @@ Przykłady:
         "ui.missingReadme": "Brak pliku README.md.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Nie można przełumaczyć tylko CHANGELOG.",
         "ui.missingChangelog": "Brak pliku CHANGELOG.md.",
+
+        # API Settings
+        "ui.apiSettings": "Ustawienia API (Opcjonalne)",
+        "ui.apiList": "Lista API",
+        "ui.apiAdd": "Dodaj API",
+        "ui.apiEdit": "Edytuj API",
+        "ui.apiDelete": "Usuń API",
+        "ui.apiToggle": "Włącz/Wyłącz API",
+        "ui.apiName": "Nazwa API",
+        "ui.apiProvider": "Dostawca",
+        "ui.apiToken": "Token API",
+        "ui.apiStatus": "Status",
+        "ui.apiActive": "🟢 Aktywny",
+        "ui.apiInactive": "🔴 Nieaktywny",
+        "ui.apiNoEntries": "Brak skonfigurowanych API. Domyślnie: Google Translate (bezpłatny).",
+        "ui.apiAdded": "✅ API '{name}' dodane pomyślnie.",
+        "ui.apiDeleted": "🗑️ API '{name}' usunięte.",
+        "ui.apiUpdated": "✅ API '{name}' zaktualizowane.",
+        "ui.apiEnabled": "🟢 API '{name}' włączone.",
+        "ui.apiDisabled": "🔴 API '{name}' wyłączone.",
+        "ui.apiUsing": "🔌 Używane API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Powrót do Google Translate (bezpłatny).",
+        "ui.apiSelectProvider": "Wybierz dostawcę",
+        "ui.apiEnterToken": "Wpisz token API (puste dla bezpłatnych dostawców)",
+        "ui.apiEnterName": "Wpisz nazwę dla tego API",
+        "ui.apiSelectToEdit": "Wpisz numer API do edycji",
+        "ui.apiSelectToDelete": "Wpisz numer API do usunięcia",
+        "ui.apiSelectToToggle": "Wpisz numer API do włączenia/wyłączenia",
+        "ui.apiConfirmDelete": "Czy chcesz usunąć API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ Test API udany: {result}",
+        "ui.apiTestFailed": "❌ Test API nieudany: {error}",
+        "ui.apiTesting": "🔍 Testowanie połączenia API...",
+        "ui.apiInvalidNumber": "Nieprawidłowy numer API.",
+        "ui.apiSavedNote": "💡 Tokeny API zapisane w api_config.json (zachowaj prywatność!)",
+        "ui.apiMenuTitle": "🔌 Ustawienia API — Opcjonalne API tłumaczeń",
+        "ui.apiActiveCount": "Aktywne API: {count}/{total}",
+        "ui.apiUsingFree": "Używam Google Translate (domyślny, bez API)",
+        "ui.apiCancelHint": "(puste = anuluj)",
+        "ui.apiTableName": "Nazwa",
+        "ui.apiTableProvider": "Dostawca",
+        "ui.apiTableStatus": "Status",
+        "ui.apiProviders": "Dostawcy:",
+        "ui.apiCancel": "Anuluj",
+        "ui.apiEditing": "Edytowanie: {name} ({provider})",
+        "ui.apiNewName": "Nowa nazwa [{name}] (Enter = zachowaj, q=anuluj)",
+        "ui.apiNewToken": "Nowy token (Enter = zachowaj, q=anuluj)",
+        "ui.apiActiveLabel": "aktywne",
+        "ui.provider_google": "Google Tłumacz (Darmowy, brak tokenu)",
+        "ui.provider_deepl": "DeepL (Darmowy/Pro — wymagany token)",
+        "ui.provider_mymemory": "MyMemory (Darmowy z opcjonalnym tokenem dla większego limitu)",
+        "ui.provider_libretranslate": "LibreTranslate (Darmowy self-hosted / publiczne serwery)",
+        "ui.provider_yandex": "Yandex Tłumacz (wymagany token — dostępny bezpłatny poziom)",
+        "ui.provider_microsoft": "Microsoft Azure Tłumacz (wymagany token — bezpłatny poziom 2M znaków/mies.)",
+        "ui.provider_papago": "Papago / Naver (najlepszy dla koreańskiego — format client_id:secret_key)",
+        "ui.provider_custom": "Niestandardowe API REST (dowolny endpoint HTTP z tokenem Bearer)",
     },
     "pt": {
         "ui.codeLanguage": "Código/Idioma",
@@ -2483,6 +2925,61 @@ Exemplos:
         "ui.missingReadme": "README.md está ausente.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Não é possível traduzir apenas o CHANGELOG.",
         "ui.missingChangelog": "CHANGELOG.md está ausente.",
+
+        # API Settings
+        "ui.apiSettings": "Configurações de API (Opcional)",
+        "ui.apiList": "Lista de APIs",
+        "ui.apiAdd": "Adicionar API",
+        "ui.apiEdit": "Editar API",
+        "ui.apiDelete": "Excluir API",
+        "ui.apiToggle": "Ativar/Desativar API",
+        "ui.apiName": "Nome da API",
+        "ui.apiProvider": "Provedor",
+        "ui.apiToken": "Token de API",
+        "ui.apiStatus": "Status",
+        "ui.apiActive": "🟢 Ativo",
+        "ui.apiInactive": "🔴 Inativo",
+        "ui.apiNoEntries": "Nenhuma API configurada. Usando Google Tradutor (gratuito) por padrão.",
+        "ui.apiAdded": "✅ API '{name}' adicionada com sucesso.",
+        "ui.apiDeleted": "🗑️ API '{name}' excluída.",
+        "ui.apiUpdated": "✅ API '{name}' atualizada.",
+        "ui.apiEnabled": "🟢 API '{name}' ativada.",
+        "ui.apiDisabled": "🔴 API '{name}' desativada.",
+        "ui.apiUsing": "🔌 Usando API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Usando Google Tradutor (gratuito) como alternativa.",
+        "ui.apiSelectProvider": "Selecionar provedor",
+        "ui.apiEnterToken": "Digite o token da API (deixe em branco para provedores gratuitos)",
+        "ui.apiEnterName": "Digite um nome para esta API",
+        "ui.apiSelectToEdit": "Digite o número da API para editar",
+        "ui.apiSelectToDelete": "Digite o número da API para excluir",
+        "ui.apiSelectToToggle": "Digite o número da API para ativar/desativar",
+        "ui.apiConfirmDelete": "Excluir API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ Teste de API bem-sucedido: {result}",
+        "ui.apiTestFailed": "❌ Falha no teste de API: {error}",
+        "ui.apiTesting": "🔍 Testando conexão de API...",
+        "ui.apiInvalidNumber": "Número de API inválido.",
+        "ui.apiSavedNote": "💡 Tokens salvos em api_config.json (mantenha privado!)",
+        "ui.apiMenuTitle": "🔌 Configurações de API — APIs de tradução opcionais",
+        "ui.apiActiveCount": "APIs ativas: {count}/{total}",
+        "ui.apiUsingFree": "Usando Google Tradutor (padrão, sem API necessária)",
+        "ui.apiCancelHint": "(vazio para cancelar)",
+        "ui.apiTableName": "Nome",
+        "ui.apiTableProvider": "Provedor",
+        "ui.apiTableStatus": "Status",
+        "ui.apiProviders": "Provedores:",
+        "ui.apiCancel": "Cancelar",
+        "ui.apiEditing": "Editando: {name} ({provider})",
+        "ui.apiNewName": "Novo nome [{name}] (Enter = manter, q=cancelar)",
+        "ui.apiNewToken": "Novo token (Enter = manter, q=cancelar)",
+        "ui.apiActiveLabel": "ativo",
+        "ui.provider_google": "Google Tradutor (Gratuito, sem token necessário)",
+        "ui.provider_deepl": "DeepL (Gratuito/Pro — token necessário)",
+        "ui.provider_mymemory": "MyMemory (Gratuito com token opcional para maior cota)",
+        "ui.provider_libretranslate": "LibreTranslate (Self-hosted gratuito / servidores públicos)",
+        "ui.provider_yandex": "Yandex Tradutor (token necessário — nível gratuito disponível)",
+        "ui.provider_microsoft": "Microsoft Azure Tradutor (token necessário — nível gratuito 2M car/mês)",
+        "ui.provider_papago": "Papago / Naver (melhor para coreano — formato client_id:secret_key)",
+        "ui.provider_custom": "API REST personalizada (qualquer endpoint HTTP com token Bearer)",
     },
     "ru": {
         "ui.codeLanguage": "Код/Язык",
@@ -2743,6 +3240,61 @@ Exemplos:
         "ui.missingReadme": "README.md отсутствует.",
         "ui.cannotTranslateChangelogOnly": "⚠️  Невозможно перевести только CHANGELOG.",
         "ui.missingChangelog": "CHANGELOG.md отсутствует.",
+
+        # API Settings
+        "ui.apiSettings": "Настройки API (Опционально)",
+        "ui.apiList": "Список API",
+        "ui.apiAdd": "Добавить API",
+        "ui.apiEdit": "Изменить API",
+        "ui.apiDelete": "Удалить API",
+        "ui.apiToggle": "Включить/Выключить API",
+        "ui.apiName": "Название API",
+        "ui.apiProvider": "Провайдер",
+        "ui.apiToken": "Токен API",
+        "ui.apiStatus": "Статус",
+        "ui.apiActive": "🟢 Активен",
+        "ui.apiInactive": "🔴 Неактивен",
+        "ui.apiNoEntries": "API не настроены. По умолчанию используется Google Переводчик (бесплатно).",
+        "ui.apiAdded": "✅ API '{name}' успешно добавлен.",
+        "ui.apiDeleted": "🗑️ API '{name}' удалён.",
+        "ui.apiUpdated": "✅ API '{name}' обновлён.",
+        "ui.apiEnabled": "🟢 API '{name}' включён.",
+        "ui.apiDisabled": "🔴 API '{name}' выключен.",
+        "ui.apiUsing": "🔌 Используется API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  Переход на Google Переводчик (бесплатно).",
+        "ui.apiSelectProvider": "Выберите провайдера",
+        "ui.apiEnterToken": "Введите токен API (оставьте пустым для бесплатных провайдеров)",
+        "ui.apiEnterName": "Введите имя для этого API",
+        "ui.apiSelectToEdit": "Введите номер API для редактирования",
+        "ui.apiSelectToDelete": "Введите номер API для удаления",
+        "ui.apiSelectToToggle": "Введите номер API для включения/выключения",
+        "ui.apiConfirmDelete": "Удалить API '{name}'? [y/N]",
+        "ui.apiTestSuccess": "✅ Тест API успешен: {result}",
+        "ui.apiTestFailed": "❌ Тест API завершился ошибкой: {error}",
+        "ui.apiTesting": "🔍 Проверка подключения к API...",
+        "ui.apiInvalidNumber": "Неверный номер API.",
+        "ui.apiSavedNote": "💡 Токены сохранены в api_config.json (держите файл в тайне!)",
+        "ui.apiMenuTitle": "🔌 Настройки API — Опциональные переводческие API",
+        "ui.apiActiveCount": "Активных API: {count}/{total}",
+        "ui.apiUsingFree": "Используется Google Переводчик (по умолчанию, API не нужен)",
+        "ui.apiCancelHint": "(пусто = отмена)",
+        "ui.apiTableName": "Название",
+        "ui.apiTableProvider": "Провайдер",
+        "ui.apiTableStatus": "Статус",
+        "ui.apiProviders": "Провайдеры:",
+        "ui.apiCancel": "Отмена",
+        "ui.apiEditing": "Редактирование: {name} ({provider})",
+        "ui.apiNewName": "Новое название [{name}] (Enter = оставить, q=отмена)",
+        "ui.apiNewToken": "Новый токен (Enter = оставить, q=отмена)",
+        "ui.apiActiveLabel": "активных",
+        "ui.provider_google": "Google Переводчик (Бесплатно, токен не нужен)",
+        "ui.provider_deepl": "DeepL (Бесплатно/Pro — требуется токен)",
+        "ui.provider_mymemory": "MyMemory (Бесплатно, опциональный токен для большей квоты)",
+        "ui.provider_libretranslate": "LibreTranslate (Бесплатный self-hosted / публичные серверы)",
+        "ui.provider_yandex": "Яндекс.Переводчик (требуется токен — доступен бесплатный уровень)",
+        "ui.provider_microsoft": "Microsoft Azure Переводчик (требуется токен — бесплатный уровень 2М сим/мес)",
+        "ui.provider_papago": "Papago / Naver (лучший для корейского — формат client_id:secret_key)",
+        "ui.provider_custom": "Пользовательский REST API (любой HTTP-эндпоинт с Bearer-токеном)",
     },
     "zh": {
         "ui.codeLanguage": "Code/Language",
@@ -3003,6 +3555,61 @@ Exemplos:
         "ui.missingReadme": "README.md 不存在。",
         "ui.cannotTranslateChangelogOnly": "⚠️  无法仅翻译 CHANGELOG。",
         "ui.missingChangelog": "CHANGELOG.md 不存在。",
+
+        # API Settings
+        "ui.apiSettings": "API 设置（可选）",
+        "ui.apiList": "API 列表",
+        "ui.apiAdd": "添加 API",
+        "ui.apiEdit": "编辑 API",
+        "ui.apiDelete": "删除 API",
+        "ui.apiToggle": "启用/禁用 API",
+        "ui.apiName": "API 名称",
+        "ui.apiProvider": "服务商",
+        "ui.apiToken": "API 令牌",
+        "ui.apiStatus": "状态",
+        "ui.apiActive": "🟢 已启用",
+        "ui.apiInactive": "🔴 已禁用",
+        "ui.apiNoEntries": "未配置 API。默认使用 Google 翻译（免费）。",
+        "ui.apiAdded": "✅ API '{name}' 添加成功。",
+        "ui.apiDeleted": "🗑️ API '{name}' 已删除。",
+        "ui.apiUpdated": "✅ API '{name}' 已更新。",
+        "ui.apiEnabled": "🟢 API '{name}' 已启用。",
+        "ui.apiDisabled": "🔴 API '{name}' 已禁用。",
+        "ui.apiUsing": "🔌 正在使用 API: {name} ({provider})",
+        "ui.apiFallback": "⚠️  回退到 Google 翻译（免费）。",
+        "ui.apiSelectProvider": "选择服务商",
+        "ui.apiEnterToken": "输入 API 令牌（免费服务商可留空）",
+        "ui.apiEnterName": "输入此 API 的名称",
+        "ui.apiSelectToEdit": "输入要编辑的 API 编号",
+        "ui.apiSelectToDelete": "输入要删除的 API 编号",
+        "ui.apiSelectToToggle": "输入要启用/禁用的 API 编号",
+        "ui.apiConfirmDelete": "确定删除 API '{name}'？[y/N]",
+        "ui.apiTestSuccess": "✅ API 测试成功: {result}",
+        "ui.apiTestFailed": "❌ API 测试失败: {error}",
+        "ui.apiTesting": "🔍 正在测试 API 连接...",
+        "ui.apiInvalidNumber": "无效的 API 编号。",
+        "ui.apiSavedNote": "💡 API 令牌保存在 api_config.json 中（请妥善保管！）",
+        "ui.apiMenuTitle": "🔌 API 设置 — 可选翻译 API",
+        "ui.apiActiveCount": "已启用 API: {count}/{total}",
+        "ui.apiUsingFree": "正在使用 Google 翻译（默认，无需 API）",
+        "ui.apiCancelHint": "（留空取消）",
+        "ui.apiTableName": "名称",
+        "ui.apiTableProvider": "服务商",
+        "ui.apiTableStatus": "状态",
+        "ui.apiProviders": "服务商列表：",
+        "ui.apiCancel": "取消",
+        "ui.apiEditing": "编辑: {name} ({provider})",
+        "ui.apiNewName": "新名称 [{name}] (Enter = 保留，q=取消)",
+        "ui.apiNewToken": "新令牌 (Enter = 保留，q=取消)",
+        "ui.apiActiveLabel": "已激活",
+        "ui.provider_google": "Google 翻译（免费，无需令牌）",
+        "ui.provider_deepl": "DeepL（免费/专业版 — 需要令牌）",
+        "ui.provider_mymemory": "MyMemory（免费，可选令牌以获得更高配额）",
+        "ui.provider_libretranslate": "LibreTranslate（免费自托管 / 公共服务器）",
+        "ui.provider_yandex": "Yandex 翻译（需要令牌 — 提供免费套餐）",
+        "ui.provider_microsoft": "Microsoft Azure 翻译（需要令牌 — 免费套餐每月200万字符）",
+        "ui.provider_papago": "Papago / Naver（最适合韩语 — client_id:secret_key 格式）",
+        "ui.provider_custom": "自定义 REST API（支持 Bearer 令牌的任意 HTTP 端点）",
     }
 }
 
@@ -3929,26 +4536,205 @@ See all notable changes for each version in the [CHANGELOG.md](CHANGELOG.md) fil
         print(t("changelog_setup_failed"))
         return False
 
+# ---------------------- API MANAGEMENT SYSTEM ----------------------
+import uuid
+
+# API config file path (at project root, not committed to git)
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+API_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'api_config.json')
+
+# Supported provider keys
+SUPPORTED_PROVIDERS = {
+    "google":         "Google Translate (Free, no token needed)",
+    "deepl":          "DeepL (Free/Pro — token required)",
+    "mymemory":       "MyMemory (Free with optional token for higher quota)",
+    "libretranslate": "LibreTranslate (Free self-hosted / public servers)",
+    "yandex":         "Yandex Translate (token required — free tier available)",
+    "microsoft":      "Microsoft Azure Translator (token required — free tier 2M chars/month)",
+    "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
+    "custom":         "Custom REST API (any HTTP endpoint with Bearer token)",
+}
+
+
+def load_api_config() -> dict:
+    """Load API configuration from api_config.json."""
+    if os.path.exists(API_CONFIG_FILE):
+        try:
+            with open(API_CONFIG_FILE, encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"apis": []}
+
+
+def save_api_config(config: dict):
+    """Save API configuration to api_config.json."""
+    try:
+        with open(API_CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(Fore.RED + f"❌ Failed to save API config: {e}" + Style.RESET_ALL)
+
+
+def add_api(name: str, provider: str, token: str, active: bool = True) -> str:
+    """Add a new API entry. Returns the new entry's id."""
+    config = load_api_config()
+    entry = {
+        "id": str(uuid.uuid4()),
+        "name": name,
+        "provider": provider.lower(),
+        "token": token,
+        "active": active,
+    }
+    config["apis"].append(entry)
+    save_api_config(config)
+    return entry["id"]
+
+
+def edit_api(api_id: str, **kwargs):
+    """Edit an existing API entry by id."""
+    config = load_api_config()
+    for entry in config["apis"]:
+        if entry["id"] == api_id:
+            for k, v in kwargs.items():
+                entry[k] = v
+            break
+    save_api_config(config)
+
+
+def delete_api(api_id: str):
+    """Delete an API entry by id."""
+    config = load_api_config()
+    config["apis"] = [e for e in config["apis"] if e["id"] != api_id]
+    save_api_config(config)
+
+
+def toggle_api(api_id: str) -> bool:
+    """Toggle active/inactive for an API. Returns new state."""
+    config = load_api_config()
+    new_state = False
+    for entry in config["apis"]:
+        if entry["id"] == api_id:
+            entry["active"] = not entry.get("active", False)
+            new_state = entry["active"]
+            break
+    save_api_config(config)
+    return new_state
+
+
+def get_active_apis() -> list:
+    """Return list of active API entries (excluding default google)."""
+    config = load_api_config()
+    return [e for e in config["apis"] if e.get("active", False) and e["provider"] != "google"]
+
+
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
-def translate_text(text, dest):
+def _translate_with_provider(text: str, dest: str, provider: str, token: str) -> str | None:
+    """
+    Attempt translation using a specific provider.
+    Returns translated string, or None on failure.
+    """
+    try:
+        provider = provider.lower()
+        if provider == "deepl":
+            from deep_translator import DeeplTranslator
+            return DeeplTranslator(api_key=token, source="auto", target=dest).translate(text)
+        elif provider == "mymemory":
+            from deep_translator import MyMemoryTranslator
+            translator = MyMemoryTranslator(source="auto", target=dest)
+            if token:
+                translator.api_key = token
+            return translator.translate(text)
+        elif provider == "libretranslate":
+            from deep_translator import LibreTranslateTranslator
+            return LibreTranslateTranslator(
+                api_key=token or "",
+                source="auto",
+                target=dest
+            ).translate(text)
+        elif provider == "yandex":
+            from deep_translator import YandexTranslator
+            return YandexTranslator(api_key=token, source="auto", target=dest).translate(text)
+        elif provider == "microsoft":
+            from deep_translator import MicrosoftTranslator
+            return MicrosoftTranslator(api_key=token, source="auto", target=dest).translate(text)
+        elif provider == "papago":
+            # token format = "client_id:secret_key"
+            from deep_translator import PapagoTranslator
+            parts = token.split(":", 1)
+            client_id = parts[0].strip() if len(parts) >= 1 else ""
+            secret = parts[1].strip() if len(parts) >= 2 else ""
+            return PapagoTranslator(
+                client_id=client_id, secret_key=secret,
+                source="auto", target=dest
+            ).translate(text)
+        elif provider == "custom":
+            # Custom REST API — expects entry to have 'endpoint' field
+            # POST {endpoint} with JSON {q: text, target: dest}
+            # Auth header: Bearer <token> (or no auth if token is blank)
+            import urllib.request as _urllib
+            import json as _json
+            endpoint = token.split("|", 1)[1] if "|" in token else ""
+            real_token = token.split("|", 1)[0] if "|" in token else token
+            if not endpoint:
+                return None
+            payload = _json.dumps({"q": text, "target": dest, "source": "auto"}).encode()
+            req = _urllib.Request(endpoint, data=payload,
+                                  headers={"Content-Type": "application/json"})
+            if real_token:
+                req.add_header("Authorization", f"Bearer {real_token}")
+            with _urllib.urlopen(req, timeout=10) as resp:
+                data = _json.loads(resp.read())
+            # Try common response field names
+            for key in ("translatedText", "translation", "text", "result", "output"):
+                if key in data:
+                    return data[key]
+            return None
+        else:
+            # Unknown provider — skip
+            return None
+    except Exception:
+        return None
+
+
+def translate_text(text: str, dest: str) -> str:
+    """
+    Translate text to the target language.
+    Strategy:
+    1. Try each active API (non-google) in order.
+    2. If all fail or none configured → fallback to GoogleTranslator (free).
+    """
     if not text.strip():
         return text
+
+    active_apis = get_active_apis()
+
+    for api_entry in active_apis:
+        provider = api_entry.get("provider", "")
+        token = api_entry.get("token", "")
+        name = api_entry.get("name", provider)
+        try:
+            result = _translate_with_provider(text, dest, provider, token)
+            if result:
+                return result
+        except Exception:
+            pass  # Fall through to next API
+
+    # Fallback: free Google Translate
     try:
-        # Tambahkan timeout dan retry mechanism
-        import time
         max_retries = 3
         for attempt in range(max_retries):
             try:
                 return GoogleTranslator(source="auto", target=dest).translate(text)
             except Exception as e:
                 if attempt < max_retries - 1:
-                    time.sleep(2)  # Wait before retry
+                    time.sleep(2)
                     continue
                 raise e
     except Exception as e:
         print(t("translation_failed", error=e))
-        # Return original text instead of failing completely
         return text
+
 
 def get_existing_translated_languages():
     """Get list of languages that already have README files"""
@@ -5327,6 +6113,17 @@ def interactive_menu():
         print(f"{menu_color}[6] {t('ui.detectGithub')}{Style.RESET_ALL}")
         print(f"{Fore.RED}[7] {t('ui.repairTranslations')}{Style.RESET_ALL}")
         print(f"{Fore.GREEN}[8] {t('ui.setupPaths')}{Style.RESET_ALL}")
+        # [9] API Settings — always accessible
+        try:
+            api_cfg = load_api_config()
+            active_count = sum(1 for e in api_cfg.get('apis', []) if e.get('active', False))
+            total_count = len(api_cfg.get('apis', []))
+            api_label = t('ui.apiSettings')
+            if total_count > 0:
+                api_label += f" ({active_count}/{total_count} {t('ui.apiActiveLabel')})"
+        except Exception:
+            api_label = t('ui.apiSettings')
+        print(f"{Fore.CYAN}[9] {api_label}{Style.RESET_ALL}")
         print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.exit')}{Style.RESET_ALL}")
 
         # Get user input
@@ -5662,6 +6459,223 @@ def interactive_menu():
         elif choice == '8':
             # Setup Paths (NEW)
             setup_paths_menu()
+
+        elif choice == '9':
+            # API Settings
+            while True:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                api_cfg = load_api_config()
+                apis = api_cfg.get('apis', [])
+                active_n = sum(1 for e in apis if e.get('active', False))
+
+                print(f"\n{Fore.CYAN}{t('ui.apiMenuTitle')}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}{t('ui.apiSavedNote')}{Style.RESET_ALL}\n")
+
+                if not apis:
+                    print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider'):<16} {t('ui.apiTableStatus')}{Style.RESET_ALL}")
+                    print("─" * 55)
+                    for idx, entry in enumerate(apis, 1):
+                        st = t('ui.apiActive') if entry.get('active') else t('ui.apiInactive')
+                        st_color = Fore.GREEN if entry.get('active') else Fore.RED
+                        print(f"{Fore.WHITE}{idx:<4}{Style.RESET_ALL} "
+                              f"{entry['name']:<20} {entry['provider']:<16} "
+                              f"{st_color}{st}{Style.RESET_ALL}")
+                    print()
+                    print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
+                    if active_n == 0:
+                        print(f"{Fore.YELLOW}  → {t('ui.apiUsingFree')}{Style.RESET_ALL}")
+
+                print()
+                has_apis = len(apis) > 0
+                mgmt_color = Fore.GREEN if has_apis else Fore.LIGHTBLACK_EX
+                del_color   = Fore.RED   if has_apis else Fore.LIGHTBLACK_EX
+                tog_color   = Fore.YELLOW if has_apis else Fore.LIGHTBLACK_EX
+                print(f"{Fore.GREEN}[1] {t('ui.apiAdd')}{Style.RESET_ALL}")
+                print(f"{mgmt_color}[2] {t('ui.apiEdit')}{Style.RESET_ALL}")
+                print(f"{del_color}[3] {t('ui.apiDelete')}{Style.RESET_ALL}")
+                print(f"{tog_color}[4] {t('ui.apiToggle')}{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.back')}{Style.RESET_ALL}")
+
+                # Print status message from previous action (shown below menu)
+                if '_api_msg' in dir():
+                    if _api_msg:
+                        print(f"\n{_api_msg}")
+                    _api_msg = ""
+                else:
+                    _api_msg = ""
+
+                api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+
+                if api_choice not in ('0', '1', '2', '3', '4'):
+                    _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                    continue
+
+                if api_choice == '0':
+                    break
+
+                elif api_choice == '1':
+                    # Add API
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                    print(f"\n{Fore.CYAN}[+] {t('ui.apiAdd')}{Style.RESET_ALL}\n")
+                    print(f"{Fore.WHITE}{t('ui.apiProviders')}{Style.RESET_ALL}")
+                    prov_list = list(SUPPORTED_PROVIDERS.keys())
+                    for pi, (pk, pdesc) in enumerate(SUPPORTED_PROVIDERS.items(), 1):
+                        desc = t(f'ui.provider_{pk}')
+                        print(f"  [{pi}] {pk:<16} — {desc}")
+                    print(f"  {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    prov_input = input(f"\n{Fore.CYAN}{t('ui.apiSelectProvider')} (1-{len(prov_list)}, 0=cancel): {Fore.WHITE}").strip()
+                    if prov_input == '0' or prov_input == '':
+                        _api_msg = ""
+                        continue  # back to API menu
+                    if not prov_input.isdigit() or not (1 <= int(prov_input) <= len(prov_list)):
+                        _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    provider = prov_list[int(prov_input) - 1]
+
+                    # Name input — empty to cancel
+                    name_in = input(f"{Fore.CYAN}{t('ui.apiEnterName')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                    if not name_in:
+                        _api_msg = ""
+                        continue
+
+                    token_in = ""
+                    endpoint_in = ""
+                    _cancelled = False
+
+                    if provider == "google":
+                        pass  # No token needed
+                    elif provider == "papago":
+                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Papago token format: client_id:secret_key{Style.RESET_ALL}")
+                        token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not token_in:
+                            _api_msg = ""
+                            _cancelled = True
+                    elif provider == "custom":
+                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Custom API: POST endpoint receiving JSON {{q, source, target}}{Style.RESET_ALL}")
+                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Response must contain one of: translatedText / translation / text / result / output{Style.RESET_ALL}")
+                        endpoint_in = input(f"{Fore.CYAN}  Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not endpoint_in:
+                            _api_msg = ""
+                            _cancelled = True
+                        else:
+                            token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                            if not token_in:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"{token_in}|{endpoint_in}"
+                    else:
+                        token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not token_in:
+                            _api_msg = ""
+                            _cancelled = True
+
+                    if _cancelled:
+                        continue
+
+                    # Test the API connection
+                    if provider != "google":
+                        print(Fore.YELLOW + t('ui.apiTesting'))
+                        test_result = _translate_with_provider("hello", "fr", provider, token_in)
+                        if test_result:
+                            print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
+                        else:
+                            print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
+                            confirm_save = input(f"{Fore.YELLOW}Save anyway? [y/N]: {Fore.WHITE}").strip().lower()
+                            if confirm_save != 'y':
+                                _api_msg = ""
+                                continue
+
+                    add_api(name_in, provider, token_in, active=True)
+                    _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
+
+
+                elif api_choice == '2':
+                    # Edit API
+                    if not apis:
+                        _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
+                        continue
+                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider')}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(apis, 1):
+                        print(f"  {idx2}. {e2['name']:<20} ({e2['provider']})")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _api_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(apis)):
+                        _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = apis[int(num_in) - 1]
+                    print(f"\n{Fore.WHITE}{t('ui.apiEditing', name=entry['name'], provider=entry['provider'])}{Style.RESET_ALL}")
+                    new_name = input(f"{Fore.CYAN}{t('ui.apiNewName', name=entry['name'])}: {Fore.WHITE}").strip()
+                    if new_name.lower() == 'q':
+                        _api_msg = ""
+                        continue
+                    new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
+                    if new_token.lower() == 'q':
+                        _api_msg = ""
+                        continue
+                    updates = {}
+                    if new_name:
+                        updates['name'] = new_name
+                    if new_token:
+                        updates['token'] = new_token
+                    if updates:
+                        edit_api(entry['id'], **updates)
+                        _api_msg = Fore.GREEN + t('ui.apiUpdated', name=new_name or entry['name']) + Style.RESET_ALL
+                    else:
+                        _api_msg = ""
+
+                elif api_choice == '3':
+                    # Delete API
+                    if not apis:
+                        _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
+                        continue
+                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableProvider')}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(apis, 1):
+                        print(f"  {idx2}. {e2['name']:<20} ({e2['provider']})")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToDelete')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _api_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(apis)):
+                        _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = apis[int(num_in) - 1]
+                    confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=entry['name']) + " " + Fore.WHITE).strip().lower()
+                    if confirm == 'y':
+                        delete_api(entry['id'])
+                        _api_msg = Fore.GREEN + t('ui.apiDeleted', name=entry['name']) + Style.RESET_ALL
+                    else:
+                        _api_msg = ""
+
+                elif api_choice == '4':
+                    # Toggle API active/inactive
+                    if not apis:
+                        _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
+                        continue
+                    print(f"\n{Fore.WHITE}{'#':<4} {t('ui.apiTableName'):<20} {t('ui.apiTableStatus')}{Style.RESET_ALL}")
+                    for idx2, e2 in enumerate(apis, 1):
+                        st2 = t('ui.apiActive') if e2.get('active') else t('ui.apiInactive')
+                        print(f"  {idx2}. {e2['name']:<20} {st2}")
+                    print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
+                    num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToToggle')} (1-{len(apis)}, 0=back): {Fore.WHITE}").strip()
+                    if num_in == '0' or num_in == '':
+                        _api_msg = ""
+                        continue
+                    if not num_in.isdigit() or not (1 <= int(num_in) <= len(apis)):
+                        _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                        continue
+                    entry = apis[int(num_in) - 1]
+                    new_state = toggle_api(entry['id'])
+                    if new_state:
+                        _api_msg = Fore.GREEN + t('ui.apiEnabled', name=entry['name']) + Style.RESET_ALL
+                    else:
+                        _api_msg = Fore.RED + t('ui.apiDisabled', name=entry['name']) + Style.RESET_ALL
             
         elif choice == '0':
             print(Fore.GREEN + t('ui.exiting'))
