@@ -478,11 +478,11 @@ Examples:
         "ui.aiProviders": "AI Providers:",
         "ui.aiEnterName": "Enter a name for this AI",
         "ui.aiAuthType": "Authentication method",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Enter API key",
-        "ui.aiBrowserOpening": "🌐 Opening browser for login...",
-        "ui.aiBrowserNote": "Browser opened. Log in, then press Enter to continue.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(removed)",
+        "ui.aiEnterKey": "Enter API key or token",
+        "ui.aiBrowserOpening": "Browser login removed. Use API key/token.",
+        "ui.aiBrowserNote": "Use API key/token authentication.",
         "ui.aiSelectToEdit": "Enter AI number to edit",
         "ui.aiSelectToDelete": "Enter AI number to delete",
         "ui.aiSelectToToggle": "Enter AI number to enable/disable",
@@ -503,7 +503,7 @@ Examples:
         "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
         "ui.ai_provider_perplexity": "Perplexity AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + key)",
+        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -847,11 +847,11 @@ Contoh:
         "ui.aiProviders": "Provider AI:",
         "ui.aiEnterName": "Masukkan nama untuk AI ini",
         "ui.aiAuthType": "Metode autentikasi",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Masukkan API key",
-        "ui.aiBrowserOpening": "🌐 Membuka browser untuk login...",
-        "ui.aiBrowserNote": "Browser dibuka. Login, lalu tekan Enter untuk melanjutkan.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(dihapus)",
+        "ui.aiEnterKey": "Masukkan API key atau token",
+        "ui.aiBrowserOpening": "Login browser dihapus. Gunakan API key/token.",
+        "ui.aiBrowserNote": "Gunakan autentikasi API key/token.",
         "ui.aiSelectToEdit": "Masukkan nomor AI untuk diedit",
         "ui.aiSelectToDelete": "Masukkan nomor AI untuk dihapus",
         "ui.aiSelectToToggle": "Masukkan nomor AI untuk aktifkan/nonaktifkan",
@@ -866,13 +866,13 @@ Contoh:
         "ui.aiNewName": "Nama baru [{name}] (Enter untuk pertahankan, q=batal)",
         "ui.aiNewKey": "API key baru (Enter untuk pertahankan, q=batal)",
         "ui.aiCancelHint": "(kosongkan untuk batal)",
-        "ui.ai_provider_openai": "OpenAI ChatGPT (API key atau login browser)",
-        "ui.ai_provider_gemini": "Google Gemini (API key atau login browser)",
-        "ui.ai_provider_claude": "Anthropic Claude (API key atau login browser)",
-        "ui.ai_provider_copilot": "Microsoft Copilot (login browser)",
-        "ui.ai_provider_mistral": "Mistral AI (API key atau login browser)",
-        "ui.ai_provider_perplexity": "Perplexity AI (API key atau login browser)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + key)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API key)",
+        "ui.ai_provider_gemini": "Google Gemini (API key)",
+        "ui.ai_provider_claude": "Anthropic Claude (API key)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
+        "ui.ai_provider_mistral": "Mistral AI (API key)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API key)",
+        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -7351,11 +7351,7 @@ def interactive_menu():
                             _cancelled = True
                         else:
                             token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                            if not token_in:
-                                _api_msg = ""
-                                _cancelled = True
-                            else:
-                                token_in = f"{token_in}|{endpoint_in}"
+                            token_in = f"{token_in}|{endpoint_in}"
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
                         if not token_in:
@@ -7589,10 +7585,18 @@ def interactive_menu():
                         continue
 
                     auth_type = 'key'
-                    token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not token_in:
-                        _ai_msg = ""
-                        continue
+                    if ai_provider == "custom":
+                        endpoint_in = input(f"{Fore.CYAN}Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not endpoint_in:
+                            _ai_msg = ""
+                            continue
+                        token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        token_in = f"{token_in}|{endpoint_in}"
+                    else:
+                        token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not token_in:
+                            _ai_msg = ""
+                            continue
 
                     default_lim = AI_PROVIDER_DEFAULT_LIMITS.get(ai_provider, "")
                     add_ai(name_in, ai_provider, token_in, auth_type, limit=default_lim, account="", status="active")
