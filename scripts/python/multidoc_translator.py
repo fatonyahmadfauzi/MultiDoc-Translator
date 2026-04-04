@@ -7548,10 +7548,18 @@ def interactive_menu():
                         continue
 
                     auth_type = 'key'
-                    token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not token_in:
-                        _ai_msg = ""
-                        continue
+                    if ai_provider == "custom":
+                        endpoint_in = input(f"{Fore.CYAN}Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not endpoint_in:
+                            _ai_msg = ""
+                            continue
+                        token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        token_in = f"{token_in}|{endpoint_in}"
+                    else:
+                        token_in = input(f"{Fore.CYAN}{t('ui.aiEnterKey')} {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not token_in:
+                            _ai_msg = ""
+                            continue
 
                     default_lim = AI_PROVIDER_DEFAULT_LIMITS.get(ai_provider, "")
                     add_ai(name_in, ai_provider, token_in, auth_type, limit=default_lim, account="", status="active")
