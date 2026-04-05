@@ -5501,7 +5501,19 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
             url = f"{base_url}?{urllib.parse.urlencode(params)}"
             with urllib.request.urlopen(url, timeout=10) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-            return data.get("responseData", {}).get("translatedText")
+            response_status = str(data.get("responseStatus", "")).strip()
+            translated = (data.get("responseData", {}) or {}).get("translatedText", "")
+            response_details = str(data.get("responseDetails", "")).strip().lower()
+
+            # MyMemory can return text like "INVALID EMAIL PROVIDED" with responseStatus=403
+            # Treat non-200 and known invalid responses as failure.
+            if response_status != "200":
+                return None
+            if not translated:
+                return None
+            if "invalid" in translated.lower() or "invalid" in response_details:
+                return None
+            return translated
         elif provider == "libretranslate":
             from deep_translator import LibreTranslateTranslator
             return LibreTranslateTranslator(
