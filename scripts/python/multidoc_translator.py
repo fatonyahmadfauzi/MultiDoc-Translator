@@ -8207,8 +8207,8 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
-                    # Available providers (matching TS side)
-                    provider_list = ["openai", "anthropic", "google", "mistral", "custom"]
+                    # Available providers (custom removed for compatibility consistency)
+                    provider_list = ["openai", "anthropic", "google", "mistral"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
@@ -8245,17 +8245,6 @@ def interactive_menu():
                             print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
                         elif ai_provider == "google":
                             print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
-
-                    print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
-                    ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
-                    if ok:
-                        print(Fore.GREEN + f"✅ AI test status: {ai_test_status}" + Style.RESET_ALL)
-                        print(Fore.GREEN + f"✅ AI response: {ai_test_response}" + Style.RESET_ALL)
-                    else:
-                        print(Fore.RED + f"❌ AI test status: {ai_test_status}" + Style.RESET_ALL)
-                        print(Fore.RED + f"❌ AI response: {ai_test_response}" + Style.RESET_ALL)
-                        _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
-                        continue
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
                     ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
