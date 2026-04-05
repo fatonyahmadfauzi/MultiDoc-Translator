@@ -5142,6 +5142,63 @@ def format_api_response_status(test_status: str) -> str:
     return test_status
 
 
+def format_api_model(entry: dict) -> str:
+    """Model/plan label for API settings table."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip().lower()
+    if provider == "google":
+        return "free"
+    if provider == "googlecloud":
+        return "billing"
+    if provider == "deepl":
+        if token.startswith("free:"):
+            return "free"
+        if token.startswith("pro:"):
+            return "pro"
+        return "default"
+    if provider == "libretranslate":
+        if token.startswith("self:") or token.startswith("selfkey:"):
+            return "self-host"
+        return "free"
+    if provider == "mymemory":
+        if token.startswith("email:"):
+            return "email"
+        if token.startswith("key:"):
+            return "key"
+        return "free"
+    return "default"
+
+
+def format_api_endpoint(entry: dict) -> str:
+    """Endpoint label for API settings table."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+    if provider == "google":
+        return "default"
+    if provider == "googlecloud":
+        return "https://translation.googleapis.com/language/translate/v2"
+    if provider == "deepl":
+        if token.lower().startswith("free:"):
+            return "https://api-free.deepl.com/v2/translate"
+        return "https://api.deepl.com/v2/translate"
+    if provider == "mymemory":
+        return "https://api.mymemory.translated.net/get"
+    if provider == "libretranslate":
+        tok = token.lower()
+        if tok.startswith("self:"):
+            return token.split(":", 1)[1].strip() or "self-host"
+        if tok.startswith("selfkey:"):
+            rest = token.split(":", 1)[1]
+            if "|" in rest:
+                _, endpoint = rest.split("|", 1)
+                return endpoint.strip() or "self-host"
+            return "self-host"
+        return "https://libretranslate.com/translate"
+    if provider == "custom":
+        return "custom endpoint"
+    return "default"
+
+
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
@@ -5453,6 +5510,26 @@ def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
     if provider == "custom":
         return "custom-model", []
     return "default-model", []
+
+
+def format_ai_endpoint(entry: dict) -> str:
+    """Endpoint label for AI settings table."""
+    provider = (entry.get("provider") or "").lower()
+    base_url = (entry.get("base_url") or "").strip()
+    if base_url:
+        return base_url
+    if provider == "openai":
+        return "https://api.openai.com/v1/chat/completions"
+    if provider == "anthropic":
+        return "https://api.anthropic.com/v1/messages"
+    if provider == "google":
+        model = (entry.get("model") or "gemini-2.5-flash").strip()
+        return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    if provider == "mistral":
+        return "https://api.mistral.ai/v1/chat/completions"
+    if provider == "custom":
+        return "custom endpoint"
+    return "default"
 
 
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
@@ -7479,16 +7556,20 @@ def interactive_menu():
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
                     provider_col_w = 16
+                    model_col_w = 10
                     response_col_w = 12
                     status_col_w = 10
-                    auth_col_w = 24
+                    auth_col_w = 16
+                    endpoint_col_w = 56
                     h_idx = cjk_ljust('#', 4)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
+                    h_model = cjk_ljust("Model", model_col_w)
                     h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
                     h_stat = cjk_ljust(t('ui.apiTableStatus'), status_col_w)
-                    h_auth = t('ui.apiTableAuth')
-                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
-                    print("─" * 88)
+                    h_auth = cjk_ljust(t('ui.apiTableAuth'), auth_col_w)
+                    h_ep = "Endpoint"
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
+                    print("─" * 132)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7506,13 +7587,16 @@ def interactive_menu():
 
                         v_idx = cjk_ljust(idx, 4)
                         v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
+                        v_model = cjk_ljust(cjk_truncate(format_api_model(entry), model_col_w), model_col_w)
                         v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
                         v_stat = cjk_ljust(st, status_col_w)
                         v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
+                        v_ep = cjk_ljust(cjk_truncate(format_api_endpoint(entry), endpoint_col_w), endpoint_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_prov} {v_resp} "
+                              f"{v_prov} {v_model} {v_resp} "
                               f"{st_color}{v_stat}{Style.RESET_ALL} "
-                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL}")
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_ep}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
                     if active_n == 0:
@@ -7945,9 +8029,10 @@ def interactive_menu():
                     h_model = cjk_ljust("Model", 20)
                     h_resp = cjk_ljust(t('ui.apiTableResponse'), 12)
                     h_stat = cjk_ljust(t('ui.aiTableStatus'), 10)
-                    h_auth = "Auth"
-                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
-                    print("─" * 80)
+                    h_auth = cjk_ljust("Auth", 14)
+                    h_ep = "Endpoint"
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
+                    print("─" * 132)
                     for idx, entry in enumerate(ais, 1):
                         status = "active" if entry.get('enabled', False) else "inactive"
 
@@ -7962,16 +8047,20 @@ def interactive_menu():
                         v_prov  = cjk_ljust(entry.get('provider', 'unknown'), 14)
                         v_model = cjk_ljust(entry.get('model', 'unknown'), 20)
                         v_resp = cjk_ljust(format_api_response_status(entry.get('test_status')), 12)
+                        v_ep = cjk_ljust(cjk_truncate(format_ai_endpoint(entry), 56), 56)
                         
                         tok = entry.get('token', '')
                         if tok:
                             tok_display = tok[:6] + "••••••"
                         else:
                             tok_display = "none"
+                        v_auth = cjk_ljust(tok_display, 14)
                             
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_prov} {v_model} {v_resp} "
-                              f"{st_col}{cjk_ljust(st, 10)}{Style.RESET_ALL} {Fore.LIGHTBLACK_EX}{tok_display}{Style.RESET_ALL}")
+                              f"{st_col}{cjk_ljust(st, 10)}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_ep}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.MAGENTA}{t('ui.aiActiveCount', count=ai_act, total=len(ais))}{Style.RESET_ALL}")
                     if ai_act == 0:
