@@ -5429,10 +5429,24 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
+    "openai": "OpenAI ChatGPT (API key)",
+    "gemini": "Google Gemini (API key)",
+    "claude": "Anthropic Claude (API key)",
+    "copilot": "Microsoft Copilot (API key)",
+    "mistral": "Mistral AI (API key)",
+    "perplexity": "Perplexity AI (API key)",
+    "custom": "Custom AI (API endpoint + token)",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
+    "openai": "Depends on plan / token usage",
+    "gemini": "Depends on model / quota",
+    "claude": "Depends on plan / token usage",
+    "copilot": "Depends on plan / quota",
+    "mistral": "Depends on plan / token usage",
+    "perplexity": "Depends on plan / quota",
+    "custom": "Custom / provider-defined",
 }
 
 # Browser login URLs for each AI provider
@@ -5517,7 +5531,7 @@ def toggle_ai(ai_id: str) -> str:
             entry["status"] = new_status
             entry["active"] = (new_status == "active")
             break
-    save_api_config(config)
+    save_ai_config(config)
     return new_status
 
 
