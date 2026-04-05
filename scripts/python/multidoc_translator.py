@@ -15,6 +15,7 @@ import types
 import functools
 import webbrowser
 import urllib.request
+import urllib.parse
 import requests
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
@@ -5480,11 +5481,27 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
             from deep_translator import DeeplTranslator
             return DeeplTranslator(api_key=token, source="auto", target=dest).translate(text)
         elif provider == "mymemory":
-            from deep_translator import MyMemoryTranslator
-            translator = MyMemoryTranslator(source="auto", target=dest)
-            if token:
-                translator.api_key = token
-            return translator.translate(text)
+            # MyMemory direct API:
+            # - free: .../get?q=...&langpair=en|id
+            # - email mode: add &de=email@example.com
+            # - key mode: add &key=API_KEY
+            base_url = "https://api.mymemory.translated.net/get"
+            params = {
+                "q": text,
+                "langpair": f"en|{dest}",
+            }
+            if token.startswith("email:"):
+                params["de"] = token.split(":", 1)[1].strip()
+            elif token.startswith("key:"):
+                params["key"] = token.split(":", 1)[1].strip()
+            elif token:
+                # Backward-compatibility for older saved entries
+                params["key"] = token
+
+            url = f"{base_url}?{urllib.parse.urlencode(params)}"
+            with urllib.request.urlopen(url, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            return data.get("responseData", {}).get("translatedText")
         elif provider == "libretranslate":
             from deep_translator import LibreTranslateTranslator
             return LibreTranslateTranslator(
@@ -7400,6 +7417,35 @@ def interactive_menu():
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
                         if not token_in:
                             _api_msg = ""
+                            _cancelled = True
+                    elif provider == "mymemory":
+                        print(f"{Fore.WHITE}  MyMemory auth mode:{Style.RESET_ALL}")
+                        print(f"    [1] Free (no token, no email)")
+                        print(f"    [2] Email mode (de=email@domain.com)")
+                        print(f"    [3] API key mode (key=API_KEY)")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        mm_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
+                        if mm_choice in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif mm_choice == "1":
+                            token_in = ""
+                        elif mm_choice == "2":
+                            email_in = input(f"{Fore.CYAN}  Enter email (required): {Fore.WHITE}").strip()
+                            if not email_in:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"email:{email_in}"
+                        elif mm_choice == "3":
+                            key_in = input(f"{Fore.CYAN}  Enter API key (required): {Fore.WHITE}").strip()
+                            if not key_in:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"key:{key_in}"
+                        else:
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                             _cancelled = True
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
