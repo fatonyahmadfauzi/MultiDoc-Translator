@@ -5448,10 +5448,7 @@ SUPPORTED_AI_PROVIDERS = {
     "openai": "OpenAI ChatGPT (API key)",
     "gemini": "Google Gemini (API key)",
     "claude": "Anthropic Claude (API key)",
-    "copilot": "Microsoft Copilot (API key)",
     "mistral": "Mistral AI (API key)",
-    "perplexity": "Perplexity AI (API key)",
-    "custom": "Custom AI (API endpoint + token)",
 }
 
 # Default quota/limits per AI provider
@@ -5462,10 +5459,7 @@ AI_PROVIDER_DEFAULT_LIMITS = {
     "openai": "Depends on plan / token usage",
     "gemini": "Depends on model / quota",
     "claude": "Depends on plan / token usage",
-    "copilot": "Depends on plan / quota",
     "mistral": "Depends on plan / token usage",
-    "perplexity": "Depends on plan / quota",
-    "custom": "Custom / provider-defined",
 }
 
 # Browser login URLs for each AI provider
@@ -5479,17 +5473,42 @@ AI_PROVIDER_PRIORITY = {
     "openai": 4,
     "claude": 5,
     "mistral": 6,
-    "custom": 7,
-    "gemini": 8,
+    "gemini": 7,
 }
+
+ALLOWED_AI_PROVIDERS = set(SUPPORTED_AI_PROVIDERS.keys())
 
 
 def load_ai_config() -> dict:
     """Load AI configuration from ai_config.json."""
+    def normalize_provider(provider: str) -> str:
+        p = (provider or "").strip().lower()
+        # Backward compatibility migration
+        if p == "google":
+            return "gemini"
+        if p == "anthropic":
+            return "claude"
+        return p
+
     if os.path.exists(AI_CONFIG_FILE):
         try:
             with open(AI_CONFIG_FILE, encoding='utf-8') as f:
-                return json.load(f)
+                raw = json.load(f)
+                ais = []
+                changed = False
+                for entry in raw.get("ais", []):
+                    normalized_provider = normalize_provider(entry.get("provider", ""))
+                    if normalized_provider not in ALLOWED_AI_PROVIDERS:
+                        changed = True
+                        continue
+                    if normalized_provider != entry.get("provider"):
+                        changed = True
+                    entry["provider"] = normalized_provider
+                    ais.append(entry)
+                config = {"ais": ais}
+                if changed:
+                    save_ai_config(config)
+                return config
         except Exception:
             pass
     return {"ais": []}
@@ -5631,7 +5650,7 @@ def test_ai_provider(provider: str, model: str, token: str, base_url: str = None
 def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
     """Auto-select a model for provider. Returns (selected_model, discovered_models)."""
     provider = (provider or "").lower()
-    if provider == "google":
+    if provider == "gemini":
         models = fetch_google_gemini_models(token)
         if not models:
             return "gemini-2.5-flash", []
@@ -5653,12 +5672,10 @@ def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
         return "deepseek/deepseek-chat", []
     if provider == "openai":
         return "gpt-4o-mini", []
-    if provider == "anthropic":
+    if provider == "claude":
         return "claude-3-5-sonnet-latest", []
     if provider == "mistral":
         return "mistral-small-latest", []
-    if provider == "custom":
-        return "custom-model", []
     return "default-model", []
 
 
@@ -5676,15 +5693,13 @@ def format_ai_endpoint(entry: dict) -> str:
         return "https://openrouter.ai/api/v1/chat/completions"
     if provider == "openai":
         return "https://api.openai.com/v1/chat/completions"
-    if provider == "anthropic":
+    if provider == "claude":
         return "https://api.anthropic.com/v1/messages"
-    if provider == "google":
+    if provider == "gemini":
         model = (entry.get("model") or "gemini-2.5-flash").strip()
         return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     if provider == "mistral":
         return "https://api.mistral.ai/v1/chat/completions"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5852,6 +5867,29 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
+def log_ai_event(level: str, message: str):
+    prefix = f"[{level}]"
+    if level == "ERROR":
+        print(Fore.RED + f"{prefix} {message}" + Style.RESET_ALL)
+    elif level == "AI":
+        print(Fore.CYAN + f"{prefix} {message}" + Style.RESET_ALL)
+    else:
+        print(Fore.YELLOW + f"{prefix} {message}" + Style.RESET_ALL)
+
+
+def validate_placeholders(text: str) -> bool:
+    """Return False when placeholder leak is detected."""
+    return "<<<PH_" not in (text or "")
+
+
+def get_active_ai_providers() -> list[dict]:
+    """Get enabled AI providers sorted by priority."""
+    return sorted(
+        get_active_ais(),
+        key=lambda e: AI_PROVIDER_PRIORITY.get((e.get("provider") or "").lower(), 99)
+    )
+
+
 def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bool = True) -> str | None:
     """Implement AI provider translation logic for Python fallback."""
     provider = ai_entry.get("provider", "").lower()
@@ -5872,7 +5910,7 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     url = ""
     
     try:
-        if provider in ["openai", "custom", "mistral", "groq", "deepseek", "openrouter"]:
+        if provider in ["openai", "mistral", "groq", "deepseek", "openrouter"]:
             debug_print(f"{provider} request sent", log_type="API")
             url = base_url if base_url else "https://api.openai.com/v1/chat/completions"
             if provider == "mistral" and not base_url:
@@ -5896,8 +5934,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["choices"][0]["message"]["content"].strip()
             
-        elif provider == "anthropic":
-            debug_print("anthropic request sent", log_type="API")
+        elif provider == "claude":
+            debug_print("claude request sent", log_type="API")
             url = base_url if base_url else "https://api.anthropic.com/v1/messages"
             headers = {
                 "x-api-key": token,
@@ -5913,8 +5951,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["content"][0]["text"].strip()
             
-        elif provider == "google":
-            debug_print("google ai request sent", log_type="API")
+        elif provider == "gemini":
+            debug_print("gemini request sent", log_type="API")
             url = base_url if base_url else f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={token}"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -5933,6 +5971,49 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     return None
 
 
+def translate_with_ai(provider_entry: dict, text: str, dest: str) -> str | None:
+    """Translate with one provider; retry once if placeholder leak is detected."""
+    provider = (provider_entry.get("provider") or "").lower()
+    model = provider_entry.get("model") or "default-model"
+
+    log_ai_event("AI", f"Using: {provider} ({model})")
+    for attempt in range(2):
+        result = _translate_with_ai(text, dest, provider_entry)
+        if not is_successful_translation_result(result):
+            continue
+        if validate_placeholders(result):
+            return result
+        log_ai_event("ERROR", f"Placeholder leak detected from {provider} attempt #{attempt + 1}")
+    return None
+
+
+def translate_with_fallback(text: str, dest: str) -> str | None:
+    """Try active AI providers in order, then fallback to GoogleTranslator."""
+    for idx, ai_entry in enumerate(get_active_ai_providers()):
+        provider = (ai_entry.get("provider") or "").lower()
+        if idx > 0:
+            log_ai_event("AI", f"Fallback → {provider}")
+        result = translate_with_ai(ai_entry, text, dest)
+        if is_successful_translation_result(result):
+            return result
+
+    log_ai_event("AI", "All AI providers failed. Fallback → GoogleTranslator")
+    max_retries = 2
+    for attempt in range(max_retries):
+        try:
+            translated = GoogleTranslator(source="auto", target=dest).translate(text)
+            if validate_placeholders(translated):
+                return translated
+            log_ai_event("ERROR", f"Placeholder leak detected from GoogleTranslator attempt #{attempt + 1}")
+        except Exception as e:
+            err = str(e)
+            if "429" in err:
+                log_ai_event("API", "429 Too Many Requests")
+            elif attempt == max_retries - 1:
+                log_ai_event("ERROR", f"GoogleTranslator failed: {e}")
+    return None
+
+
 def translate_text(text: str, dest: str) -> str:
     """
     Translate text to the target language.
@@ -5944,18 +6025,10 @@ def translate_text(text: str, dest: str) -> str:
     if not text.strip():
         return text
 
-    # Try AI Fallback Chain
-    active_ais = sorted(
-        get_active_ais(),
-        key=lambda e: AI_PROVIDER_PRIORITY.get((e.get("provider") or "").lower(), 99)
-    )
-    for ai_entry in active_ais:
-        try:
-            result = _translate_with_ai(text, dest, ai_entry)
-            if is_successful_translation_result(result):
-                return result
-        except Exception:
-            pass
+    # Try AI fallback chain (provider-by-provider with placeholder validation)
+    ai_result = translate_with_fallback(text, dest)
+    if is_successful_translation_result(ai_result):
+        return ai_result
 
     # Try API Fallback Chain
     active_apis = get_active_apis()
@@ -8322,7 +8395,7 @@ def interactive_menu():
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
                     # Available providers for AI mode
-                    provider_list = ["groq", "deepseek", "openrouter", "openai", "anthropic", "google", "mistral", "custom"]
+                    provider_list = ["openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
@@ -8342,23 +8415,12 @@ def interactive_menu():
                         continue
 
                     base_url = None
-                    if ai_provider == "custom":
-                        endpoint_in = input(f"{Fore.CYAN}Endpoint URL (Base URL) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires endpoint URL." + Style.RESET_ALL
-                            continue
-                        base_url = endpoint_in
-                        model_in = input(f"{Fore.CYAN}Custom model name {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not model_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires model name." + Style.RESET_ALL
-                            continue
-                    else:
-                        model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
-                        print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
-                        if ai_provider == "google" and discovered_models:
-                            print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
-                        elif ai_provider == "google":
-                            print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
+                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                    if ai_provider == "gemini" and discovered_models:
+                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                    elif ai_provider == "gemini":
+                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
                     ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
@@ -8405,25 +8467,15 @@ def interactive_menu():
                     if new_key:
                         updates['token'] = new_key
                         
-                    if entry.get('provider') == 'custom':
-                        new_model = input(f"{Fore.CYAN}New model [{entry.get('model','custom-model')}]: {Fore.WHITE}").strip()
-                        if new_model:
-                            updates['model'] = new_model
-                        new_base = input(f"{Fore.CYAN}New Base URL [{entry.get('base_url','')}]: {Fore.WHITE}").strip()
-                        if new_base:
-                            updates['base_url'] = new_base
-
                     if updates:
-                        if entry.get('provider') == 'custom':
-                            check_model = updates.get('model', entry.get('model', 'custom-model'))
-                            check_token = updates.get('token', entry.get('token', ''))
-                            check_base = updates.get('base_url', entry.get('base_url'))
-                            print(Fore.YELLOW + "🔍 Testing updated custom AI connection..." + Style.RESET_ALL)
-                            ok, ai_test_status, ai_test_response = test_ai_provider('custom', check_model, check_token, base_url=check_base)
-                            if not ok:
-                                _ai_msg = Fore.RED + f"Custom AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
-                                continue
-                            updates['test_status'] = ai_test_status
+                        check_model = updates.get('model', entry.get('model', 'default-model'))
+                        check_token = updates.get('token', entry.get('token', ''))
+                        print(Fore.YELLOW + "🔍 Testing updated AI connection..." + Style.RESET_ALL)
+                        ok, ai_test_status, ai_test_response = test_ai_provider(entry.get('provider'), check_model, check_token)
+                        if not ok:
+                            _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
+                            continue
+                        updates['test_status'] = ai_test_status
                         edit_ai(entry['id'], **updates)
                         _ai_msg = Fore.GREEN + t('ui.aiUpdated', provider=entry['provider'], model=updates.get('model', entry.get('model', 'unknown'))) + Style.RESET_ALL
                     else:
