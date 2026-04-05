@@ -577,7 +577,6 @@ Examples:
         "ui.provider_yandex": "Yandex Translate (token required — free tier available)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token required — free tier 2M chars/month)",
         "ui.provider_papago": "Papago / Naver (best for Korean — client_id:secret_key format)",
-        "ui.provider_custom": "Custom REST API (any HTTP endpoint with Bearer token)",
         "ui.aiSettings": "AI Settings (Optional)",
         "ui.aiMenuTitle": "🤖 AI Settings — Optional AI Providers",
         "ui.aiSavedNote": "💡 AI config saved in ai_config.json (keep private!)",
@@ -608,7 +607,6 @@ Examples:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -939,7 +937,6 @@ Contoh:
         "ui.provider_yandex": "Yandex Translate (memerlukan token — tersedia tier gratis)",
         "ui.provider_microsoft": "Microsoft Azure Translator (memerlukan token — tier gratis 2M kar/bulan)",
         "ui.provider_papago": "Papago / Naver (terbaik untuk Korea — format client_id:secret_key)",
-        "ui.provider_custom": "Custom REST API (endpoint HTTP apapun dengan Bearer token)",
         "ui.aiSettings": "Pengaturan AI (Opsional)",
         "ui.aiMenuTitle": "🤖 Pengaturan AI — Provider AI Opsional",
         "ui.aiSavedNote": "💡 Konfigurasi AI disimpan di ai_config.json (jaga kerahasiaannya!)",
@@ -970,7 +967,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -1293,7 +1289,6 @@ Contoh:
         "ui.provider_yandex": "Yandex翻訳（トークン必要 — 無料枠あり）",
         "ui.provider_microsoft": "Microsoft Azure翻訳（トークン必要 — 無料枠月200万文字）",
         "ui.provider_papago": "Papago / Naver（韓国語最適 — client_id:secret_key形式）",
-        "ui.provider_custom": "カスタムREST API（Bearerトークン付きのHTTPエンドポイント）",
         "ui.aiSettings": "AI設定（オプション）",
         "ui.aiMenuTitle": "🤖 AI設定 — オプションAIプロバイダー",
         "ui.aiSavedNote": "💡 AI設定はai_config.jsonに保存されます（非公開に！）",
@@ -1324,7 +1319,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini（APIキー）",
         "ui.ai_provider_claude": "Anthropic Claude（APIキー）",
         "ui.ai_provider_mistral": "Mistral AI（APIキー）",
-        "ui.ai_provider_custom": "カスタムAI（APIエンドポイント＋キー）",
         "ui.tableLimit": "制限",
         "ui.enterLimit": "使用制限 (Enterでデフォルト使用、例: 50万文字/月)",
         "ui.limitDefault": "デフォルト: {value}",
@@ -1646,7 +1640,6 @@ Beispiele:
         "ui.provider_yandex": "Yandex Übersetzer (Token erforderlich — kostenlose Stufe verfügbar)",
         "ui.provider_microsoft": "Microsoft Azure Übersetzer (Token erforderlich — kostenlose Stufe 2M Zeichen/Monat)",
         "ui.provider_papago": "Papago / Naver (am besten für Koreanisch — client_id:secret_key Format)",
-        "ui.provider_custom": "Benutzerdefinierte REST API (beliebiger HTTP-Endpunkt mit Bearer-Token)",
         "ui.aiSettings": "KI-Einstellungen (Optional)",
         "ui.aiMenuTitle": "🤖 KI-Einstellungen — Optionale KI-Anbieter",
         "ui.aiSavedNote": "💡 KI-Konfiguration in ai_config.json gespeichert (privat halten!)",
@@ -1677,7 +1670,6 @@ Beispiele:
         "ui.ai_provider_gemini": "Google Gemini (API-Schlüssel)",
         "ui.ai_provider_claude": "Anthropic Claude (API-Schlüssel)",
         "ui.ai_provider_mistral": "Mistral AI (API-Schlüssel)",
-        "ui.ai_provider_custom": "Benutzerdefinierte KI (API-Endpunkt + Schlüssel)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Nutzungslimit (Enter für Standard, z.B. 500k/Monat)",
         "ui.limitDefault": "Standard: {value}",
@@ -1999,7 +1991,6 @@ Ejemplos:
         "ui.provider_yandex": "Yandex Translate (token requerido — nivel gratuito disponible)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token requerido — nivel gratuito 2M car/mes)",
         "ui.provider_papago": "Papago / Naver (mejor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (cualquier endpoint HTTP con Bearer token)",
         "ui.aiSettings": "Configuración de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configuración de IA — Proveedores de IA opcionales",
         "ui.aiSavedNote": "💡 Configuración de IA guardada en ai_config.json (¡manténgalo privado!)",
@@ -2030,7 +2021,6 @@ Ejemplos:
         "ui.ai_provider_gemini": "Google Gemini (clave API)",
         "ui.ai_provider_claude": "Anthropic Claude (clave API)",
         "ui.ai_provider_mistral": "Mistral AI (clave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + clave)",
         "ui.tableLimit": "Límite",
         "ui.enterLimit": "Límite de uso (Enter para default, ej. 500k/mes)",
         "ui.limitDefault": "Predeterminado: {value}",
@@ -2354,7 +2344,6 @@ Exemples :
         "ui.provider_yandex": "Yandex Traduction (jeton requis — niveau gratuit disponible)",
         "ui.provider_microsoft": "Microsoft Azure Traduction (jeton requis — niveau gratuit 2M car/mois)",
         "ui.provider_papago": "Papago / Naver (meilleur pour le coréen — format client_id:secret_key)",
-        "ui.provider_custom": "API REST personnalisée (tout endpoint HTTP avec jeton Bearer)",
         "ui.aiSettings": "Paramètres IA (Optionnel)",
         "ui.aiMenuTitle": "🤖 Paramètres IA — Fournisseurs IA optionnels",
         "ui.aiSavedNote": "💡 Config IA sauvegardée dans ai_config.json (garder privé !)",
@@ -2385,7 +2374,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (clé API)",
         "ui.ai_provider_claude": "Anthropic Claude (clé API)",
         "ui.ai_provider_mistral": "Mistral AI (clé API)",
-        "ui.ai_provider_custom": "IA personnalisée (endpoint API + clé)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite d'utilisation (Enter pour défaut, ex. 500k/mois)",
         "ui.limitDefault": "Défaut : {value}",
@@ -2708,7 +2696,6 @@ Exemples :
         "ui.provider_yandex": "Yandex 번역 (토큰 필요 — 무료 티어 제공)",
         "ui.provider_microsoft": "Microsoft Azure 번역 (토큰 필요 — 무료 티어 월 200만 자)",
         "ui.provider_papago": "Papago / Naver (한국어에 최적 — client_id:secret_key 형식)",
-        "ui.provider_custom": "커스텀 REST API (Bearer 토큰이 있는 HTTP 엔드포인트)",
         "ui.aiSettings": "AI 설정 (선택)",
         "ui.aiMenuTitle": "🤖 AI 설정 — 선택적 AI 제공자",
         "ui.aiSavedNote": "💡 AI 설정이 ai_config.json에 저장됩니다 (비공개 유지!)",
@@ -2739,7 +2726,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (API 키)",
         "ui.ai_provider_claude": "Anthropic Claude (API 키)",
         "ui.ai_provider_mistral": "Mistral AI (API 키)",
-        "ui.ai_provider_custom": "커스텀 AI (API 엔드포인트 + 키)",
         "ui.tableLimit": "제한",
         "ui.enterLimit": "사용 제한 (기본값 Enter, 예: 50만/월)",
         "ui.limitDefault": "기본값: {value}",
@@ -3061,7 +3047,6 @@ Przykłady:
         "ui.provider_yandex": "Yandex Tłumacz (wymagany token — dostępny bezpłatny poziom)",
         "ui.provider_microsoft": "Microsoft Azure Tłumacz (wymagany token — bezpłatny poziom 2M znaków/mies.)",
         "ui.provider_papago": "Papago / Naver (najlepszy dla koreańskiego — format client_id:secret_key)",
-        "ui.provider_custom": "Niestandardowe API REST (dowolny endpoint HTTP z tokenem Bearer)",
         "ui.aiSettings": "Ustawienia AI (Opcjonalne)",
         "ui.aiMenuTitle": "🤖 Ustawienia AI — Opcjonalni dostawcy AI",
         "ui.aiSavedNote": "💡 Konfiguracja AI zapisana w ai_config.json (zachowaj prywatność!)",
@@ -3092,7 +3077,6 @@ Przykłady:
         "ui.ai_provider_gemini": "Google Gemini (klucz API)",
         "ui.ai_provider_claude": "Anthropic Claude (klucz API)",
         "ui.ai_provider_mistral": "Mistral AI (klucz API)",
-        "ui.ai_provider_custom": "Niestandardowe AI (endpoint API + klucz)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Limit użycia (Enter dla domyślnego, np. 500k/mies.)",
         "ui.limitDefault": "Domyślny: {value}",
@@ -3414,7 +3398,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex Tradutor (token necessário — nível gratuito disponível)",
         "ui.provider_microsoft": "Microsoft Azure Tradutor (token necessário — nível gratuito 2M car/mês)",
         "ui.provider_papago": "Papago / Naver (melhor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (qualquer endpoint HTTP com token Bearer)",
         "ui.aiSettings": "Configurações de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configurações de IA — Provedores de IA opcionais",
         "ui.aiSavedNote": "💡 Configuração de IA salva em ai_config.json (manter privado!)",
@@ -3445,7 +3428,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (chave API)",
         "ui.ai_provider_claude": "Anthropic Claude (chave API)",
         "ui.ai_provider_mistral": "Mistral AI (chave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + chave)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite de uso (Enter para padrão, ex. 500k/mês)",
         "ui.limitDefault": "Padrão: {value}",
@@ -3767,7 +3749,6 @@ Exemplos:
         "ui.provider_yandex": "Яндекс.Переводчик (требуется токен — доступен бесплатный уровень)",
         "ui.provider_microsoft": "Microsoft Azure Переводчик (требуется токен — бесплатный уровень 2М сим/мес)",
         "ui.provider_papago": "Papago / Naver (лучший для корейского — формат client_id:secret_key)",
-        "ui.provider_custom": "Пользовательский REST API (любой HTTP-эндпоинт с Bearer-токеном)",
         "ui.aiSettings": "Настройки ИИ (Опционально)",
         "ui.aiMenuTitle": "🤖 Настройки ИИ — Опциональные провайдеры ИИ",
         "ui.aiSavedNote": "💡 Конфиг ИИ сохранён в ai_config.json (храните в тайне!)",
@@ -3798,7 +3779,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (API-токен)",
         "ui.ai_provider_claude": "Anthropic Claude (API-токен)",
         "ui.ai_provider_mistral": "Mistral AI (API-токен)",
-        "ui.ai_provider_custom": "Пользовательский ИИ (HTTP-эндпоинт + токен)",
         "ui.tableLimit": "Лимит",
         "ui.enterLimit": "Лимит использования (Enter для умолчания, напр. 500k/мес)",
         "ui.limitDefault": "По умолчанию: {value}",
@@ -4120,7 +4100,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex 翻译（需要令牌 — 提供免费套餐）",
         "ui.provider_microsoft": "Microsoft Azure 翻译（需要令牌 — 免费套餐每月200万字符）",
         "ui.provider_papago": "Papago / Naver（最适合韩语 — client_id:secret_key 格式）",
-        "ui.provider_custom": "自定义 REST API（支持 Bearer 令牌的任意 HTTP 端点）",
         "ui.aiSettings": "AI 设置（可选）",
         "ui.aiMenuTitle": "🤖 AI 设置 — 可选 AI 服务商",
         "ui.aiSavedNote": "💡 AI 配置已保存到 ai_config.json（请保密！）",
@@ -4151,7 +4130,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini（API 密钥）",
         "ui.ai_provider_claude": "Anthropic Claude（API 密钥）",
         "ui.ai_provider_mistral": "Mistral AI（API 密钥）",
-        "ui.ai_provider_custom": "自定义 AI（API 端点 + 密钥）",
         "ui.tableLimit": "限额",
         "ui.enterLimit": "使用限额（Enter使用默认，如 50万/月）",
         "ui.limitDefault": "默认：{value}",
@@ -5260,8 +5238,6 @@ def format_api_endpoint(entry: dict) -> str:
                 return manual_endpoint or "self-host"
             return "self-host"
         return "https://libretranslate.com/translate"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5442,37 +5418,73 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
+    "groq": "Groq (API key)",
+    "deepseek": "DeepSeek (API key)",
+    "openrouter": "OpenRouter (API key)",
     "openai": "OpenAI ChatGPT (API key)",
     "gemini": "Google Gemini (API key)",
     "claude": "Anthropic Claude (API key)",
-    "copilot": "Microsoft Copilot (API key)",
     "mistral": "Mistral AI (API key)",
-    "perplexity": "Perplexity AI (API key)",
-    "custom": "Custom AI (API endpoint + token)",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
+    "groq": "Depends on plan / token usage",
+    "deepseek": "Depends on plan / token usage",
+    "openrouter": "Depends on model / quota",
     "openai": "Depends on plan / token usage",
     "gemini": "Depends on model / quota",
     "claude": "Depends on plan / token usage",
-    "copilot": "Depends on plan / quota",
     "mistral": "Depends on plan / token usage",
-    "perplexity": "Depends on plan / quota",
-    "custom": "Custom / provider-defined",
 }
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
 }
 
+AI_PROVIDER_PRIORITY = {
+    "groq": 1,
+    "deepseek": 2,
+    "openrouter": 3,
+    "openai": 4,
+    "claude": 5,
+    "mistral": 6,
+    "gemini": 7,
+}
+
+ALLOWED_AI_PROVIDERS = set(SUPPORTED_AI_PROVIDERS.keys())
+
 
 def load_ai_config() -> dict:
     """Load AI configuration from ai_config.json."""
+    def normalize_provider(provider: str) -> str:
+        p = (provider or "").strip().lower()
+        # Backward compatibility migration
+        if p == "google":
+            return "gemini"
+        if p == "anthropic":
+            return "claude"
+        return p
+
     if os.path.exists(AI_CONFIG_FILE):
         try:
             with open(AI_CONFIG_FILE, encoding='utf-8') as f:
-                return json.load(f)
+                raw = json.load(f)
+                ais = []
+                changed = False
+                for entry in raw.get("ais", []):
+                    normalized_provider = normalize_provider(entry.get("provider", ""))
+                    if normalized_provider not in ALLOWED_AI_PROVIDERS:
+                        changed = True
+                        continue
+                    if normalized_provider != entry.get("provider"):
+                        changed = True
+                    entry["provider"] = normalized_provider
+                    ais.append(entry)
+                config = {"ais": ais}
+                if changed:
+                    save_ai_config(config)
+                return config
         except Exception:
             pass
     return {"ais": []}
@@ -5614,7 +5626,7 @@ def test_ai_provider(provider: str, model: str, token: str, base_url: str = None
 def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
     """Auto-select a model for provider. Returns (selected_model, discovered_models)."""
     provider = (provider or "").lower()
-    if provider == "google":
+    if provider == "gemini":
         models = fetch_google_gemini_models(token)
         if not models:
             return "gemini-2.5-flash", []
@@ -5628,14 +5640,18 @@ def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
             if cand in models:
                 return cand, models
         return models[0], models
+    if provider == "groq":
+        return "llama3-70b-8192", []
+    if provider == "deepseek":
+        return "deepseek-chat", []
+    if provider == "openrouter":
+        return "deepseek/deepseek-chat", []
     if provider == "openai":
         return "gpt-4o-mini", []
-    if provider == "anthropic":
+    if provider == "claude":
         return "claude-3-5-sonnet-latest", []
     if provider == "mistral":
         return "mistral-small-latest", []
-    if provider == "custom":
-        return "custom-model", []
     return "default-model", []
 
 
@@ -5645,17 +5661,21 @@ def format_ai_endpoint(entry: dict) -> str:
     base_url = (entry.get("base_url") or "").strip()
     if base_url:
         return base_url
+    if provider == "groq":
+        return "https://api.groq.com/openai/v1/chat/completions"
+    if provider == "deepseek":
+        return "https://api.deepseek.com/chat/completions"
+    if provider == "openrouter":
+        return "https://openrouter.ai/api/v1/chat/completions"
     if provider == "openai":
         return "https://api.openai.com/v1/chat/completions"
-    if provider == "anthropic":
+    if provider == "claude":
         return "https://api.anthropic.com/v1/messages"
-    if provider == "google":
+    if provider == "gemini":
         model = (entry.get("model") or "gemini-2.5-flash").strip()
         return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     if provider == "mistral":
         return "https://api.mistral.ai/v1/chat/completions"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5823,6 +5843,21 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
+def validate_placeholders(text: str) -> bool:
+    """Raise when protected placeholder leak is detected."""
+    if "<<<PH_" in (text or ""):
+        raise ValueError("Placeholder leak detected")
+    return True
+
+
+def get_active_ai_providers() -> list[dict]:
+    """Get enabled AI providers sorted by priority."""
+    return sorted(
+        get_active_ais(),
+        key=lambda e: AI_PROVIDER_PRIORITY.get((e.get("provider") or "").lower(), 99)
+    )
+
+
 def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bool = True) -> str | None:
     """Implement AI provider translation logic for Python fallback."""
     provider = ai_entry.get("provider", "").lower()
@@ -5830,19 +5865,34 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     token = ai_entry.get("token", "")
     base_url = ai_entry.get("base_url")
 
-    prompt = f"Translate the following text to {dest}. Maintain all markdown formatting, code blocks, links, and HTML exactly. Return ONLY the translated text, do not add any conversational text or wrapper. Wait, just output the raw result:\n\n{text}"
+    prompt = (
+        f"Translate the following text to {dest}. "
+        "Maintain all markdown formatting, code blocks, links, tables, placeholders like <<<PH_0>>>, "
+        "indentation, and line breaks exactly. "
+        "Return ONLY the translated text, do not add any conversational text or wrapper.\n\n"
+        f"{text}"
+    )
 
     headers = {}
     payload = {}
     url = ""
     
     try:
-        if provider in ["openai", "custom", "mistral"]:
+        if provider in ["openai", "mistral", "groq", "deepseek", "openrouter"]:
             debug_print(f"{provider} request sent", log_type="API")
             url = base_url if base_url else "https://api.openai.com/v1/chat/completions"
             if provider == "mistral" and not base_url:
                 url = "https://api.mistral.ai/v1/chat/completions"
+            elif provider == "groq" and not base_url:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+            elif provider == "deepseek" and not base_url:
+                url = "https://api.deepseek.com/chat/completions"
+            elif provider == "openrouter" and not base_url:
+                url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            if provider == "openrouter":
+                headers["HTTP-Referer"] = "https://github.com/fatonyahmadfauzi/MultiDoc-Translator"
+                headers["X-Title"] = "MultiDoc Translator"
             payload = {
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
@@ -5852,8 +5902,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["choices"][0]["message"]["content"].strip()
             
-        elif provider == "anthropic":
-            debug_print("anthropic request sent", log_type="API")
+        elif provider == "claude":
+            debug_print("claude request sent", log_type="API")
             url = base_url if base_url else "https://api.anthropic.com/v1/messages"
             headers = {
                 "x-api-key": token,
@@ -5869,8 +5919,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["content"][0]["text"].strip()
             
-        elif provider == "google":
-            debug_print("google ai request sent", log_type="API")
+        elif provider == "gemini":
+            debug_print("gemini request sent", log_type="API")
             url = base_url if base_url else f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={token}"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -5881,11 +5931,123 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             
-    except Exception as e:
+    except requests.HTTPError as e:
+        code = str(getattr(getattr(e, "response", None), "status_code", ""))
+        if code == "429":
+            debug_print("[API] 429 Too Many Requests", log_type="API")
+        elif code == "403":
+            debug_print("[API] 403 Forbidden", log_type="API")
+        elif code:
+            debug_print(f"[API] {code} HTTP error from provider {provider}", log_type="API")
         if suppress_errors:
-            print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
             return None
         raise
+    except Exception as e:
+        if suppress_errors:
+            debug_print(f"[API] AI {provider}/{model} failed: {e}", log_type="API")
+            return None
+        raise
+    return None
+
+
+def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
+    """Translate using one AI provider (deepseek/openrouter only), retry once on failure."""
+    provider = (provider or "").lower()
+    active = get_active_ai_providers()
+    entry = next((e for e in active if (e.get("provider") or "").lower() == provider), None)
+    if not entry:
+        return None
+
+    token = (entry.get("token") or "").strip()
+    if not token:
+        return None
+
+    model = (entry.get("model") or "").strip()
+    if provider == "deepseek":
+        model = model or "deepseek-chat"
+    elif provider == "openrouter":
+        model = model or "deepseek/deepseek-chat"
+    else:
+        return None
+
+    prompt = (
+        f"Translate the following text to {target_lang}. "
+        "Preserve markdown, code blocks, links, tables, indentation, and line breaks exactly. "
+        "Do not alter placeholders like <<<PH_0>>>.\n\n"
+        f"{text}"
+    )
+
+    system_prompt = "You are a precise markdown translator."
+    for attempt in range(2):
+        if attempt == 0:
+            debug_print(f"[AI] Using {provider}", log_type="API")
+        else:
+            debug_print(f"[AI] Retry {attempt + 1}/2 for provider {provider}", log_type="API")
+        try:
+            if provider == "deepseek":
+                url = "https://api.deepseek.com/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                }
+            else:  # openrouter
+                url = "https://openrouter.ai/api/v1/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://your-app.example",
+                    "X-Title": "MultiDoc Translator",
+                }
+
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()
+            result = ((response.json() or {}).get("choices") or [{}])[0].get("message", {}).get("content", "")
+            if not is_successful_translation_result(result):
+                continue
+            validate_placeholders(result)
+            return result.strip()
+        except ValueError:
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+        except requests.HTTPError as e:
+            status_code = str(getattr(getattr(e, "response", None), "status_code", ""))
+            if status_code:
+                debug_print(f"[API] {status_code} {getattr(e.response, 'reason', 'HTTP Error')}", log_type="API")
+            else:
+                debug_print(f"[API] HTTP error: {e}", log_type="API")
+        except Exception as e:
+            debug_print(f"[API] {provider} failed: {e}", log_type="API")
+    return None
+
+
+def translate_with_fallback(text: str, dest: str) -> str | None:
+    """Fallback chain: deepseek -> openrouter -> GoogleTranslator."""
+    deepseek_result = translate_with_ai("deepseek", text, dest)
+    if is_successful_translation_result(deepseek_result):
+        return deepseek_result
+
+    debug_print("[AI] Fallback → openrouter", log_type="API")
+    openrouter_result = translate_with_ai("openrouter", text, dest)
+    if is_successful_translation_result(openrouter_result):
+        return openrouter_result
+
+    debug_print("[AI] Fallback → google", log_type="API")
+    for attempt in range(2):
+        try:
+            translated = GoogleTranslator(source="auto", target=dest).translate(text)
+            validate_placeholders(translated)
+            return translated
+        except ValueError:
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+        except Exception as e:
+            debug_print(f"[API] google fallback failed: {e}", log_type="API")
     return None
 
 
@@ -5900,15 +6062,10 @@ def translate_text(text: str, dest: str) -> str:
     if not text.strip():
         return text
 
-    # Try AI Fallback Chain
-    active_ais = get_active_ais()
-    for ai_entry in active_ais:
-        try:
-            result = _translate_with_ai(text, dest, ai_entry)
-            if is_successful_translation_result(result):
-                return result
-        except Exception:
-            pass
+    # Try AI fallback chain (provider-by-provider with placeholder validation)
+    ai_result = translate_with_fallback(text, dest)
+    if is_successful_translation_result(ai_result):
+        return ai_result
 
     # Try API Fallback Chain
     active_apis = get_active_apis()
@@ -8274,8 +8431,8 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
-                    # Available providers (custom removed for compatibility consistency)
-                    provider_list = ["openai", "anthropic", "google", "mistral"]
+                    # Available providers for AI mode
+                    provider_list = ["openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
@@ -8295,23 +8452,12 @@ def interactive_menu():
                         continue
 
                     base_url = None
-                    if ai_provider == "custom":
-                        endpoint_in = input(f"{Fore.CYAN}Endpoint URL (Base URL) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires endpoint URL." + Style.RESET_ALL
-                            continue
-                        base_url = endpoint_in
-                        model_in = input(f"{Fore.CYAN}Custom model name {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not model_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires model name." + Style.RESET_ALL
-                            continue
-                    else:
-                        model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
-                        print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
-                        if ai_provider == "google" and discovered_models:
-                            print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
-                        elif ai_provider == "google":
-                            print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
+                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                    if ai_provider == "gemini" and discovered_models:
+                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                    elif ai_provider == "gemini":
+                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
                     ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
@@ -8358,25 +8504,15 @@ def interactive_menu():
                     if new_key:
                         updates['token'] = new_key
                         
-                    if entry.get('provider') == 'custom':
-                        new_model = input(f"{Fore.CYAN}New model [{entry.get('model','custom-model')}]: {Fore.WHITE}").strip()
-                        if new_model:
-                            updates['model'] = new_model
-                        new_base = input(f"{Fore.CYAN}New Base URL [{entry.get('base_url','')}]: {Fore.WHITE}").strip()
-                        if new_base:
-                            updates['base_url'] = new_base
-
                     if updates:
-                        if entry.get('provider') == 'custom':
-                            check_model = updates.get('model', entry.get('model', 'custom-model'))
-                            check_token = updates.get('token', entry.get('token', ''))
-                            check_base = updates.get('base_url', entry.get('base_url'))
-                            print(Fore.YELLOW + "🔍 Testing updated custom AI connection..." + Style.RESET_ALL)
-                            ok, ai_test_status, ai_test_response = test_ai_provider('custom', check_model, check_token, base_url=check_base)
-                            if not ok:
-                                _ai_msg = Fore.RED + f"Custom AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
-                                continue
-                            updates['test_status'] = ai_test_status
+                        check_model = updates.get('model', entry.get('model', 'default-model'))
+                        check_token = updates.get('token', entry.get('token', ''))
+                        print(Fore.YELLOW + "🔍 Testing updated AI connection..." + Style.RESET_ALL)
+                        ok, ai_test_status, ai_test_response = test_ai_provider(entry.get('provider'), check_model, check_token)
+                        if not ok:
+                            _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
+                            continue
+                        updates['test_status'] = ai_test_status
                         edit_ai(entry['id'], **updates)
                         _ai_msg = Fore.GREEN + t('ui.aiUpdated', provider=entry['provider'], model=updates.get('model', entry.get('model', 'unknown'))) + Style.RESET_ALL
                     else:
