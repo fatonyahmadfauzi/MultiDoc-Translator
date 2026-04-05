@@ -5843,29 +5843,9 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
-def log_ai_event(message: str, log_type: str = "API"):
-    prefix = f"[{log_type}]"
-    if log_type == "ERROR":
-        print(Fore.RED + f"{prefix} {message}" + Style.RESET_ALL)
-    elif log_type == "AI":
-        print(Fore.CYAN + f"{prefix} {message}" + Style.RESET_ALL)
-    else:
-        print(Fore.YELLOW + f"{prefix} {message}" + Style.RESET_ALL)
-
-
-def normalize_placeholders(text: str) -> str:
-    """Normalize common placeholder corruption variants before validation."""
-    normalized = text or ""
-    # legacy variants should never survive output; normalize for strict detection/retry.
-    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
-    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
-    return normalized
-
-
 def validate_placeholders(text: str) -> bool:
-    """Raise if placeholder leak is detected."""
-    normalized = normalize_placeholders(text)
-    if "<<<PH_" in normalized:
+    """Raise when protected placeholder leak is detected."""
+    if "<<<PH_" in (text or ""):
         raise ValueError("Placeholder leak detected")
     return True
 
@@ -5954,81 +5934,120 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     except requests.HTTPError as e:
         code = str(getattr(getattr(e, "response", None), "status_code", ""))
         if code == "429":
-            log_ai_event("429 Too Many Requests", "API")
+            debug_print("[API] 429 Too Many Requests", log_type="API")
         elif code == "403":
-            log_ai_event("403 Forbidden", "API")
+            debug_print("[API] 403 Forbidden", log_type="API")
         elif code:
-            log_ai_event(f"{code} HTTP error from provider {provider}", "API")
+            debug_print(f"[API] {code} HTTP error from provider {provider}", log_type="API")
         if suppress_errors:
             return None
         raise
     except Exception as e:
         if suppress_errors:
-            log_ai_event(f"AI {provider}/{model} failed: {e}", "API")
+            debug_print(f"[API] AI {provider}/{model} failed: {e}", log_type="API")
             return None
         raise
     return None
 
 
-def translate_with_ai(provider: str, text: str, target_lang: str, model: str | None = None, token: str | None = None, base_url: str | None = None) -> str | None:
-    """Translate with one AI provider; retry once on request/validation failure."""
-    provider_name = (provider or "").lower()
-    entry = {
-        "provider": provider_name,
-        "model": model or "default-model",
-        "token": token or "",
-        "base_url": base_url,
-    }
-    log_ai_event(f"Using provider: {provider_name}", "AI")
-    log_ai_event(f"Model: {entry['model']}", "AI")
+def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
+    """Translate using one AI provider (deepseek/openrouter only), retry once on failure."""
+    provider = (provider or "").lower()
+    active = get_active_ai_providers()
+    entry = next((e for e in active if (e.get("provider") or "").lower() == provider), None)
+    if not entry:
+        return None
+
+    token = (entry.get("token") or "").strip()
+    if not token:
+        return None
+
+    model = (entry.get("model") or "").strip()
+    if provider == "deepseek":
+        model = model or "deepseek-chat"
+    elif provider == "openrouter":
+        model = model or "deepseek/deepseek-chat"
+    else:
+        return None
+
+    prompt = (
+        f"Translate the following text to {target_lang}. "
+        "Preserve markdown, code blocks, links, tables, indentation, and line breaks exactly. "
+        "Do not alter placeholders like <<<PH_0>>>.\n\n"
+        f"{text}"
+    )
+
+    system_prompt = "You are a precise markdown translator."
     for attempt in range(2):
-        if attempt > 0:
-            log_ai_event(f"Retry {attempt + 1}/2 for provider {provider_name}", "AI")
-        result = _translate_with_ai(text, target_lang, entry)
-        if not is_successful_translation_result(result):
-            continue
+        if attempt == 0:
+            debug_print(f"[AI] Using {provider}", log_type="API")
+        else:
+            debug_print(f"[AI] Retry {attempt + 1}/2 for provider {provider}", log_type="API")
         try:
+            if provider == "deepseek":
+                url = "https://api.deepseek.com/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                }
+            else:  # openrouter
+                url = "https://openrouter.ai/api/v1/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://your-app.example",
+                    "X-Title": "MultiDoc Translator",
+                }
+
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()
+            result = ((response.json() or {}).get("choices") or [{}])[0].get("message", {}).get("content", "")
+            if not is_successful_translation_result(result):
+                continue
             validate_placeholders(result)
-            return result
+            return result.strip()
         except ValueError:
-            log_ai_event("Placeholder leak detected", "AI")
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+        except requests.HTTPError as e:
+            status_code = str(getattr(getattr(e, "response", None), "status_code", ""))
+            if status_code:
+                debug_print(f"[API] {status_code} {getattr(e.response, 'reason', 'HTTP Error')}", log_type="API")
+            else:
+                debug_print(f"[API] HTTP error: {e}", log_type="API")
+        except Exception as e:
+            debug_print(f"[API] {provider} failed: {e}", log_type="API")
     return None
 
 
 def translate_with_fallback(text: str, dest: str) -> str | None:
-    """Try active AI providers in order, then fallback to GoogleTranslator."""
-    for idx, ai_entry in enumerate(get_active_ai_providers()):
-        provider = (ai_entry.get("provider") or "").lower()
-        if idx > 0:
-            log_ai_event(f"Falling back to {provider}", "AI")
-        result = translate_with_ai(
-            provider,
-            text,
-            dest,
-            model=ai_entry.get("model"),
-            token=ai_entry.get("token"),
-            base_url=ai_entry.get("base_url"),
-        )
-        if is_successful_translation_result(result):
-            return result
+    """Fallback chain: deepseek -> openrouter -> GoogleTranslator."""
+    deepseek_result = translate_with_ai("deepseek", text, dest)
+    if is_successful_translation_result(deepseek_result):
+        return deepseek_result
 
-    log_ai_event("All AI providers failed, using GoogleTranslator", "AI")
-    max_retries = 2
-    for attempt in range(max_retries):
+    debug_print("[AI] Fallback → openrouter", log_type="API")
+    openrouter_result = translate_with_ai("openrouter", text, dest)
+    if is_successful_translation_result(openrouter_result):
+        return openrouter_result
+
+    debug_print("[AI] Fallback → google", log_type="API")
+    for attempt in range(2):
         try:
             translated = GoogleTranslator(source="auto", target=dest).translate(text)
             validate_placeholders(translated)
             return translated
         except ValueError:
-            log_ai_event("Placeholder leak detected", "AI")
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
         except Exception as e:
-            err = str(e)
-            if "429" in err:
-                log_ai_event("429 Too Many Requests", "API")
-            elif "403" in err:
-                log_ai_event("403 Forbidden", "API")
-            elif attempt == max_retries - 1:
-                log_ai_event(f"GoogleTranslator failed: {e}", "ERROR")
+            debug_print(f"[API] google fallback failed: {e}", log_type="API")
     return None
 
 
