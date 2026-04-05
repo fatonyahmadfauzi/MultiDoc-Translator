@@ -1,20 +1,13 @@
 {
   "ais": [
     {
-      "id": "e9fd155b-93df-4611-889e-6cd4c59360d4",
+      "id": "269cfac5-c29c-4590-ac9a-a6172b5b5a45",
       "provider": "google",
       "model": "gemini-2.5-flash",
-      "token": "AIzaSyBDSrAlmIcbNISwbJWsyhXTuH6Yk1QVVHA",
+      "token": "AIzaSyDIQa04AU4UFGVpWl-6JaTVXccxaBd-ffI",
       "base_url": null,
-      "enabled": true
-    },
-    {
-      "id": "f3228a0c-0ad0-4642-ad3e-a635b1b3128d",
-      "provider": "openai",
-      "model": "abc",
-      "token": "AIzaSyBDSrAlmIcbNISwbJWsyhXTuH6Yk1QVVHA",
-      "base_url": null,
-      "enabled": true
+      "enabled": true,
+      "test_status": "200"
     }
   ]
 }
