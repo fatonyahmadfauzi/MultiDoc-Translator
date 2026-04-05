@@ -577,7 +577,6 @@ Examples:
         "ui.provider_yandex": "Yandex Translate (token required — free tier available)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token required — free tier 2M chars/month)",
         "ui.provider_papago": "Papago / Naver (best for Korean — client_id:secret_key format)",
-        "ui.provider_custom": "Custom REST API (any HTTP endpoint with Bearer token)",
         "ui.aiSettings": "AI Settings (Optional)",
         "ui.aiMenuTitle": "🤖 AI Settings — Optional AI Providers",
         "ui.aiSavedNote": "💡 AI config saved in ai_config.json (keep private!)",
@@ -608,7 +607,6 @@ Examples:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -939,7 +937,6 @@ Contoh:
         "ui.provider_yandex": "Yandex Translate (memerlukan token — tersedia tier gratis)",
         "ui.provider_microsoft": "Microsoft Azure Translator (memerlukan token — tier gratis 2M kar/bulan)",
         "ui.provider_papago": "Papago / Naver (terbaik untuk Korea — format client_id:secret_key)",
-        "ui.provider_custom": "Custom REST API (endpoint HTTP apapun dengan Bearer token)",
         "ui.aiSettings": "Pengaturan AI (Opsional)",
         "ui.aiMenuTitle": "🤖 Pengaturan AI — Provider AI Opsional",
         "ui.aiSavedNote": "💡 Konfigurasi AI disimpan di ai_config.json (jaga kerahasiaannya!)",
@@ -970,7 +967,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -1293,7 +1289,6 @@ Contoh:
         "ui.provider_yandex": "Yandex翻訳（トークン必要 — 無料枠あり）",
         "ui.provider_microsoft": "Microsoft Azure翻訳（トークン必要 — 無料枠月200万文字）",
         "ui.provider_papago": "Papago / Naver（韓国語最適 — client_id:secret_key形式）",
-        "ui.provider_custom": "カスタムREST API（Bearerトークン付きのHTTPエンドポイント）",
         "ui.aiSettings": "AI設定（オプション）",
         "ui.aiMenuTitle": "🤖 AI設定 — オプションAIプロバイダー",
         "ui.aiSavedNote": "💡 AI設定はai_config.jsonに保存されます（非公開に！）",
@@ -1324,7 +1319,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini（APIキー）",
         "ui.ai_provider_claude": "Anthropic Claude（APIキー）",
         "ui.ai_provider_mistral": "Mistral AI（APIキー）",
-        "ui.ai_provider_custom": "カスタムAI（APIエンドポイント＋キー）",
         "ui.tableLimit": "制限",
         "ui.enterLimit": "使用制限 (Enterでデフォルト使用、例: 50万文字/月)",
         "ui.limitDefault": "デフォルト: {value}",
@@ -1646,7 +1640,6 @@ Beispiele:
         "ui.provider_yandex": "Yandex Übersetzer (Token erforderlich — kostenlose Stufe verfügbar)",
         "ui.provider_microsoft": "Microsoft Azure Übersetzer (Token erforderlich — kostenlose Stufe 2M Zeichen/Monat)",
         "ui.provider_papago": "Papago / Naver (am besten für Koreanisch — client_id:secret_key Format)",
-        "ui.provider_custom": "Benutzerdefinierte REST API (beliebiger HTTP-Endpunkt mit Bearer-Token)",
         "ui.aiSettings": "KI-Einstellungen (Optional)",
         "ui.aiMenuTitle": "🤖 KI-Einstellungen — Optionale KI-Anbieter",
         "ui.aiSavedNote": "💡 KI-Konfiguration in ai_config.json gespeichert (privat halten!)",
@@ -1677,7 +1670,6 @@ Beispiele:
         "ui.ai_provider_gemini": "Google Gemini (API-Schlüssel)",
         "ui.ai_provider_claude": "Anthropic Claude (API-Schlüssel)",
         "ui.ai_provider_mistral": "Mistral AI (API-Schlüssel)",
-        "ui.ai_provider_custom": "Benutzerdefinierte KI (API-Endpunkt + Schlüssel)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Nutzungslimit (Enter für Standard, z.B. 500k/Monat)",
         "ui.limitDefault": "Standard: {value}",
@@ -1999,7 +1991,6 @@ Ejemplos:
         "ui.provider_yandex": "Yandex Translate (token requerido — nivel gratuito disponible)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token requerido — nivel gratuito 2M car/mes)",
         "ui.provider_papago": "Papago / Naver (mejor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (cualquier endpoint HTTP con Bearer token)",
         "ui.aiSettings": "Configuración de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configuración de IA — Proveedores de IA opcionales",
         "ui.aiSavedNote": "💡 Configuración de IA guardada en ai_config.json (¡manténgalo privado!)",
@@ -2030,7 +2021,6 @@ Ejemplos:
         "ui.ai_provider_gemini": "Google Gemini (clave API)",
         "ui.ai_provider_claude": "Anthropic Claude (clave API)",
         "ui.ai_provider_mistral": "Mistral AI (clave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + clave)",
         "ui.tableLimit": "Límite",
         "ui.enterLimit": "Límite de uso (Enter para default, ej. 500k/mes)",
         "ui.limitDefault": "Predeterminado: {value}",
@@ -2354,7 +2344,6 @@ Exemples :
         "ui.provider_yandex": "Yandex Traduction (jeton requis — niveau gratuit disponible)",
         "ui.provider_microsoft": "Microsoft Azure Traduction (jeton requis — niveau gratuit 2M car/mois)",
         "ui.provider_papago": "Papago / Naver (meilleur pour le coréen — format client_id:secret_key)",
-        "ui.provider_custom": "API REST personnalisée (tout endpoint HTTP avec jeton Bearer)",
         "ui.aiSettings": "Paramètres IA (Optionnel)",
         "ui.aiMenuTitle": "🤖 Paramètres IA — Fournisseurs IA optionnels",
         "ui.aiSavedNote": "💡 Config IA sauvegardée dans ai_config.json (garder privé !)",
@@ -2385,7 +2374,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (clé API)",
         "ui.ai_provider_claude": "Anthropic Claude (clé API)",
         "ui.ai_provider_mistral": "Mistral AI (clé API)",
-        "ui.ai_provider_custom": "IA personnalisée (endpoint API + clé)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite d'utilisation (Enter pour défaut, ex. 500k/mois)",
         "ui.limitDefault": "Défaut : {value}",
@@ -2708,7 +2696,6 @@ Exemples :
         "ui.provider_yandex": "Yandex 번역 (토큰 필요 — 무료 티어 제공)",
         "ui.provider_microsoft": "Microsoft Azure 번역 (토큰 필요 — 무료 티어 월 200만 자)",
         "ui.provider_papago": "Papago / Naver (한국어에 최적 — client_id:secret_key 형식)",
-        "ui.provider_custom": "커스텀 REST API (Bearer 토큰이 있는 HTTP 엔드포인트)",
         "ui.aiSettings": "AI 설정 (선택)",
         "ui.aiMenuTitle": "🤖 AI 설정 — 선택적 AI 제공자",
         "ui.aiSavedNote": "💡 AI 설정이 ai_config.json에 저장됩니다 (비공개 유지!)",
@@ -2739,7 +2726,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (API 키)",
         "ui.ai_provider_claude": "Anthropic Claude (API 키)",
         "ui.ai_provider_mistral": "Mistral AI (API 키)",
-        "ui.ai_provider_custom": "커스텀 AI (API 엔드포인트 + 키)",
         "ui.tableLimit": "제한",
         "ui.enterLimit": "사용 제한 (기본값 Enter, 예: 50만/월)",
         "ui.limitDefault": "기본값: {value}",
@@ -3061,7 +3047,6 @@ Przykłady:
         "ui.provider_yandex": "Yandex Tłumacz (wymagany token — dostępny bezpłatny poziom)",
         "ui.provider_microsoft": "Microsoft Azure Tłumacz (wymagany token — bezpłatny poziom 2M znaków/mies.)",
         "ui.provider_papago": "Papago / Naver (najlepszy dla koreańskiego — format client_id:secret_key)",
-        "ui.provider_custom": "Niestandardowe API REST (dowolny endpoint HTTP z tokenem Bearer)",
         "ui.aiSettings": "Ustawienia AI (Opcjonalne)",
         "ui.aiMenuTitle": "🤖 Ustawienia AI — Opcjonalni dostawcy AI",
         "ui.aiSavedNote": "💡 Konfiguracja AI zapisana w ai_config.json (zachowaj prywatność!)",
@@ -3092,7 +3077,6 @@ Przykłady:
         "ui.ai_provider_gemini": "Google Gemini (klucz API)",
         "ui.ai_provider_claude": "Anthropic Claude (klucz API)",
         "ui.ai_provider_mistral": "Mistral AI (klucz API)",
-        "ui.ai_provider_custom": "Niestandardowe AI (endpoint API + klucz)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Limit użycia (Enter dla domyślnego, np. 500k/mies.)",
         "ui.limitDefault": "Domyślny: {value}",
@@ -3414,7 +3398,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex Tradutor (token necessário — nível gratuito disponível)",
         "ui.provider_microsoft": "Microsoft Azure Tradutor (token necessário — nível gratuito 2M car/mês)",
         "ui.provider_papago": "Papago / Naver (melhor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (qualquer endpoint HTTP com token Bearer)",
         "ui.aiSettings": "Configurações de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configurações de IA — Provedores de IA opcionais",
         "ui.aiSavedNote": "💡 Configuração de IA salva em ai_config.json (manter privado!)",
@@ -3445,7 +3428,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (chave API)",
         "ui.ai_provider_claude": "Anthropic Claude (chave API)",
         "ui.ai_provider_mistral": "Mistral AI (chave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + chave)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite de uso (Enter para padrão, ex. 500k/mês)",
         "ui.limitDefault": "Padrão: {value}",
@@ -3767,7 +3749,6 @@ Exemplos:
         "ui.provider_yandex": "Яндекс.Переводчик (требуется токен — доступен бесплатный уровень)",
         "ui.provider_microsoft": "Microsoft Azure Переводчик (требуется токен — бесплатный уровень 2М сим/мес)",
         "ui.provider_papago": "Papago / Naver (лучший для корейского — формат client_id:secret_key)",
-        "ui.provider_custom": "Пользовательский REST API (любой HTTP-эндпоинт с Bearer-токеном)",
         "ui.aiSettings": "Настройки ИИ (Опционально)",
         "ui.aiMenuTitle": "🤖 Настройки ИИ — Опциональные провайдеры ИИ",
         "ui.aiSavedNote": "💡 Конфиг ИИ сохранён в ai_config.json (храните в тайне!)",
@@ -3798,7 +3779,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (API-токен)",
         "ui.ai_provider_claude": "Anthropic Claude (API-токен)",
         "ui.ai_provider_mistral": "Mistral AI (API-токен)",
-        "ui.ai_provider_custom": "Пользовательский ИИ (HTTP-эндпоинт + токен)",
         "ui.tableLimit": "Лимит",
         "ui.enterLimit": "Лимит использования (Enter для умолчания, напр. 500k/мес)",
         "ui.limitDefault": "По умолчанию: {value}",
@@ -4120,7 +4100,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex 翻译（需要令牌 — 提供免费套餐）",
         "ui.provider_microsoft": "Microsoft Azure 翻译（需要令牌 — 免费套餐每月200万字符）",
         "ui.provider_papago": "Papago / Naver（最适合韩语 — client_id:secret_key 格式）",
-        "ui.provider_custom": "自定义 REST API（支持 Bearer 令牌的任意 HTTP 端点）",
         "ui.aiSettings": "AI 设置（可选）",
         "ui.aiMenuTitle": "🤖 AI 设置 — 可选 AI 服务商",
         "ui.aiSavedNote": "💡 AI 配置已保存到 ai_config.json（请保密！）",
@@ -4151,7 +4130,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini（API 密钥）",
         "ui.ai_provider_claude": "Anthropic Claude（API 密钥）",
         "ui.ai_provider_mistral": "Mistral AI（API 密钥）",
-        "ui.ai_provider_custom": "自定义 AI（API 端点 + 密钥）",
         "ui.tableLimit": "限额",
         "ui.enterLimit": "使用限额（Enter使用默认，如 50万/月）",
         "ui.limitDefault": "默认：{value}",
@@ -5260,8 +5238,6 @@ def format_api_endpoint(entry: dict) -> str:
                 return manual_endpoint or "self-host"
             return "self-host"
         return "https://libretranslate.com/translate"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5867,19 +5843,31 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
-def log_ai_event(level: str, message: str):
-    prefix = f"[{level}]"
-    if level == "ERROR":
+def log_ai_event(message: str, log_type: str = "API"):
+    prefix = f"[{log_type}]"
+    if log_type == "ERROR":
         print(Fore.RED + f"{prefix} {message}" + Style.RESET_ALL)
-    elif level == "AI":
+    elif log_type == "AI":
         print(Fore.CYAN + f"{prefix} {message}" + Style.RESET_ALL)
     else:
         print(Fore.YELLOW + f"{prefix} {message}" + Style.RESET_ALL)
 
 
+def normalize_placeholders(text: str) -> str:
+    """Normalize common placeholder corruption variants before validation."""
+    normalized = text or ""
+    # legacy variants should never survive output; normalize for strict detection/retry.
+    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
+    return normalized
+
+
 def validate_placeholders(text: str) -> bool:
-    """Return False when placeholder leak is detected."""
-    return "<<<PH_" not in (text or "")
+    """Raise if placeholder leak is detected."""
+    normalized = normalize_placeholders(text)
+    if "<<<PH_" in normalized:
+        raise ValueError("Placeholder leak detected")
+    return True
 
 
 def get_active_ai_providers() -> list[dict]:
@@ -5963,27 +5951,47 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             
+    except requests.HTTPError as e:
+        code = str(getattr(getattr(e, "response", None), "status_code", ""))
+        if code == "429":
+            log_ai_event("429 Too Many Requests", "API")
+        elif code == "403":
+            log_ai_event("403 Forbidden", "API")
+        elif code:
+            log_ai_event(f"{code} HTTP error from provider {provider}", "API")
+        if suppress_errors:
+            return None
+        raise
     except Exception as e:
         if suppress_errors:
-            print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
+            log_ai_event(f"AI {provider}/{model} failed: {e}", "API")
             return None
         raise
     return None
 
 
-def translate_with_ai(provider_entry: dict, text: str, dest: str) -> str | None:
-    """Translate with one provider; retry once if placeholder leak is detected."""
-    provider = (provider_entry.get("provider") or "").lower()
-    model = provider_entry.get("model") or "default-model"
-
-    log_ai_event("AI", f"Using: {provider} ({model})")
+def translate_with_ai(provider: str, text: str, target_lang: str, model: str | None = None, token: str | None = None, base_url: str | None = None) -> str | None:
+    """Translate with one AI provider; retry once on request/validation failure."""
+    provider_name = (provider or "").lower()
+    entry = {
+        "provider": provider_name,
+        "model": model or "default-model",
+        "token": token or "",
+        "base_url": base_url,
+    }
+    log_ai_event(f"Using provider: {provider_name}", "AI")
+    log_ai_event(f"Model: {entry['model']}", "AI")
     for attempt in range(2):
-        result = _translate_with_ai(text, dest, provider_entry)
+        if attempt > 0:
+            log_ai_event(f"Retry {attempt + 1}/2 for provider {provider_name}", "AI")
+        result = _translate_with_ai(text, target_lang, entry)
         if not is_successful_translation_result(result):
             continue
-        if validate_placeholders(result):
+        try:
+            validate_placeholders(result)
             return result
-        log_ai_event("ERROR", f"Placeholder leak detected from {provider} attempt #{attempt + 1}")
+        except ValueError:
+            log_ai_event("Placeholder leak detected", "AI")
     return None
 
 
@@ -5992,25 +6000,35 @@ def translate_with_fallback(text: str, dest: str) -> str | None:
     for idx, ai_entry in enumerate(get_active_ai_providers()):
         provider = (ai_entry.get("provider") or "").lower()
         if idx > 0:
-            log_ai_event("AI", f"Fallback → {provider}")
-        result = translate_with_ai(ai_entry, text, dest)
+            log_ai_event(f"Falling back to {provider}", "AI")
+        result = translate_with_ai(
+            provider,
+            text,
+            dest,
+            model=ai_entry.get("model"),
+            token=ai_entry.get("token"),
+            base_url=ai_entry.get("base_url"),
+        )
         if is_successful_translation_result(result):
             return result
 
-    log_ai_event("AI", "All AI providers failed. Fallback → GoogleTranslator")
+    log_ai_event("All AI providers failed, using GoogleTranslator", "AI")
     max_retries = 2
     for attempt in range(max_retries):
         try:
             translated = GoogleTranslator(source="auto", target=dest).translate(text)
-            if validate_placeholders(translated):
-                return translated
-            log_ai_event("ERROR", f"Placeholder leak detected from GoogleTranslator attempt #{attempt + 1}")
+            validate_placeholders(translated)
+            return translated
+        except ValueError:
+            log_ai_event("Placeholder leak detected", "AI")
         except Exception as e:
             err = str(e)
             if "429" in err:
-                log_ai_event("API", "429 Too Many Requests")
+                log_ai_event("429 Too Many Requests", "API")
+            elif "403" in err:
+                log_ai_event("403 Forbidden", "API")
             elif attempt == max_retries - 1:
-                log_ai_event("ERROR", f"GoogleTranslator failed: {e}")
+                log_ai_event(f"GoogleTranslator failed: {e}", "ERROR")
     return None
 
 
