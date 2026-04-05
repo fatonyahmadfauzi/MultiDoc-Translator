@@ -516,6 +516,7 @@ Examples:
         "ui.apiNewToken": "New token (Enter to keep, q=cancel)",
         "ui.apiActiveLabel": "active",
         "ui.provider_google": "Google Translate (Free, no token needed)",
+        "ui.provider_googlecloud": "Google Cloud Translation API (API key required)",
         "ui.provider_deepl": "DeepL (Free/Pro — token required)",
         "ui.provider_mymemory": "MyMemory (Free with optional token for higher quota)",
         "ui.provider_libretranslate": "LibreTranslate (Free self-hosted / public servers)",
@@ -885,6 +886,7 @@ Contoh:
         "ui.apiNewToken": "Token baru (Enter untuk pertahankan, q=batal)",
         "ui.apiActiveLabel": "aktif",
         "ui.provider_google": "Google Translate (Gratis, tidak perlu token)",
+        "ui.provider_googlecloud": "Google Cloud Translation API (wajib API key)",
         "ui.provider_deepl": "DeepL (Gratis/Pro — memerlukan token)",
         "ui.provider_mymemory": "MyMemory (Gratis dengan token opsional untuk kuota lebih)",
         "ui.provider_libretranslate": "LibreTranslate (Self-hosted gratis / server publik)",
@@ -5227,6 +5229,7 @@ API_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'api_config.json')
 # Supported provider keys
 SUPPORTED_PROVIDERS = {
     "google":         "Google Translate (Free, no token needed)",
+    "googlecloud":    "Google Cloud Translation API (API key required)",
     "deepl":          "DeepL (Free/Pro — token required)",
     "mymemory":       "MyMemory (Free with optional token for higher quota)",
     "libretranslate": "LibreTranslate (Free self-hosted / public servers)",
@@ -5240,6 +5243,7 @@ OPTIONAL_TOKEN_PROVIDERS = {"mymemory", "libretranslate"}
 # Default quota/limits per translation provider
 PROVIDER_DEFAULT_LIMITS = {
     "google":         "Unlimited",
+    "googlecloud":    "Depends on billing/quota",
     "deepl":          "500k chars/month",
     "mymemory":       "1k req/day",
     "libretranslate": "Varies",
@@ -5274,6 +5278,8 @@ def format_api_display_name(entry: dict) -> str:
     token = (entry.get("token") or "").strip()
     if provider == "google":
         return "google (free)"
+    if provider == "googlecloud":
+        return f"googlecloud (key:{token})" if token else "googlecloud"
     if provider == "mymemory":
         if not token:
             return "mymemory (free)"
@@ -5538,6 +5544,27 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         provider = provider.lower()
         if provider == "google":
             return GoogleTranslator(source="auto", target=dest).translate(text)
+        elif provider == "googlecloud":
+            api_key = token.strip()
+            if not api_key:
+                return None
+            endpoint = f"https://translation.googleapis.com/language/translate/v2?key={urllib.parse.quote(api_key)}"
+            payload = json.dumps({
+                "q": text,
+                "target": dest,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            translations = ((data.get("data") or {}).get("translations") or [])
+            if not translations:
+                return None
+            return translations[0].get("translatedText")
         elif provider == "deepl":
             # DeepL direct API with endpoint mode:
             # free:<API_KEY> -> https://api-free.deepl.com/v2/translate
@@ -7583,6 +7610,13 @@ def interactive_menu():
 
                     if provider == "google":
                         pass  # No token needed
+                    elif provider == "googlecloud":
+                        cloud_key = input(f"{Fore.CYAN}  Enter Google Cloud API key: {Fore.WHITE}").strip()
+                        if not cloud_key:
+                            _api_msg = ""
+                            _cancelled = True
+                        else:
+                            token_in = cloud_key
                     elif provider == "deepl":
                         print(f"{Fore.WHITE}  DeepL endpoint mode:{Style.RESET_ALL}")
                         print(f"{Fore.WHITE}    [1] Free  — https://api-free.deepl.com/v2/translate{Style.RESET_ALL}")
