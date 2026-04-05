@@ -21,6 +21,10 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
+DEBUG_MODE = False
+DEBUG_LOGS = []
+DEBUG_MAX_LINES = 1000
+
 # Simple ANSI constants and helpers to mimic pixiv style coloring
 class Ansi:
     CYAN = Fore.CYAN
@@ -34,10 +38,72 @@ def colorize(text: str, color_code: str, color_on: bool):
     return f"{color_code}{text}{Ansi.RESET}"
 
 
-def debug_print(msg: str):
-    # Optional debug output; can stay silent when not used
-    if os.getenv("DEBUG", "0") in ("1", "true", "True"):
-        print(Fore.YELLOW + "[DEBUG] " + msg + Style.RESET_ALL)
+def debug_print(msg: str, color_on: bool = True):
+    stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    log_message = f"{stamp} | {msg}"
+    DEBUG_LOGS.append(log_message)
+    if len(DEBUG_LOGS) > DEBUG_MAX_LINES:
+        del DEBUG_LOGS[:-DEBUG_MAX_LINES]
+
+    if os.getenv("DEBUG", "0") in ("1", "true", "True") or DEBUG_MODE:
+        if color_on:
+            print(Fore.YELLOW + "[DEBUG] " + log_message + Style.RESET_ALL)
+        else:
+            print("[DEBUG] " + log_message)
+
+
+def _copy_to_clipboard(text: str) -> bool:
+    if not text:
+        return False
+    try:
+        if sys.platform == "win32":
+            import subprocess
+            subprocess.run(["clip"], input=text, text=True, check=True)
+            return True
+        if sys.platform == "darwin":
+            import subprocess
+            subprocess.run(["pbcopy"], input=text, text=True, check=True)
+            return True
+        import subprocess
+        if shutil.which("xclip"):
+            subprocess.run(["xclip", "-selection", "clipboard"], input=text, text=True, check=True)
+            return True
+        if shutil.which("xsel"):
+            subprocess.run(["xsel", "--clipboard", "--input"], input=text, text=True, check=True)
+            return True
+    except Exception:
+        return False
+    return False
+
+
+def open_debug_menu():
+    debug_print("[FUNC] open_debug_menu() called", color_on=False)
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f"\n{Fore.CYAN}Debug{Style.RESET_ALL}\n")
+        if DEBUG_LOGS:
+            for line in DEBUG_LOGS:
+                print(line)
+        else:
+            print(f"{Fore.LIGHTBLACK_EX}(No debug logs yet){Style.RESET_ALL}")
+
+        print()
+        print(f"{Fore.GREEN}[1] Copy debug{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[2] Clear debug{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTBLACK_EX}[0] Exit{Style.RESET_ALL}")
+
+        debug_choice = input(f"\n{Fore.YELLOW}[+] Select option: {Fore.WHITE}").strip()
+        if debug_choice == '1':
+            copied = _copy_to_clipboard("\n".join(DEBUG_LOGS))
+            if copied:
+                debug_print("Debug copied.", color_on=False)
+            else:
+                debug_print("Failed to copy debug (clipboard tool unavailable).", color_on=False)
+        elif debug_choice == '2':
+            DEBUG_LOGS.clear()
+            debug_print("Debug logs cleared.", color_on=False)
+        elif debug_choice == '0':
+            break
 
 # Fix emoji encoding for Windows
 import io
@@ -6743,6 +6809,7 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
+    debug_print("[FUNC] interactive_menu() called", color_on=False)
 
     # Require internet connection before showing menu (blocking spinner as in pixiv_login CLI)
     _check_internet_blocking(color_on=True)
@@ -6850,10 +6917,12 @@ def interactive_menu():
         except Exception:
             ai_label = t('ui.aiSettings')
         print(f"{Fore.MAGENTA}[10] {ai_label}{Style.RESET_ALL}")
+        print(f"{Fore.MAGENTA}[11] Debug{Style.RESET_ALL}")
         print(f"{Fore.LIGHTBLACK_EX}[0] {t('ui.exit')}{Style.RESET_ALL}")
 
         # Get user input
         choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+        debug_print(f"User selected main menu option: {choice}", color_on=False)
         
         # Check if remove option is disabled
         if choice == '3' and remove_disabled:
@@ -7658,6 +7727,9 @@ def interactive_menu():
                         _ai_msg = Fore.YELLOW + entry['name'] + ": " + t('ui.aiLimit') + Style.RESET_ALL
                     else:
                         _ai_msg = Fore.RED + t('ui.aiDisabled', name=entry['name']) + Style.RESET_ALL
+
+        elif choice == '11':
+            open_debug_menu()
 
         elif choice == '0':
             print(Fore.GREEN + t('ui.exiting'))
