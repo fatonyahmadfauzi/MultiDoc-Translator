@@ -1,3 +1,20 @@
 {
-  "ais": []
+  "ais": [
+    {
+      "id": "e9fd155b-93df-4611-889e-6cd4c59360d4",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "token": "AIzaSyBDSrAlmIcbNISwbJWsyhXTuH6Yk1QVVHA",
+      "base_url": null,
+      "enabled": true
+    },
+    {
+      "id": "f3228a0c-0ad0-4642-ad3e-a635b1b3128d",
+      "provider": "openai",
+      "model": "abc",
+      "token": "AIzaSyBDSrAlmIcbNISwbJWsyhXTuH6Yk1QVVHA",
+      "base_url": null,
+      "enabled": true
+    }
+  ]
 }
