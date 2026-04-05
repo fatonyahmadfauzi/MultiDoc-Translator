@@ -11,7 +11,7 @@
 [![Rating](https://vsmarketplacebadges.dev/rating-short/fatonyahmadfauzi.multidoc-translator.svg)](https://marketplace.visualstudio.com/items?itemName=fatonyahmadfauzi.multidoc-translator)
 
 
-> 🌐 Available in other languages: [中文](docs/lang/README-ZH.md)
+> 🌐 Available in other languages: [中文](docs/lang/README-ZH.md) | [Español](docs/lang/README-ES.md)
 
 ---
 

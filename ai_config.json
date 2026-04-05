@@ -7,7 +7,7 @@
       "token": "AIzaSyDIQa04AU4UFGVpWl-6JaTVXccxaBd-ffI",
       "base_url": null,
       "enabled": true,
-      "test_status": "200"
+      "test_status": "429"
     }
   ]
 }
