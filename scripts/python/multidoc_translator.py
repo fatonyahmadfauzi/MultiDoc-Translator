@@ -508,6 +508,8 @@ Examples:
         "ui.apiCancelHint": "(empty to cancel)",
         "ui.apiTableName": "Name",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Response",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Providers:",
         "ui.apiCancel": "Cancel",
@@ -868,6 +870,8 @@ Contoh:
         "ui.apiCancelHint": "(kosongkan untuk batal)",
         "ui.apiTableName": "Nama",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Respon",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Provider:",
         "ui.apiCancel": "Batal",
@@ -5099,36 +5103,43 @@ def save_api_config(config: dict):
 
 
 def format_api_display_name(entry: dict) -> str:
-    """Display-friendly API name with mode/credential hint."""
+    """Display-friendly API name without embedding credentials."""
+    provider = (entry.get("provider") or "").lower()
+    return entry.get("name") or provider or "unknown"
+
+
+def format_api_auth(entry: dict) -> str:
+    """Auth column formatter with masked values."""
     provider = (entry.get("provider") or "").lower()
     token = (entry.get("token") or "").strip()
-    if provider == "google":
-        return "google (free)"
-    if provider == "googlecloud":
-        return f"googlecloud (key:{token})" if token else "googlecloud"
-    if provider == "mymemory":
-        if not token:
-            return "mymemory (free)"
-        if token.lower().startswith("email:"):
-            return f"mymemory ({token})"
-        if token.lower().startswith("key:"):
-            return f"mymemory ({token})"
-    if provider == "deepl":
-        if token.startswith("free:"):
-            return f"deepl (free - key:{token.split(':', 1)[1]})"
-        if token.startswith("pro:"):
-            return f"deepl (pro - key:{token.split(':', 1)[1]})"
-    if provider == "libretranslate":
-        if token.startswith("public:"):
-            return f"libretranslate (public server - key:{token.split(':', 1)[1]})"
-        if token.startswith("self:"):
-            return f"libretranslate (self-host - endpoint:{token.split(':', 1)[1]})"
-        if token.startswith("selfkey:"):
-            rest = token.split(":", 1)[1]
-            if "|" in rest:
-                key, endpoint = rest.split("|", 1)
-                return f"libretranslate (self-host - endpoint:{endpoint} key:{key})"
-    return entry.get("name", provider)
+
+    def _mask(raw: str) -> str:
+        value = (raw or "").strip()
+        if not value:
+            return "none"
+        return value[:6] + "••••••"
+
+    if not token:
+        return "free" if provider in OPTIONAL_TOKEN_PROVIDERS or provider == "google" else "none"
+    if token.lower().startswith("email:"):
+        email = token.split(":", 1)[1].strip()
+        return _mask(email)
+    if ":" in token:
+        _, _, value = token.partition(":")
+        return _mask(value)
+    return _mask(token)
+
+
+def format_api_response_status(test_status: str) -> str:
+    """Friendly response status label for API settings table."""
+    ts = (test_status or "").strip().lower()
+    if ts == "200":
+        return "200 (OK)"
+    if ts in {"n/a", ""}:
+        return "n/a"
+    if ts in {"false", "0"}:
+        return "false (Fail)"
+    return test_status
 
 
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
@@ -5304,7 +5315,7 @@ def save_ai_config(config: dict):
         print(Fore.RED + f"❌ Failed to save AI config: {e}" + Style.RESET_ALL)
 
 
-def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled: bool = True) -> str:
+def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled: bool = True, test_status: str = "") -> str:
     """Add a new AI entry or update token if exists. Returns the entry id."""
     config = load_ai_config()
     
@@ -5315,6 +5326,7 @@ def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled:
             if base_url is not None:
                 entry["base_url"] = base_url
             entry["enabled"] = enabled
+            entry["test_status"] = test_status or entry.get("test_status", "")
             save_ai_config(config)
             return entry["id"]
 
@@ -5325,7 +5337,8 @@ def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled:
         "model": model,
         "token": token,
         "base_url": base_url,
-        "enabled": enabled
+        "enabled": enabled,
+        "test_status": test_status
     }
     if "ais" not in config:
         config["ais"] = []
@@ -5369,6 +5382,49 @@ def get_active_ais() -> list:
     """Return list of enabled AI entries."""
     config = load_ai_config()
     return [e for e in config.get("ais", []) if e.get("enabled", False)]
+
+
+def fetch_google_gemini_models(api_key: str) -> list[str]:
+    """Fetch available Gemini model IDs for a given Google API key."""
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        data = resp.json() or {}
+        models = []
+        for item in data.get("models", []):
+            name = str(item.get("name", "")).strip()
+            methods = item.get("supportedGenerationMethods", []) or []
+            if not name.startswith("models/"):
+                continue
+            if "generateContent" not in methods:
+                continue
+            model_id = name.split("/", 1)[1]
+            models.append(model_id)
+        # Keep stable order and remove duplicates
+        seen = set()
+        uniq = []
+        for m in models:
+            if m not in seen:
+                uniq.append(m)
+                seen.add(m)
+        return uniq
+    except Exception:
+        return []
+
+
+def test_ai_provider(provider: str, model: str, token: str, base_url: str = None) -> tuple[bool, str]:
+    """Test AI provider connection quickly and return (ok, status_text)."""
+    test_entry = {
+        "provider": provider,
+        "model": model,
+        "token": token,
+        "base_url": base_url,
+    }
+    result = _translate_with_ai("Reply with only OK", "en", test_entry)
+    if is_successful_translation_result(result):
+        return True, "200"
+    return False, "false"
 
 
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
@@ -7394,14 +7450,17 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
-                    name_col_w = 36
-                    provider_col_w = 22
+                    provider_col_w = 16
+                    response_col_w = 12
+                    status_col_w = 10
+                    auth_col_w = 24
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
-                    h_stat = t('ui.apiTableStatus')
-                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 72)
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
+                    h_stat = cjk_ljust(t('ui.apiTableStatus'), status_col_w)
+                    h_auth = t('ui.apiTableAuth')
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
+                    print("─" * 88)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7418,13 +7477,14 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
-                        test_status = (entry.get('test_status') or "").strip()
-                        prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
-                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
+                        v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
+                        v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
+                        v_stat = cjk_ljust(st, status_col_w)
+                        v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_name} {v_prov} "
-                              f"{st_color}{st}{Style.RESET_ALL}")
+                              f"{v_prov} {v_resp} "
+                              f"{st_color}{v_stat}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
                     if active_n == 0:
@@ -7855,10 +7915,11 @@ def interactive_menu():
                     h_idx = cjk_ljust('#', 4)
                     h_prov = cjk_ljust(t('ui.aiTableProvider'), 14)
                     h_model = cjk_ljust("Model", 20)
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), 12)
                     h_stat = cjk_ljust(t('ui.aiTableStatus'), 10)
                     h_auth = "Auth"
-                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_stat} {h_auth}{Style.RESET_ALL}")
-                    print("─" * 65)
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
+                    print("─" * 80)
                     for idx, entry in enumerate(ais, 1):
                         status = "active" if entry.get('enabled', False) else "inactive"
 
@@ -7872,6 +7933,7 @@ def interactive_menu():
                         v_idx   = cjk_ljust(str(idx) + ".", 4)
                         v_prov  = cjk_ljust(entry.get('provider', 'unknown'), 14)
                         v_model = cjk_ljust(entry.get('model', 'unknown'), 20)
+                        v_resp = cjk_ljust(format_api_response_status(entry.get('test_status')), 12)
                         
                         tok = entry.get('token', '')
                         if tok:
@@ -7880,7 +7942,7 @@ def interactive_menu():
                             tok_display = "none"
                             
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_prov} {v_model} "
+                              f"{v_prov} {v_model} {v_resp} "
                               f"{st_col}{cjk_ljust(st, 10)}{Style.RESET_ALL} {Fore.LIGHTBLACK_EX}{tok_display}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.MAGENTA}{t('ui.aiActiveCount', count=ai_act, total=len(ais))}{Style.RESET_ALL}")
@@ -7937,7 +7999,27 @@ def interactive_menu():
                         _ai_msg = ""
                         continue
 
-                    model_in = input(f"{Fore.CYAN}Enter model (e.g. gpt-4o, claude-3-5-sonnet-20241022) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                    if ai_provider == "google":
+                        available_models = fetch_google_gemini_models(token_in)
+                        if available_models:
+                            print(f"{Fore.WHITE}Available Gemini models from this API key:{Style.RESET_ALL}")
+                            max_show = min(12, len(available_models))
+                            for midx, mname in enumerate(available_models[:max_show], 1):
+                                print(f"  [{midx}] {mname}")
+                            print(f"  {Fore.LIGHTBLACK_EX}[m] Manual input{Style.RESET_ALL}")
+                            pick_in = input(f"{Fore.CYAN}Select model (1-{max_show}, m=manual): {Fore.WHITE}").strip().lower()
+                            if pick_in == 'm':
+                                model_in = input(f"{Fore.CYAN}Enter model (e.g. gemini-2.5-flash) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                            elif pick_in.isdigit() and 1 <= int(pick_in) <= max_show:
+                                model_in = available_models[int(pick_in) - 1]
+                            else:
+                                _ai_msg = Fore.RED + "Invalid model selection." + Style.RESET_ALL
+                                continue
+                        else:
+                            model_in = input(f"{Fore.CYAN}Enter model (e.g. gemini-2.5-flash) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                    else:
+                        model_in = input(f"{Fore.CYAN}Enter model (e.g. gpt-4o, claude-3-5-sonnet-20241022) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+
                     if not model_in:
                         _ai_msg = ""
                         continue
@@ -7948,10 +8030,19 @@ def interactive_menu():
                         if endpoint_in:
                             base_url = endpoint_in
 
+                    print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
+                    ok, ai_test_status = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
+                    if ok:
+                        print(Fore.GREEN + "✅ AI test status: TRUE (response received)" + Style.RESET_ALL)
+                    else:
+                        print(Fore.RED + "❌ AI test status: FALSE (no response/invalid model/token)" + Style.RESET_ALL)
+                        _ai_msg = Fore.RED + "AI test failed. Entry was not saved." + Style.RESET_ALL
+                        continue
+
                     enable_in = input(f"{Fore.CYAN}Enable this AI? [Y/n]: {Fore.WHITE}").strip().lower()
                     enabled = enable_in not in ('n', 'no')
 
-                    add_ai(ai_provider, model_in, token_in, base_url=base_url, enabled=enabled)
+                    add_ai(ai_provider, model_in, token_in, base_url=base_url, enabled=enabled, test_status=ai_test_status)
                     _ai_msg = Fore.GREEN + t('ui.aiAdded', provider=ai_provider, model=model_in) + Style.RESET_ALL
 
                 elif ai_choice == '2':
@@ -8304,4 +8395,3 @@ def _instrument_all_functions_for_debug():
 if __name__ == "__main__":
     _instrument_all_functions_for_debug()
     main()
-
