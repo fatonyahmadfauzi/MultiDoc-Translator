@@ -508,6 +508,8 @@ Examples:
         "ui.apiCancelHint": "(empty to cancel)",
         "ui.apiTableName": "Name",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Response",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Providers:",
         "ui.apiCancel": "Cancel",
@@ -868,6 +870,8 @@ Contoh:
         "ui.apiCancelHint": "(kosongkan untuk batal)",
         "ui.apiTableName": "Nama",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Respon",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Provider:",
         "ui.apiCancel": "Batal",
@@ -5099,36 +5103,119 @@ def save_api_config(config: dict):
 
 
 def format_api_display_name(entry: dict) -> str:
-    """Display-friendly API name with mode/credential hint."""
+    """Display-friendly API name without embedding credentials."""
+    provider = (entry.get("provider") or "").lower()
+    return entry.get("name") or provider or "unknown"
+
+
+def format_api_auth(entry: dict) -> str:
+    """Auth column formatter with masked values."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+
+    def _mask(raw: str) -> str:
+        value = (raw or "").strip()
+        if not value:
+            return "none"
+        return value[:6] + "••••••"
+
+    if not token:
+        return "free" if provider in OPTIONAL_TOKEN_PROVIDERS or provider == "google" else "none"
+    if token.lower().startswith("email:"):
+        email = token.split(":", 1)[1].strip()
+        return _mask(email)
+    if ":" in token:
+        _, _, value = token.partition(":")
+        return _mask(value)
+    return _mask(token)
+
+
+def format_api_response_status(test_status: str) -> str:
+    """Friendly response status label for API settings table."""
+    ts = (test_status or "").strip().lower()
+    if ts == "200":
+        return "200 (OK)"
+    if ts == "400":
+        return "400 (Bad Req)"
+    if ts == "403":
+        return "403 (Forbidden)"
+    if ts == "404":
+        return "404 (Not Found)"
+    if ts == "429":
+        return "429 (Rate Limit)"
+    if ts in {"n/a", ""}:
+        return "n/a"
+    if ts in {"false", "0"}:
+        return "false (Fail)"
+    return test_status
+
+
+def format_api_model(entry: dict) -> str:
+    """Model/plan label for API settings table."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip().lower()
+    if provider == "google":
+        return "free"
+    if provider == "googlecloud":
+        return "billing"
+    if provider == "deepl":
+        if token.startswith("free:"):
+            return "free"
+        if token.startswith("pro:"):
+            return "pro"
+        return "default"
+    if provider == "libretranslate":
+        if token.startswith("self:") or token.startswith("selfkey:"):
+            return "self-host"
+        if token.startswith("public:"):
+            return "public"
+        return "free"
+    if provider == "mymemory":
+        if token.startswith("email:"):
+            return "email"
+        if token.startswith("key:"):
+            return "key"
+        return "free"
+    return "default"
+
+
+def format_api_endpoint(entry: dict) -> str:
+    """Endpoint label for API settings table."""
     provider = (entry.get("provider") or "").lower()
     token = (entry.get("token") or "").strip()
     if provider == "google":
-        return "google (free)"
+        return "default"
     if provider == "googlecloud":
-        return f"googlecloud (key:{token})" if token else "googlecloud"
-    if provider == "mymemory":
-        if not token:
-            return "mymemory (free)"
-        if token.lower().startswith("email:"):
-            return f"mymemory ({token})"
-        if token.lower().startswith("key:"):
-            return f"mymemory ({token})"
+        return "https://translation.googleapis.com/language/translate/v2"
     if provider == "deepl":
-        if token.startswith("free:"):
-            return f"deepl (free - key:{token.split(':', 1)[1]})"
-        if token.startswith("pro:"):
-            return f"deepl (pro - key:{token.split(':', 1)[1]})"
+        if token.lower().startswith("free:"):
+            return "https://api-free.deepl.com/v2/translate"
+        return "https://api.deepl.com/v2/translate"
+    if provider == "mymemory":
+        return "https://api.mymemory.translated.net/get"
     if provider == "libretranslate":
-        if token.startswith("public:"):
-            return f"libretranslate (public server - key:{token.split(':', 1)[1]})"
-        if token.startswith("self:"):
-            return f"libretranslate (self-host - endpoint:{token.split(':', 1)[1]})"
-        if token.startswith("selfkey:"):
+        tok = token.lower()
+        if tok.startswith("self:"):
+            manual_endpoint = token.split(":", 1)[1].strip()
+            return manual_endpoint or "self-host"
+        if tok.startswith("selfkey:"):
             rest = token.split(":", 1)[1]
             if "|" in rest:
-                key, endpoint = rest.split("|", 1)
-                return f"libretranslate (self-host - endpoint:{endpoint} key:{key})"
-    return entry.get("name", provider)
+                _, endpoint = rest.split("|", 1)
+                manual_endpoint = endpoint.strip()
+                return manual_endpoint or "self-host"
+            return "self-host"
+        return "https://libretranslate.com/translate"
+    if provider == "custom":
+        return "custom endpoint"
+    return "default"
+
+
+def is_system_default_api(entry: dict) -> bool:
+    """True when entry is the built-in Google free fallback."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+    return provider == "google" and token == ""
 
 
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
@@ -5224,14 +5311,29 @@ def refresh_api_health_status():
     """
     Realtime-ish health refresh for saved APIs:
     - test active providers with a lightweight translation probe
-    - set test_status to '200' on success, 'false' on failure
+    - set test_status to '200' on success, '400' on failure
     - auto-disable provider when health check fails
     """
     config = load_api_config()
     changed = False
     for entry in config.get("apis", []):
         curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
-        if curr_status != "active":
+        # Built-in Google free should always be treated as fallback-active.
+        if is_system_default_api(entry):
+            provider = entry.get("provider", "")
+            token = entry.get("token", "")
+            probe = _translate_with_provider("hello", "fr", provider, token)
+            target_status = "200" if is_successful_translation_result(probe) else "400"
+            if entry.get("test_status") != target_status:
+                entry["test_status"] = target_status
+                changed = True
+            if entry.get("status") != "active" or entry.get("active") is not True:
+                entry["status"] = "active"
+                entry["active"] = True
+                changed = True
+            continue
+
+        if curr_status == "inactive":
             continue
         provider = entry.get("provider", "")
         token = entry.get("token", "")
@@ -5240,9 +5342,13 @@ def refresh_api_health_status():
             if entry.get("test_status") != "200":
                 entry["test_status"] = "200"
                 changed = True
+            if curr_status == "limit":
+                entry["status"] = "active"
+                entry["active"] = True
+                changed = True
         else:
-            if entry.get("test_status") != "false":
-                entry["test_status"] = "false"
+            if entry.get("test_status") != "400":
+                entry["test_status"] = "400"
                 changed = True
             if entry.get("status") != "inactive" or entry.get("active", True):
                 entry["status"] = "inactive"
@@ -5250,6 +5356,29 @@ def refresh_api_health_status():
                 changed = True
     if changed:
         save_api_config(config)
+
+
+def refresh_ai_health_status():
+    """
+    Realtime-ish health refresh for enabled AI providers.
+    Updates test_status from server probe without changing user toggle state.
+    """
+    config = load_ai_config()
+    changed = False
+    for entry in config.get("ais", []):
+        if not entry.get("enabled", False):
+            continue
+        _, status_code, _ = test_ai_provider(
+            entry.get("provider", ""),
+            entry.get("model", ""),
+            entry.get("token", ""),
+            base_url=entry.get("base_url"),
+        )
+        if entry.get("test_status") != status_code:
+            entry["test_status"] = status_code
+            changed = True
+    if changed:
+        save_ai_config(config)
 
 
 # ---------------------- AI MANAGEMENT SYSTEM ----------------------
@@ -5304,7 +5433,7 @@ def save_ai_config(config: dict):
         print(Fore.RED + f"❌ Failed to save AI config: {e}" + Style.RESET_ALL)
 
 
-def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled: bool = True) -> str:
+def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled: bool = True, test_status: str = "") -> str:
     """Add a new AI entry or update token if exists. Returns the entry id."""
     config = load_ai_config()
     
@@ -5315,6 +5444,7 @@ def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled:
             if base_url is not None:
                 entry["base_url"] = base_url
             entry["enabled"] = enabled
+            entry["test_status"] = test_status or entry.get("test_status", "")
             save_ai_config(config)
             return entry["id"]
 
@@ -5325,7 +5455,8 @@ def add_ai(provider: str, model: str, token: str, base_url: str = None, enabled:
         "model": model,
         "token": token,
         "base_url": base_url,
-        "enabled": enabled
+        "enabled": enabled,
+        "test_status": test_status
     }
     if "ais" not in config:
         config["ais"] = []
@@ -5369,6 +5500,109 @@ def get_active_ais() -> list:
     """Return list of enabled AI entries."""
     config = load_ai_config()
     return [e for e in config.get("ais", []) if e.get("enabled", False)]
+
+
+def fetch_google_gemini_models(api_key: str) -> list[str]:
+    """Fetch available Gemini model IDs for a given Google API key."""
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        data = resp.json() or {}
+        models = []
+        for item in data.get("models", []):
+            name = str(item.get("name", "")).strip()
+            methods = item.get("supportedGenerationMethods", []) or []
+            if not name.startswith("models/"):
+                continue
+            if "generateContent" not in methods:
+                continue
+            model_id = name.split("/", 1)[1]
+            models.append(model_id)
+        # Keep stable order and remove duplicates
+        seen = set()
+        uniq = []
+        for m in models:
+            if m not in seen:
+                uniq.append(m)
+                seen.add(m)
+        return uniq
+    except Exception:
+        return []
+
+
+def test_ai_provider(provider: str, model: str, token: str, base_url: str = None) -> tuple[bool, str, str]:
+    """Test AI provider connection quickly and return (ok, status_code, response_text)."""
+    test_entry = {
+        "provider": provider,
+        "model": model,
+        "token": token,
+        "base_url": base_url,
+    }
+    try:
+        result = _translate_with_ai("Reply with only OK", "en", test_entry, suppress_errors=False)
+        if is_successful_translation_result(result):
+            return True, "200", (result or "").strip()[:40]
+        return False, "400", "Empty response"
+    except requests.HTTPError as e:
+        code = "400"
+        if getattr(e, "response", None) is not None and e.response is not None:
+            code = str(e.response.status_code)
+        return False, code, str(e)
+    except Exception as e:
+        err = str(e)
+        for c in ("400", "403", "404", "429"):
+            if c in err:
+                return False, c, err
+        return False, "400", err
+
+
+def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
+    """Auto-select a model for provider. Returns (selected_model, discovered_models)."""
+    provider = (provider or "").lower()
+    if provider == "google":
+        models = fetch_google_gemini_models(token)
+        if not models:
+            return "gemini-2.5-flash", []
+        preferred = [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+        ]
+        for cand in preferred:
+            if cand in models:
+                return cand, models
+        return models[0], models
+    if provider == "openai":
+        return "gpt-4o-mini", []
+    if provider == "anthropic":
+        return "claude-3-5-sonnet-latest", []
+    if provider == "mistral":
+        return "mistral-small-latest", []
+    if provider == "custom":
+        return "custom-model", []
+    return "default-model", []
+
+
+def format_ai_endpoint(entry: dict) -> str:
+    """Endpoint label for AI settings table."""
+    provider = (entry.get("provider") or "").lower()
+    base_url = (entry.get("base_url") or "").strip()
+    if base_url:
+        return base_url
+    if provider == "openai":
+        return "https://api.openai.com/v1/chat/completions"
+    if provider == "anthropic":
+        return "https://api.anthropic.com/v1/messages"
+    if provider == "google":
+        model = (entry.get("model") or "gemini-2.5-flash").strip()
+        return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    if provider == "mistral":
+        return "https://api.mistral.ai/v1/chat/completions"
+    if provider == "custom":
+        return "custom endpoint"
+    return "default"
 
 
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
@@ -5530,7 +5764,7 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
-def _translate_with_ai(text: str, dest: str, ai_entry: dict) -> str | None:
+def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bool = True) -> str | None:
     """Implement AI provider translation logic for Python fallback."""
     provider = ai_entry.get("provider", "").lower()
     model = ai_entry.get("model", "")
@@ -5586,8 +5820,10 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict) -> str | None:
             return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             
     except Exception as e:
-        print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
-        return None
+        if suppress_errors:
+            print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
+            return None
+        raise
     return None
 
 
@@ -7394,14 +7630,21 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
-                    name_col_w = 36
-                    provider_col_w = 22
+                    provider_col_w = 16
+                    model_col_w = 10
+                    response_col_w = 12
+                    status_col_w = 16
+                    auth_col_w = 16
+                    endpoint_col_w = 56
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
-                    h_stat = t('ui.apiTableStatus')
-                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 72)
+                    h_model = cjk_ljust("Model", model_col_w)
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
+                    h_stat = cjk_ljust(t('ui.apiTableStatus'), status_col_w)
+                    h_auth = cjk_ljust(t('ui.apiTableAuth'), auth_col_w)
+                    h_ep = "Endpoint"
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
+                    print("─" * 132)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7418,13 +7661,23 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
-                        test_status = (entry.get('test_status') or "").strip()
-                        prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
-                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
+                        v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
+                        v_model = cjk_ljust(cjk_truncate(format_api_model(entry), model_col_w), model_col_w)
+                        if status == 'limit':
+                            resp_text = "429 (Limit)"
+                        elif status == 'inactive':
+                            resp_text = "n/a"
+                        else:
+                            resp_text = format_api_response_status(entry.get('test_status'))
+                        v_resp = cjk_ljust(cjk_truncate(resp_text, response_col_w), response_col_w)
+                        v_stat = cjk_ljust(cjk_truncate(st, status_col_w), status_col_w)
+                        v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
+                        v_ep = cjk_ljust(cjk_truncate(format_api_endpoint(entry), endpoint_col_w), endpoint_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_name} {v_prov} "
-                              f"{st_color}{st}{Style.RESET_ALL}")
+                              f"{v_prov} {v_model} {v_resp} "
+                              f"{st_color}{v_stat}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_ep}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
                     if active_n == 0:
@@ -7629,12 +7882,14 @@ def interactive_menu():
                     test_result = _translate_with_provider("hello", "fr", provider, token_in)
                     if is_successful_translation_result(test_result):
                         print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
-                        print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
+                        print(Fore.GREEN + "✅ API test status: 200" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ API response: {(test_result or '').strip()[:40]}" + Style.RESET_ALL)
                         test_status = "200"
                     else:
-                        print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
+                        test_status = "400"
+                        print(Fore.RED + f"❌ API test status: {test_status}" + Style.RESET_ALL)
                         print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
-                        _api_msg = Fore.RED + "API test failed. Entry was not saved." + Style.RESET_ALL
+                        _api_msg = Fore.RED + f"API test failed ({test_status}). Entry was not saved." + Style.RESET_ALL
                         continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
@@ -7668,6 +7923,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be edited." + Style.RESET_ALL
+                        continue
                     updates = {}
                     old_token = (entry.get("token") or "").strip()
                     old_provider = (entry.get("provider") or "").strip().lower()
@@ -7782,6 +8040,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be deleted." + Style.RESET_ALL
+                        continue
                     confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=format_api_display_name(entry)) + " " + Fore.WHITE).strip().lower()
                     if confirm == 'y':
                         delete_api(entry['id'])
@@ -7829,6 +8090,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be enabled/disabled." + Style.RESET_ALL
+                        continue
                     new_status = toggle_api(entry['id'])
                     if new_status == "active":
                         _api_msg = Fore.GREEN + t('ui.apiEnabled', name=entry['name']) + Style.RESET_ALL
@@ -7842,6 +8106,7 @@ def interactive_menu():
             _ai_msg = ""
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
+                refresh_ai_health_status()
                 ai_cfg  = load_ai_config()
                 ais     = ai_cfg.get('ais', [])
                 ai_act  = sum(1 for e in ais if e.get('enabled', False))
@@ -7855,10 +8120,12 @@ def interactive_menu():
                     h_idx = cjk_ljust('#', 4)
                     h_prov = cjk_ljust(t('ui.aiTableProvider'), 14)
                     h_model = cjk_ljust("Model", 20)
-                    h_stat = cjk_ljust(t('ui.aiTableStatus'), 10)
-                    h_auth = "Auth"
-                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_stat} {h_auth}{Style.RESET_ALL}")
-                    print("─" * 65)
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), 12)
+                    h_stat = cjk_ljust(t('ui.aiTableStatus'), 16)
+                    h_auth = cjk_ljust("Auth", 14)
+                    h_ep = "Endpoint"
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
+                    print("─" * 132)
                     for idx, entry in enumerate(ais, 1):
                         status = "active" if entry.get('enabled', False) else "inactive"
 
@@ -7872,16 +8139,21 @@ def interactive_menu():
                         v_idx   = cjk_ljust(str(idx) + ".", 4)
                         v_prov  = cjk_ljust(entry.get('provider', 'unknown'), 14)
                         v_model = cjk_ljust(entry.get('model', 'unknown'), 20)
+                        v_resp = cjk_ljust(format_api_response_status(entry.get('test_status')), 12)
+                        v_ep = cjk_ljust(cjk_truncate(format_ai_endpoint(entry), 56), 56)
                         
                         tok = entry.get('token', '')
                         if tok:
                             tok_display = tok[:6] + "••••••"
                         else:
                             tok_display = "none"
+                        v_auth = cjk_ljust(tok_display, 14)
                             
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_prov} {v_model} "
-                              f"{st_col}{cjk_ljust(st, 10)}{Style.RESET_ALL} {Fore.LIGHTBLACK_EX}{tok_display}{Style.RESET_ALL}")
+                              f"{v_prov} {v_model} {v_resp} "
+                              f"{st_col}{cjk_ljust(cjk_truncate(st, 16), 16)}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_ep}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.MAGENTA}{t('ui.aiActiveCount', count=ai_act, total=len(ais))}{Style.RESET_ALL}")
                     if ai_act == 0:
@@ -7937,10 +8209,12 @@ def interactive_menu():
                         _ai_msg = ""
                         continue
 
-                    model_in = input(f"{Fore.CYAN}Enter model (e.g. gpt-4o, claude-3-5-sonnet-20241022) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not model_in:
-                        _ai_msg = ""
-                        continue
+                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                    if ai_provider == "google" and discovered_models:
+                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                    elif ai_provider == "google":
+                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
 
                     base_url = None
                     if ai_provider == "custom":
@@ -7948,10 +8222,21 @@ def interactive_menu():
                         if endpoint_in:
                             base_url = endpoint_in
 
+                    print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
+                    ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
+                    if ok:
+                        print(Fore.GREEN + f"✅ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ AI response: {ai_test_response}" + Style.RESET_ALL)
+                    else:
+                        print(Fore.RED + f"❌ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.RED + f"❌ AI response: {ai_test_response}" + Style.RESET_ALL)
+                        _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
+                        continue
+
                     enable_in = input(f"{Fore.CYAN}Enable this AI? [Y/n]: {Fore.WHITE}").strip().lower()
                     enabled = enable_in not in ('n', 'no')
 
-                    add_ai(ai_provider, model_in, token_in, base_url=base_url, enabled=enabled)
+                    add_ai(ai_provider, model_in, token_in, base_url=base_url, enabled=enabled, test_status=ai_test_status)
                     _ai_msg = Fore.GREEN + t('ui.aiAdded', provider=ai_provider, model=model_in) + Style.RESET_ALL
 
                 elif ai_choice == '2':
@@ -8304,4 +8589,3 @@ def _instrument_all_functions_for_debug():
 if __name__ == "__main__":
     _instrument_all_functions_for_debug()
     main()
-
