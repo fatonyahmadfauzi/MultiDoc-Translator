@@ -577,6 +577,41 @@ See all notable changes for each version in the [CHANGELOG.md](CHANGELOG.md) fil
 }
 
 // Fungsi untuk proteksi yang lebih kuat - UNIVERSAL: TANPA PROTEKSI AUTHOR & VERSION
+const SAFE_PLACEHOLDER_PREFIX = '<<<PH_';
+const SAFE_PLACEHOLDER_SUFFIX = '>>>';
+const SAFE_PLACEHOLDER_PATTERN = /<<<PH_(\d+)>>>/g;
+const LEGACY_PLACEHOLDER_PATTERN = /__[A-Za-z_]+_(\d+)__/g;
+
+function createSafePlaceholder(index: number): string {
+    return `${SAFE_PLACEHOLDER_PREFIX}${index}${SAFE_PLACEHOLDER_SUFFIX}`;
+}
+
+function buildPlaceholderVariantRegex(index: number): RegExp[] {
+    // NOTE: Be conservative to avoid over-repairing legitimate text.
+    const strict = new RegExp(`<<<\\s*PH\\s*_\\s*${index}\\s*>>>`, 'g');
+    const legacy = new RegExp(`__\\s*[A-Za-z_]+\\s*_\\s*${index}\\s*__`, 'g');
+    const compact = new RegExp(`\\bPH\\s*_?\\s*${index}\\b`, 'g');
+    const veryLegacy = new RegExp(`\\bP\\s*${index}\\b`, 'g');
+    return [strict, legacy, compact, veryLegacy];
+}
+
+// Normalize likely placeholder corruption before restore.
+export function normalizePlaceholders(text: string, placeholders: Record<string, string>): string {
+    let normalized = text;
+    for (const placeholder of Object.keys(placeholders)) {
+        const match = placeholder.match(/^<<<PH_(\d+)>>>$/);
+        if (!match) {
+            continue;
+        }
+        const index = Number(match[1]);
+        const variants = buildPlaceholderVariantRegex(index);
+        for (const variant of variants) {
+            normalized = normalized.replace(variant, placeholder);
+        }
+    }
+    return normalized;
+}
+
 export function createPlaceholderProtection(text: string, protectedPhrases: string[]): { text: string, placeholders: Record<string, string> } {
     let protectedText = text;
     const placeholders: Record<string, string> = {};
@@ -591,7 +626,7 @@ export function createPlaceholderProtection(text: string, protectedPhrases: stri
                 return existingEntry[0];
             }
             
-            const placeholder = `__${key}_${counter++}__`;
+            const placeholder = createSafePlaceholder(counter++);
             placeholders[placeholder] = match;
             return placeholder;
         });
@@ -659,7 +694,7 @@ export function createPlaceholderProtection(text: string, protectedPhrases: stri
 
 // Fungsi untuk restore placeholder - PERBAIKAN: lebih robust
 export function restorePlaceholders(text: string, placeholders: Record<string, string>): string {
-    let restoredText = text;
+    let restoredText = normalizePlaceholders(text, placeholders);
     
     // Restore dalam urutan yang tepat untuk menghindari konflik
     const sortedPlaceholders = Object.entries(placeholders)
@@ -676,6 +711,104 @@ export function restorePlaceholders(text: string, placeholders: Record<string, s
     }
     
     return restoredText;
+}
+
+function detectLeakedPlaceholders(text: string): string[] {
+    const hits = new Set<string>();
+    const addMatches = (regex: RegExp) => {
+        regex.lastIndex = 0;
+        for (const match of text.matchAll(regex)) {
+            hits.add(match[0]);
+        }
+    };
+
+    addMatches(SAFE_PLACEHOLDER_PATTERN);
+    addMatches(LEGACY_PLACEHOLDER_PATTERN);
+    addMatches(/\bPH_?\d+\b/g);
+    addMatches(/\bP\d+\b/g);
+    return [...hits];
+}
+
+export function validateNoPlaceholderLeak(text: string): { valid: boolean; leaks: string[] } {
+    const leaks = detectLeakedPlaceholders(text);
+    return { valid: leaks.length === 0, leaks };
+}
+
+type TranslationEngine = 'primary-ai-fallback' | 'google-fallback';
+
+async function translateWithEngine(text: string, to: string, workspace: string, engine: TranslationEngine): Promise<string> {
+    if (engine === 'primary-ai-fallback') {
+        Logger.log(`🧠 Translation engine: AI primary (Google fallback) [lang=${to}]`);
+        return translateWithAIFallback(text, to, workspace, 2);
+    }
+
+    Logger.log(`🌐 Translation engine: Google fallback [lang=${to}]`);
+    return translateWithGoogle(text, to, 2);
+}
+
+/**
+ * Protected-translation pipeline:
+ * 1) protect_text
+ * 2) translate via primary engine
+ * 3) normalize placeholders
+ * 4) restore placeholders
+ * 5) validate leak-free output
+ * 6) retry once, then fallback engine
+ *
+ * Demo:
+ * - Input: "Use `npm run compile` in MultiDoc-Translator."
+ * - Protected: "Use <<<PH_0>>> in <<<PH_1>>>."
+ * - Corrupted translation sample: "Gunakan <<< PH_0 >>> di PH1."
+ * - Restored: "Gunakan `npm run compile` di MultiDoc-Translator."
+ */
+export async function translateProtectedText(
+    text: string,
+    to: string,
+    protectedPhrases: string[],
+    workspace: string
+): Promise<{ translated: string; ok: boolean; usedFallback: boolean; leaks: string[] }> {
+    const { text: protectedText, placeholders } = createPlaceholderProtection(text, protectedPhrases);
+    const placeholderCount = Object.keys(placeholders).length;
+    Logger.log(`🛡️ Placeholder protection applied: ${placeholderCount} token(s)`);
+
+    const runAttempt = async (engine: TranslationEngine, attemptLabel: string) => {
+        const raw = await translateWithEngine(protectedText, to, workspace, engine);
+        const restored = restorePlaceholders(raw, placeholders);
+        const validation = validateNoPlaceholderLeak(restored);
+        if (!validation.valid) {
+            Logger.warn(`⚠️ Placeholder leak detected after ${attemptLabel}: ${validation.leaks.join(', ')}`);
+        } else {
+            Logger.log(`✅ Placeholder restore success after ${attemptLabel}`);
+        }
+        return { restored, validation };
+    };
+
+    // Primary attempt + single retry
+    let first = await runAttempt('primary-ai-fallback', 'primary attempt #1');
+    if (first.validation.valid) {
+        return { translated: first.restored, ok: true, usedFallback: false, leaks: [] };
+    }
+
+    Logger.warn(`Retrying primary translator once due to placeholder validation failure [lang=${to}]`);
+    let second = await runAttempt('primary-ai-fallback', 'primary attempt #2');
+    if (second.validation.valid) {
+        return { translated: second.restored, ok: true, usedFallback: false, leaks: [] };
+    }
+
+    // Final fallback
+    Logger.warn(`Switching to fallback translator after primary failure [lang=${to}]`);
+    const fallback = await runAttempt('google-fallback', 'fallback attempt');
+    if (fallback.validation.valid) {
+        return { translated: fallback.restored, ok: true, usedFallback: true, leaks: [] };
+    }
+
+    Logger.error(`Placeholder pipeline failed after fallback [lang=${to}]`, fallback.validation.leaks);
+    return {
+        translated: fallback.restored,
+        ok: false,
+        usedFallback: true,
+        leaks: fallback.validation.leaks
+    };
 }
 
 // Fungsi untuk perbaikan formatting setelah terjemahan - DIPERBAIKI
@@ -737,10 +870,14 @@ export function fixPostTranslationFormatting(translated: string, originalLine: s
 // Fungsi final cleanup - UNIVERSAL: TANPA PERBAIKAN AUTHOR & VERSION SPESIFIK
 export function finalCleanup(text: string): string {
     // Hapus semua placeholder yang tersisa dengan pattern yang lebih komprehensif
-    let cleaned = text.replace(/__[A-Za-z_]+_\d+__/g, '');
+    let cleaned = text
+        .replace(SAFE_PLACEHOLDER_PATTERN, '')
+        .replace(/__[A-Za-z_]+_\d+__/g, '');
     
     // Hapus baris yang hanya berisi placeholder
-    cleaned = cleaned.replace(/^\s*__[A-Za-z_]+_\d+__\s*$/gm, '');
+    cleaned = cleaned
+        .replace(/^\s*<<<PH_\d+>>>\s*$/gm, '')
+        .replace(/^\s*__[A-Za-z_]+_\d+__\s*$/gm, '');
     
     // Perbaikan formatting yang mungkin rusak (UMUM)
     cleaned = cleaned
@@ -1327,17 +1464,16 @@ export async function translateChangelog(
                 const normalizedBullet = "-";
                 
                 if (content.trim()) {
-                    // Proteksi teks sebelum terjemahan
-                    const { text: protectedText, placeholders } = createPlaceholderProtection(
-                        content, 
-                        protectedData.protected_phrases
+                    const protectedResult = await translateProtectedText(
+                        content,
+                        translateCode,
+                        protectedData.protected_phrases,
+                        workspace
                     );
-
-                    // Terjemahkan teks yang sudah diproteksi
-                    let translated = await translateWithGoogle(protectedText, translateCode);
-
-                    // Restore placeholder ke teks asli
-                    translated = restorePlaceholders(translated, placeholders);
+                    let translated = protectedResult.translated;
+                    if (!protectedResult.ok) {
+                        Logger.warn(`Using best-effort translated bullet line despite placeholder leak [lang=${langCode}]`);
+                    }
 
                     // PERBAIKAN: Format bullet point yang benar
                     const formattedLine = `${indent}${normalizedBullet} ${translated.trim()}`;
@@ -1360,17 +1496,17 @@ export async function translateChangelog(
                 continue;
             }
             
-            // Untuk baris lainnya, terjemahkan seperti biasa
-            const { text: protectedText, placeholders } = createPlaceholderProtection(
-                line, 
-                protectedData.protected_phrases
+            // Untuk baris lainnya, terjemahkan dengan pipeline proteksi placeholder yang tahan korupsi.
+            const protectedResult = await translateProtectedText(
+                line,
+                translateCode,
+                protectedData.protected_phrases,
+                workspace
             );
-
-            // Terjemahkan teks yang sudah diproteksi
-            let translated = await translateWithGoogle(protectedText, translateCode);
-
-            // Restore placeholder ke teks asli
-            translated = restorePlaceholders(translated, placeholders);
+            let translated = protectedResult.translated;
+            if (!protectedResult.ok) {
+                Logger.warn(`Using best-effort translated line despite placeholder leak [lang=${langCode}]`);
+            }
 
             // Perbaikan formatting setelah terjemahan
             translated = fixPostTranslationFormatting(translated, line);
@@ -1396,8 +1532,10 @@ export async function translateChangelog(
             // Hapus baris kosong berlebih
             .replace(/\n{3,}/g, '\n\n');
         
-        // Cleanup placeholder yang tersisa
-        finalChangelog = finalChangelog.replace(/__[A-Za-z_]+_\d+__/g, '');
+        // Cleanup placeholder yang tersisa (legacy + format baru)
+        finalChangelog = finalChangelog
+            .replace(/<<<PH_\d+>>>/g, '')
+            .replace(/__[A-Za-z_]+_\d+__/g, '');
         
         // Tulis file CHANGELOG yang sudah diterjemahkan
         fs.writeFileSync(changelogDestPath, finalChangelog, "utf-8");
@@ -1776,17 +1914,16 @@ export async function translateReadme(
             continue;
         }
 
-        // Proteksi teks sebelum terjemahan
-        const { text: protectedText, placeholders } = createPlaceholderProtection(
-            line, 
-            protectedData.protected_phrases
+        const protectedResult = await translateProtectedText(
+            line,
+            translateCode,
+            protectedData.protected_phrases,
+            workspace
         );
-
-        // Terjemahkan teks yang sudah diproteksi
-        let translated = await translateWithGoogle(protectedText, translateCode);
-
-        // Restore placeholder ke teks asli
-        translated = restorePlaceholders(translated, placeholders);
+        let translated = protectedResult.translated;
+        if (!protectedResult.ok) {
+            Logger.warn(`Using best-effort translated README line despite placeholder leak [lang=${langCode}]`);
+        }
 
         // Perbaikan formatting setelah terjemahan
         translated = fixPostTranslationFormatting(translated, rawLine);
