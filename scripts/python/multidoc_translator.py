@@ -5290,14 +5290,14 @@ def format_api_display_name(entry: dict) -> str:
             return f"deepl (pro - key:{token.split(':', 1)[1]})"
     if provider == "libretranslate":
         if token.startswith("public:"):
-            return f"libretranslate (public - key:{token.split(':', 1)[1]})"
+            return f"libretranslate (public server - key:{token.split(':', 1)[1]})"
         if token.startswith("self:"):
-            return f"libretranslate (self - {token.split(':', 1)[1]})"
+            return f"libretranslate (self-host - endpoint:{token.split(':', 1)[1]})"
         if token.startswith("selfkey:"):
             rest = token.split(":", 1)[1]
             if "|" in rest:
                 key, endpoint = rest.split("|", 1)
-                return f"libretranslate (self - key:{key} @ {endpoint})"
+                return f"libretranslate (self-host - endpoint:{endpoint} key:{key})"
     return entry.get("name", provider)
 
 
@@ -7772,6 +7772,47 @@ def interactive_menu():
                             continue
                         if new_key:
                             updates['token'] = f"{mode}:{new_key}"
+                    elif old_provider == "libretranslate":
+                        if old_token.startswith("public:"):
+                            new_key = input(f"{Fore.CYAN}New LibreTranslate public API key (q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_key:
+                                updates['token'] = f"public:{new_key}"
+                        elif old_token.startswith("self:"):
+                            current_endpoint = old_token.split(":", 1)[1]
+                            new_endpoint = input(f"{Fore.CYAN}New self-host endpoint [{current_endpoint}] (q=cancel): {Fore.WHITE}").strip()
+                            if new_endpoint.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_endpoint:
+                                updates['token'] = f"self:{new_endpoint}"
+                        elif old_token.startswith("selfkey:"):
+                            rest = old_token.split(":", 1)[1]
+                            if "|" in rest:
+                                current_key, current_endpoint = rest.split("|", 1)
+                            else:
+                                current_key, current_endpoint = "", ""
+                            new_endpoint = input(f"{Fore.CYAN}New self-host endpoint [{current_endpoint}] (q=cancel): {Fore.WHITE}").strip()
+                            if new_endpoint.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            new_key = input(f"{Fore.CYAN}New self-host API key (Enter to keep current, q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            final_endpoint = new_endpoint if new_endpoint else current_endpoint
+                            final_key = new_key if new_key else current_key
+                            if final_endpoint and final_key:
+                                updates['token'] = f"selfkey:{final_key}|{final_endpoint}"
+                        else:
+                            new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
+                            if new_token.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_token:
+                                updates['token'] = new_token
                     else:
                         new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
                         if new_token.lower() == 'q':
