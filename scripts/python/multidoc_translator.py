@@ -5135,6 +5135,14 @@ def format_api_response_status(test_status: str) -> str:
     ts = (test_status or "").strip().lower()
     if ts == "200":
         return "200 (OK)"
+    if ts == "400":
+        return "400 (Bad Req)"
+    if ts == "403":
+        return "403 (Forbidden)"
+    if ts == "404":
+        return "404 (Not Found)"
+    if ts == "429":
+        return "429 (Rate Limit)"
     if ts in {"n/a", ""}:
         return "n/a"
     if ts in {"false", "0"}:
@@ -5320,8 +5328,8 @@ def refresh_api_health_status():
                 entry["test_status"] = "200"
                 changed = True
         else:
-            if entry.get("test_status") != "false":
-                entry["test_status"] = "false"
+            if entry.get("test_status") != "400":
+                entry["test_status"] = "400"
                 changed = True
             if entry.get("status") != "inactive" or entry.get("active", True):
                 entry["status"] = "inactive"
@@ -5481,18 +5489,30 @@ def fetch_google_gemini_models(api_key: str) -> list[str]:
         return []
 
 
-def test_ai_provider(provider: str, model: str, token: str, base_url: str = None) -> tuple[bool, str]:
-    """Test AI provider connection quickly and return (ok, status_text)."""
+def test_ai_provider(provider: str, model: str, token: str, base_url: str = None) -> tuple[bool, str, str]:
+    """Test AI provider connection quickly and return (ok, status_code, response_text)."""
     test_entry = {
         "provider": provider,
         "model": model,
         "token": token,
         "base_url": base_url,
     }
-    result = _translate_with_ai("Reply with only OK", "en", test_entry)
-    if is_successful_translation_result(result):
-        return True, "200"
-    return False, "false"
+    try:
+        result = _translate_with_ai("Reply with only OK", "en", test_entry, suppress_errors=False)
+        if is_successful_translation_result(result):
+            return True, "200", (result or "").strip()[:40]
+        return False, "400", "Empty response"
+    except requests.HTTPError as e:
+        code = "400"
+        if getattr(e, "response", None) is not None and e.response is not None:
+            code = str(e.response.status_code)
+        return False, code, str(e)
+    except Exception as e:
+        err = str(e)
+        for c in ("400", "403", "404", "429"):
+            if c in err:
+                return False, c, err
+        return False, "400", err
 
 
 def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
@@ -5702,7 +5722,7 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
-def _translate_with_ai(text: str, dest: str, ai_entry: dict) -> str | None:
+def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bool = True) -> str | None:
     """Implement AI provider translation logic for Python fallback."""
     provider = ai_entry.get("provider", "").lower()
     model = ai_entry.get("model", "")
@@ -5758,8 +5778,10 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict) -> str | None:
             return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             
     except Exception as e:
-        print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
-        return None
+        if suppress_errors:
+            print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
+            return None
+        raise
     return None
 
 
@@ -7818,12 +7840,14 @@ def interactive_menu():
                     test_result = _translate_with_provider("hello", "fr", provider, token_in)
                     if is_successful_translation_result(test_result):
                         print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
-                        print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
+                        print(Fore.GREEN + "✅ API test status: 200" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ API response: {(test_result or '').strip()[:40]}" + Style.RESET_ALL)
                         test_status = "200"
                     else:
-                        print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
+                        test_status = "400"
+                        print(Fore.RED + f"❌ API test status: {test_status}" + Style.RESET_ALL)
                         print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
-                        _api_msg = Fore.RED + "API test failed. Entry was not saved." + Style.RESET_ALL
+                        _api_msg = Fore.RED + f"API test failed ({test_status}). Entry was not saved." + Style.RESET_ALL
                         continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
@@ -8156,12 +8180,14 @@ def interactive_menu():
                             base_url = endpoint_in
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
-                    ok, ai_test_status = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
+                    ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
                     if ok:
-                        print(Fore.GREEN + "✅ AI test status: TRUE (response received)" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ AI response: {ai_test_response}" + Style.RESET_ALL)
                     else:
-                        print(Fore.RED + "❌ AI test status: FALSE (no response/invalid model/token)" + Style.RESET_ALL)
-                        _ai_msg = Fore.RED + "AI test failed. Entry was not saved." + Style.RESET_ALL
+                        print(Fore.RED + f"❌ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.RED + f"❌ AI response: {ai_test_response}" + Style.RESET_ALL)
+                        _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
                         continue
 
                     enable_in = input(f"{Fore.CYAN}Enable this AI? [Y/n]: {Fore.WHITE}").strip().lower()
