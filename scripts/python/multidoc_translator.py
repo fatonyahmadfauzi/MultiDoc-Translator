@@ -478,11 +478,11 @@ Examples:
         "ui.aiProviders": "AI Providers:",
         "ui.aiEnterName": "Enter a name for this AI",
         "ui.aiAuthType": "Authentication method",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Enter API key",
-        "ui.aiBrowserOpening": "🌐 Opening browser for login...",
-        "ui.aiBrowserNote": "Browser opened. Log in, then press Enter to continue.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(removed)",
+        "ui.aiEnterKey": "Enter API key or token",
+        "ui.aiBrowserOpening": "Browser login removed. Use API key/token.",
+        "ui.aiBrowserNote": "Use API key/token authentication.",
         "ui.aiSelectToEdit": "Enter AI number to edit",
         "ui.aiSelectToDelete": "Enter AI number to delete",
         "ui.aiSelectToToggle": "Enter AI number to enable/disable",
@@ -503,7 +503,7 @@ Examples:
         "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
         "ui.ai_provider_perplexity": "Perplexity AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + key)",
+        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -847,11 +847,11 @@ Contoh:
         "ui.aiProviders": "Provider AI:",
         "ui.aiEnterName": "Masukkan nama untuk AI ini",
         "ui.aiAuthType": "Metode autentikasi",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Masukkan API key",
-        "ui.aiBrowserOpening": "🌐 Membuka browser untuk login...",
-        "ui.aiBrowserNote": "Browser dibuka. Login, lalu tekan Enter untuk melanjutkan.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(dihapus)",
+        "ui.aiEnterKey": "Masukkan API key atau token",
+        "ui.aiBrowserOpening": "Login browser dihapus. Gunakan API key/token.",
+        "ui.aiBrowserNote": "Gunakan autentikasi API key/token.",
         "ui.aiSelectToEdit": "Masukkan nomor AI untuk diedit",
         "ui.aiSelectToDelete": "Masukkan nomor AI untuk dihapus",
         "ui.aiSelectToToggle": "Masukkan nomor AI untuk aktifkan/nonaktifkan",
@@ -866,13 +866,13 @@ Contoh:
         "ui.aiNewName": "Nama baru [{name}] (Enter untuk pertahankan, q=batal)",
         "ui.aiNewKey": "API key baru (Enter untuk pertahankan, q=batal)",
         "ui.aiCancelHint": "(kosongkan untuk batal)",
-        "ui.ai_provider_openai": "OpenAI ChatGPT (API key atau login browser)",
-        "ui.ai_provider_gemini": "Google Gemini (API key atau login browser)",
-        "ui.ai_provider_claude": "Anthropic Claude (API key atau login browser)",
-        "ui.ai_provider_copilot": "Microsoft Copilot (login browser)",
-        "ui.ai_provider_mistral": "Mistral AI (API key atau login browser)",
-        "ui.ai_provider_perplexity": "Perplexity AI (API key atau login browser)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + key)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API key)",
+        "ui.ai_provider_gemini": "Google Gemini (API key)",
+        "ui.ai_provider_claude": "Anthropic Claude (API key)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
+        "ui.ai_provider_mistral": "Mistral AI (API key)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API key)",
+        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -5154,8 +5154,10 @@ SUPPORTED_PROVIDERS = {
     "yandex":         "Yandex Translate (token required — free tier available)",
     "microsoft":      "Microsoft Azure Translator (token required — free tier 2M chars/month)",
     "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
-    "custom":         "Custom REST API (any HTTP endpoint with Bearer token)",
 }
+
+# Providers where API token is optional (can still work without token)
+OPTIONAL_TOKEN_PROVIDERS = {"mymemory", "libretranslate"}
 
 # Default quota/limits per translation provider
 PROVIDER_DEFAULT_LIMITS = {
@@ -5166,7 +5168,6 @@ PROVIDER_DEFAULT_LIMITS = {
     "yandex":         "1M chars/month",
     "microsoft":      "2M chars/month",
     "papago":         "10k chars/day",
-    "custom":         "Varies",
 }
 
 
@@ -5266,35 +5267,14 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
-    "openai":      "OpenAI ChatGPT",
-    "gemini":      "Google Gemini",
-    "claude":      "Anthropic Claude",
-    "copilot":     "Microsoft Copilot",
-    "mistral":     "Mistral AI",
-    "perplexity":  "Perplexity AI",
-    "custom":      "Custom AI Endpoint",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
-    "openai":      "Pay-per-use",
-    "gemini":      "60 req/min (free)",
-    "claude":      "Pay-per-use",
-    "copilot":     "Unlimited (browser)",
-    "mistral":     "Pay-per-use",
-    "perplexity":  "5 req/min (free)",
-    "custom":      "Varies",
 }
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
-    "openai":      "https://chat.openai.com",
-    "gemini":      "https://gemini.google.com",
-    "claude":      "https://claude.ai",
-    "copilot":     "https://copilot.microsoft.com",
-    "mistral":     "https://chat.mistral.ai",
-    "perplexity":  "https://www.perplexity.ai",
-    "custom":      None,
 }
 
 
@@ -5428,28 +5408,6 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 client_id=client_id, secret_key=secret,
                 source="auto", target=dest
             ).translate(text)
-        elif provider == "custom":
-            # Custom REST API — expects entry to have 'endpoint' field
-            # POST {endpoint} with JSON {q: text, target: dest}
-            # Auth header: Bearer <token> (or no auth if token is blank)
-            import urllib.request as _urllib
-            import json as _json
-            endpoint = token.split("|", 1)[1] if "|" in token else ""
-            real_token = token.split("|", 1)[0] if "|" in token else token
-            if not endpoint:
-                return None
-            payload = _json.dumps({"q": text, "target": dest, "source": "auto"}).encode()
-            req = _urllib.Request(endpoint, data=payload,
-                                  headers={"Content-Type": "application/json"})
-            if real_token:
-                req.add_header("Authorization", f"Bearer {real_token}")
-            with _urllib.urlopen(req, timeout=10) as resp:
-                data = _json.loads(resp.read())
-            # Try common response field names
-            for key in ("translatedText", "translation", "text", "result", "output"):
-                if key in data:
-                    return data[key]
-            return None
         else:
             # Unknown provider — skip
             return None
@@ -7324,14 +7282,10 @@ def interactive_menu():
                         continue
                     provider = prov_list[int(prov_input) - 1]
 
-                    # Name input — empty to cancel
-                    name_in = input(f"{Fore.CYAN}{t('ui.apiEnterName')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not name_in:
-                        _api_msg = ""
-                        continue
+                    # Default name follows selected provider (no manual prompt)
+                    name_in = provider
 
                     token_in = ""
-                    endpoint_in = ""
                     _cancelled = False
 
                     if provider == "google":
@@ -7342,23 +7296,9 @@ def interactive_menu():
                         if not token_in:
                             _api_msg = ""
                             _cancelled = True
-                    elif provider == "custom":
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Custom API: POST endpoint receiving JSON {{q, source, target}}{Style.RESET_ALL}")
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Response must contain one of: translatedText / translation / text / result / output{Style.RESET_ALL}")
-                        endpoint_in = input(f"{Fore.CYAN}  Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
-                            _api_msg = ""
-                            _cancelled = True
-                        else:
-                            token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                            if not token_in:
-                                _api_msg = ""
-                                _cancelled = True
-                            else:
-                                token_in = f"{token_in}|{endpoint_in}"
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not token_in:
+                        if not token_in and provider not in OPTIONAL_TOKEN_PROVIDERS:
                             _api_msg = ""
                             _cancelled = True
 
@@ -7379,7 +7319,7 @@ def interactive_menu():
                                 continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
-                    add_api(name_in, provider, token_in, limit=default_lim, account="", status="active")
+                    add_api(name_in, provider, token_in, limit=default_lim, status="active")
                     _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
 
 
@@ -7570,6 +7510,9 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     ai_prov_list = list(SUPPORTED_AI_PROVIDERS.keys())
+                    if not ai_prov_list:
+                        _ai_msg = Fore.YELLOW + "No supported AI providers available in this build." + Style.RESET_ALL
+                        continue
                     for pi, pk in enumerate(ai_prov_list, 1):
                         desc = t(f'ui.ai_provider_{pk}')
                         print(f"  [{pi}] {pk:<12} — {desc}")
