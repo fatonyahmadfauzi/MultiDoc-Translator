@@ -508,6 +508,8 @@ Examples:
         "ui.apiCancelHint": "(empty to cancel)",
         "ui.apiTableName": "Name",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Response",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Providers:",
         "ui.apiCancel": "Cancel",
@@ -868,6 +870,8 @@ Contoh:
         "ui.apiCancelHint": "(kosongkan untuk batal)",
         "ui.apiTableName": "Nama",
         "ui.apiTableProvider": "Provider",
+        "ui.apiTableResponse": "Respon",
+        "ui.apiTableAuth": "Auth",
         "ui.apiTableStatus": "Status",
         "ui.apiProviders": "Provider:",
         "ui.apiCancel": "Batal",
@@ -5099,36 +5103,43 @@ def save_api_config(config: dict):
 
 
 def format_api_display_name(entry: dict) -> str:
-    """Display-friendly API name with mode/credential hint."""
+    """Display-friendly API name without embedding credentials."""
+    provider = (entry.get("provider") or "").lower()
+    return entry.get("name") or provider or "unknown"
+
+
+def format_api_auth(entry: dict) -> str:
+    """Auth column formatter with masked values."""
     provider = (entry.get("provider") or "").lower()
     token = (entry.get("token") or "").strip()
-    if provider == "google":
-        return "google (free)"
-    if provider == "googlecloud":
-        return f"googlecloud (key:{token})" if token else "googlecloud"
-    if provider == "mymemory":
-        if not token:
-            return "mymemory (free)"
-        if token.lower().startswith("email:"):
-            return f"mymemory ({token})"
-        if token.lower().startswith("key:"):
-            return f"mymemory ({token})"
-    if provider == "deepl":
-        if token.startswith("free:"):
-            return f"deepl (free - key:{token.split(':', 1)[1]})"
-        if token.startswith("pro:"):
-            return f"deepl (pro - key:{token.split(':', 1)[1]})"
-    if provider == "libretranslate":
-        if token.startswith("public:"):
-            return f"libretranslate (public server - key:{token.split(':', 1)[1]})"
-        if token.startswith("self:"):
-            return f"libretranslate (self-host - endpoint:{token.split(':', 1)[1]})"
-        if token.startswith("selfkey:"):
-            rest = token.split(":", 1)[1]
-            if "|" in rest:
-                key, endpoint = rest.split("|", 1)
-                return f"libretranslate (self-host - endpoint:{endpoint} key:{key})"
-    return entry.get("name", provider)
+
+    def _mask(raw: str) -> str:
+        value = (raw or "").strip()
+        if not value:
+            return "none"
+        return value[:6] + "••••••"
+
+    if not token:
+        return "free" if provider in OPTIONAL_TOKEN_PROVIDERS or provider == "google" else "none"
+    if token.lower().startswith("email:"):
+        email = token.split(":", 1)[1].strip()
+        return _mask(email)
+    if ":" in token:
+        _, _, value = token.partition(":")
+        return _mask(value)
+    return _mask(token)
+
+
+def format_api_response_status(test_status: str) -> str:
+    """Friendly response status label for API settings table."""
+    ts = (test_status or "").strip().lower()
+    if ts == "200":
+        return "200 (OK)"
+    if ts in {"n/a", ""}:
+        return "n/a"
+    if ts in {"false", "0"}:
+        return "false (Fail)"
+    return test_status
 
 
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
@@ -7395,13 +7406,18 @@ def interactive_menu():
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
                     name_col_w = 36
-                    provider_col_w = 22
+                    provider_col_w = 16
+                    response_col_w = 12
+                    status_col_w = 10
+                    auth_col_w = 24
                     h_idx = cjk_ljust('#', 4)
                     h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
-                    h_stat = t('ui.apiTableStatus')
-                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 72)
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
+                    h_stat = cjk_ljust(t('ui.apiTableStatus'), status_col_w)
+                    h_auth = t('ui.apiTableAuth')
+                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
+                    print("─" * 112)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7419,12 +7435,14 @@ def interactive_menu():
 
                         v_idx = cjk_ljust(idx, 4)
                         v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
-                        test_status = (entry.get('test_status') or "").strip()
-                        prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
-                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
+                        v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
+                        v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
+                        v_stat = cjk_ljust(st, status_col_w)
+                        v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_name} {v_prov} "
-                              f"{st_color}{st}{Style.RESET_ALL}")
+                              f"{v_name} {v_prov} {v_resp} "
+                              f"{st_color}{v_stat}{Style.RESET_ALL} "
+                              f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL}")
                     print()
                     print(f"{Fore.CYAN}{t('ui.apiActiveCount', count=active_n, total=len(apis))}{Style.RESET_ALL}")
                     if active_n == 0:
@@ -8304,4 +8322,3 @@ def _instrument_all_functions_for_debug():
 if __name__ == "__main__":
     _instrument_all_functions_for_debug()
     main()
-
