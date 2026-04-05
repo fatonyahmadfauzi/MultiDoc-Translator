@@ -4574,6 +4574,19 @@ def cjk_ljust(text, width):
     return text_str + (' ' * pad_len)
 
 
+def cjk_truncate(text, max_width):
+    """Truncate text by terminal display width and append ellipsis when needed."""
+    text_str = str(text)
+    if wcswidth(text_str) <= max_width:
+        return text_str
+    out = ""
+    for ch in text_str:
+        if wcswidth(out + ch + "…") > max_width:
+            break
+        out += ch
+    return out + "…"
+
+
 def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
     """Create a simple text-based table showing translation status"""
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
@@ -7404,12 +7417,14 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
+                    name_col_w = 36
+                    provider_col_w = 22
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
-                    h_prov = cjk_ljust(t('ui.apiTableProvider'), 24)
+                    h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
                     h_stat = t('ui.apiTableStatus')
                     print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 78)
+                    print("─" * 72)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7426,10 +7441,10 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(format_api_display_name(entry), 34)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
                         test_status = (entry.get('test_status') or "").strip()
                         prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
-                        v_prov = cjk_ljust(prov_with_status, 24)
+                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_name} {v_prov} "
                               f"{st_color}{st}{Style.RESET_ALL}")
