@@ -5375,38 +5375,6 @@ def refresh_api_health_status():
         save_api_config(config)
 
 
-def refresh_api_health_status():
-    """
-    Realtime-ish health refresh for saved APIs:
-    - test active providers with a lightweight translation probe
-    - set test_status to '200' on success, 'false' on failure
-    - auto-disable provider when health check fails
-    """
-    config = load_api_config()
-    changed = False
-    for entry in config.get("apis", []):
-        curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
-        if curr_status != "active":
-            continue
-        provider = entry.get("provider", "")
-        token = entry.get("token", "")
-        probe = _translate_with_provider("hello", "fr", provider, token)
-        if probe:
-            if entry.get("test_status") != "200":
-                entry["test_status"] = "200"
-                changed = True
-        else:
-            if entry.get("test_status") != "false":
-                entry["test_status"] = "false"
-                changed = True
-            if entry.get("status") != "inactive" or entry.get("active", True):
-                entry["status"] = "inactive"
-                entry["active"] = False
-                changed = True
-    if changed:
-        save_api_config(config)
-
-
 # ---------------------- AI MANAGEMENT SYSTEM ----------------------
 
 # AI config file path
@@ -5526,8 +5494,41 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         if provider == "google":
             return GoogleTranslator(source="auto", target=dest).translate(text)
         elif provider == "deepl":
-            from deep_translator import DeeplTranslator
-            return DeeplTranslator(api_key=token, source="auto", target=dest).translate(text)
+            # DeepL direct API with endpoint mode:
+            # free:<API_KEY> -> https://api-free.deepl.com/v2/translate
+            # pro:<API_KEY>  -> https://api.deepl.com/v2/translate
+            mode = "free"
+            real_key = token.strip()
+            if token.startswith("free:"):
+                mode = "free"
+                real_key = token.split(":", 1)[1].strip()
+            elif token.startswith("pro:"):
+                mode = "pro"
+                real_key = token.split(":", 1)[1].strip()
+
+            if not real_key:
+                return None
+
+            endpoint = "https://api-free.deepl.com/v2/translate" if mode == "free" else "https://api.deepl.com/v2/translate"
+            payload = json.dumps({
+                "text": [text],
+                "target_lang": dest.upper(),
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={
+                    "Authorization": f"DeepL-Auth-Key {real_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            translations = data.get("translations") or []
+            if not translations:
+                return None
+            return translations[0].get("text")
         elif provider == "mymemory":
             # MyMemory direct API:
             # - free: .../get?q=...&langpair=en|id
@@ -7490,6 +7491,26 @@ def interactive_menu():
 
                     if provider == "google":
                         pass  # No token needed
+                    elif provider == "deepl":
+                        print(f"{Fore.WHITE}  DeepL endpoint mode:{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [1] Free  — https://api-free.deepl.com/v2/translate{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Pro   — https://api.deepl.com/v2/translate{Style.RESET_ALL}")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        deepl_mode = input(f"{Fore.CYAN}  Select mode (1-2, 0=cancel): {Fore.WHITE}").strip()
+                        if deepl_mode in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif deepl_mode not in ("1", "2"):
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                            _cancelled = True
+                        else:
+                            deepl_key = input(f"{Fore.CYAN}  Enter DeepL API key: {Fore.WHITE}").strip()
+                            if not deepl_key:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                deepl_prefix = "free" if deepl_mode == "1" else "pro"
+                                token_in = f"{deepl_prefix}:{deepl_key}"
                     elif provider == "papago":
                         print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Papago token format: client_id:secret_key{Style.RESET_ALL}")
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
