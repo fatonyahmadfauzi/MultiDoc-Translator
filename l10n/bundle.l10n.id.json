@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Bahasa ekstensi berubah ke {0}",
   "ui.languageCancelHint": "Pilih bahasa untuk mengubah tampilan UI ekstensi",
   "ui.languageSectionTitle": "Bahasa Ekstensi",
-  "ui.languageSectionDesc": "Ubah bahasa tampilan UI ekstensi ini"
+  "ui.languageSectionDesc": "Ubah bahasa tampilan UI ekstensi ini",
+
+  "ui.aiAdd": "➕ Tambah AI",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "Konfigurasikan penyedia AI untuk terjemahan yang ditingkatkan. Diidentifikasi berdasarkan penyedia + model.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "Pilih penyedia AI",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Masukkan URL dasar (diperlukan untuk penyedia kustom)",
+  "ui.aiSelectModel": "Pilih model",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 Pengaturan AI",
+  "ui.aiProvider": "Penyedia",
+  "ui.aiEnterToken": "Masukkan kunci API / token",
+  "ui.aiStatus": "Status",
+  "ui.aiNoEntries": "(Tidak ada AI terkonfigurasi)",
+  "ui.aiModel": "Model"
 }

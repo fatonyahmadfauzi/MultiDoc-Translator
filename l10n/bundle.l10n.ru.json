@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Язык расширения изменен на {0}",
   "ui.languageCancelHint": "Выберите язык для изменения языка UI расширения",
   "ui.languageSectionTitle": "Язык расширения",
-  "ui.languageSectionDesc": "Изменить язык отображения UI этого расширения"
+  "ui.languageSectionDesc": "Изменить язык отображения UI этого расширения",
+
+  "ui.aiAdd": "➕ Добавить ИИ",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "Настройте провайдеров ИИ для улучшенного перевода. Идентифицируется по провайдеру + модели.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "Выберите провайдера ИИ",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Введите базовый URL (обязателен для пользовательского провайдера)",
+  "ui.aiSelectModel": "Выберите модель",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 Настройки ИИ",
+  "ui.aiProvider": "Провайдер",
+  "ui.aiEnterToken": "Введите ключ API / токен",
+  "ui.aiStatus": "Статус",
+  "ui.aiNoEntries": "(ИИ не настроен)",
+  "ui.aiModel": "Модель"
 }

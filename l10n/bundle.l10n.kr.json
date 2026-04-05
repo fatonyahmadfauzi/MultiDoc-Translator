@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ 확장 언어가 {0}(으)로 변경되었습니다",
   "ui.languageCancelHint": "확장 UI 언어를 변경하려면 언어를 선택하세요",
   "ui.languageSectionTitle": "확장 언어",
-  "ui.languageSectionDesc": "이 확장 UI의 표시 언어 변경"
+  "ui.languageSectionDesc": "이 확장 UI의 표시 언어 변경",
+
+  "ui.aiAdd": "➕ AI 추가",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "향상된 번역을 위한 AI 공급자를 구성합니다. 공급자 + 모델로 식별됩니다.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "AI 공급자 선택",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "기본 URL 입력 (사용자 정의 공급자에 필요)",
+  "ui.aiSelectModel": "모델 선택",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "인증",
+  "ui.aiSettingsTitle": "🤖 AI 설정",
+  "ui.aiProvider": "공급자",
+  "ui.aiEnterToken": "API 키 / 토큰 입력",
+  "ui.aiStatus": "상태",
+  "ui.aiNoEntries": "(AI 미설정)",
+  "ui.aiModel": "모델"
 }

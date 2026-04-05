@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { LANGUAGES, getL10n } from './l10n'; // ✅ Impor getL10n juga
+import { getActiveAIs, AIEntry } from './ai-settings';
 
 // Constants
 export const SOURCE_FILE = "README.md";
@@ -135,6 +136,117 @@ export async function translateWithGoogle(text: string, to: string, retries: num
     }
     
     return text;
+}
+
+// 🤖 AI Translation with Google fallback
+// Uses enabled AI entries; falls back to Google Translate on any failure.
+export async function translateWithAIFallback(
+    text: string,
+    to: string,
+    extensionPath: string,
+    retries: number = 2
+): Promise<string> {
+    if (!text.trim()) {
+        return text;
+    }
+
+    const activeAIs = getActiveAIs(extensionPath);
+
+    // If no AI configured, fall straight through to Google
+    if (activeAIs.length === 0) {
+        return translateWithGoogle(text, to, retries);
+    }
+
+    // Try each active AI in order
+    for (const ai of activeAIs) {
+        try {
+            const result = await translateWithSingleAI(text, to, ai);
+            if (result && result !== text) {
+                return result;
+            }
+        } catch (error) {
+            Logger.warn(`AI translation failed for ${ai.provider}/${ai.model}, trying next...`);
+        }
+    }
+
+    // All AI attempts failed — fall back to Google
+    Logger.warn('All AI providers failed. Falling back to Google Translate.');
+    return translateWithGoogle(text, to, retries);
+}
+
+/** Translate using a single AI entry's API. Throws on hard failures. */
+async function translateWithSingleAI(text: string, to: string, ai: AIEntry): Promise<string> {
+    const prompt = `Translate the following text to the language with ISO code "${to}". Return ONLY the translated text, no explanation, no quotes.\n\nText:\n${text}`;
+
+    switch (ai.provider.toLowerCase()) {
+        case 'openai':
+            return await callOpenAI(ai.token, ai.model, prompt, ai.base_url);
+        case 'anthropic':
+            return await callAnthropic(ai.token, ai.model, prompt);
+        case 'google':
+            return await callGoogleAI(ai.token, ai.model, prompt);
+        case 'mistral':
+            return await callOpenAI(ai.token, ai.model, prompt, 'https://api.mistral.ai/v1');
+        case 'custom':
+            if (!ai.base_url) { throw new Error('Custom AI requires base_url'); }
+            return await callOpenAI(ai.token, ai.model, prompt, ai.base_url);
+        default:
+            throw new Error(`Unknown AI provider: ${ai.provider}`);
+    }
+}
+
+async function callOpenAI(token: string, model: string, prompt: string, baseUrl?: string | null): Promise<string> {
+    const url = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 2048,
+            temperature: 0.2
+        })
+    });
+    if (!res.ok) { throw new Error(`OpenAI HTTP ${res.status}`); }
+    const data: any = await res.json();
+    return (data.choices?.[0]?.message?.content || '').trim();
+}
+
+async function callAnthropic(token: string, model: string, prompt: string): Promise<string> {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': token,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model,
+            max_tokens: 2048,
+            messages: [{ role: 'user', content: prompt }]
+        })
+    });
+    if (!res.ok) { throw new Error(`Anthropic HTTP ${res.status}`); }
+    const data: any = await res.json();
+    return (data.content?.[0]?.text || '').trim();
+}
+
+async function callGoogleAI(token: string, model: string, prompt: string): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${token}`;
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.2 }
+        })
+    });
+    if (!res.ok) { throw new Error(`Google AI HTTP ${res.status}`); }
+    const data: any = await res.json();
+    return (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
 }
 
 // 🛡️ Protection Management Functions

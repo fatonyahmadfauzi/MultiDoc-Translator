@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ 扩展语言已更改为 {0}",
   "ui.languageCancelHint": "选择一种语言以更改扩展 UI 语言",
   "ui.languageSectionTitle": "扩展语言",
-  "ui.languageSectionDesc": "更改此扩展 UI 的显示语言"
+  "ui.languageSectionDesc": "更改此扩展 UI 的显示语言",
+
+  "ui.aiAdd": "➕ 添加 AI",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "配置 AI 提供商以增强翻译效果。通过提供商 + 模型进行标识。",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "选择 AI 提供商",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "输入基础 URL（自定义提供商必填）",
+  "ui.aiSelectModel": "选择模型",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "认证",
+  "ui.aiSettingsTitle": "🤖 AI 设置",
+  "ui.aiProvider": "提供商",
+  "ui.aiEnterToken": "输入 API 密钥 / 令牌",
+  "ui.aiStatus": "状态",
+  "ui.aiNoEntries": "（未配置 AI）",
+  "ui.aiModel": "模型"
 }

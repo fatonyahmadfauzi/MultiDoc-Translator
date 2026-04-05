@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Extension language changed to {0}",
   "ui.languageCancelHint": "Select a language to change the extension UI language",
   "ui.languageSectionTitle": "Extension Language",
-  "ui.languageSectionDesc": "Change the display language of this extension UI"
-}
+  "ui.languageSectionDesc": "Change the display language of this extension UI",
+
+  "ui.aiSettingsTitle": "🤖 AI Settings",
+  "ui.aiSettingsDesc": "Configure AI providers for enhanced translation. Identified by provider + model.",
+  "ui.aiProvider": "Provider",
+  "ui.aiModel": "Model",
+  "ui.aiStatus": "Status",
+  "ui.aiAuth": "Auth",
+  "ui.aiAdd": "➕ Add AI",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiNoEntries": "(No AI configured)",
+  "ui.aiSelectProvider": "Select AI provider",
+  "ui.aiEnterToken": "Enter API key / token",
+  "ui.aiSelectModel": "Select model",
+  "ui.aiBaseUrl": "Enter base URL (required for custom provider)",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]"
+}

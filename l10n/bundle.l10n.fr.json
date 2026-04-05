@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Langue de l'extension changée vers {0}",
   "ui.languageCancelHint": "Sélectionnez une langue pour changer la langue de l'UI de l'extension",
   "ui.languageSectionTitle": "Langue de l'extension",
-  "ui.languageSectionDesc": "Changer la langue d'affichage de cette UI d'extension"
+  "ui.languageSectionDesc": "Changer la langue d'affichage de cette UI d'extension",
+
+  "ui.aiAdd": "➕ Ajouter une IA",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "Configurer les fournisseurs IA pour une traduction améliorée. Identifié par fournisseur + modèle.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "Sélectionner le fournisseur IA",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Saisir l'URL de base (requis pour le fournisseur personnalisé)",
+  "ui.aiSelectModel": "Sélectionner le modèle",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 Paramètres IA",
+  "ui.aiProvider": "Fournisseur",
+  "ui.aiEnterToken": "Saisir la clé API / token",
+  "ui.aiStatus": "Statut",
+  "ui.aiNoEntries": "(Aucune IA configurée)",
+  "ui.aiModel": "Modèle"
 }

@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Idioma da extensão alterado para {0}",
   "ui.languageCancelHint": "Selecione um idioma para alterar o idioma da UI da extensão",
   "ui.languageSectionTitle": "Idioma da extensão",
-  "ui.languageSectionDesc": "Alterar o idioma de exibição da UI desta extensão"
+  "ui.languageSectionDesc": "Alterar o idioma de exibição da UI desta extensão",
+
+  "ui.aiAdd": "➕ Adicionar IA",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "Configure provedores de IA para tradução aprimorada. Identificado por provedor + modelo.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "Selecionar provedor de IA",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Inserir URL base (obrigatório para provedor personalizado)",
+  "ui.aiSelectModel": "Selecionar modelo",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 Configurações de IA",
+  "ui.aiProvider": "Provedor",
+  "ui.aiEnterToken": "Inserir chave de API / token",
+  "ui.aiStatus": "Status",
+  "ui.aiNoEntries": "(Nenhuma IA configurada)",
+  "ui.aiModel": "Modelo"
 }

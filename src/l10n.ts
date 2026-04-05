@@ -191,7 +191,27 @@ const FALLBACK_TRANSLATIONS: L10nBundle = {
     "ui.languageChanged": "✅ Extension language changed to {0}",
     "ui.languageCancelHint": "Select a language to change the extension UI language",
     "ui.languageSectionTitle": "Extension Language",
-    "ui.languageSectionDesc": "Change the display language of this extension UI"
+    "ui.languageSectionDesc": "Change the display language of this extension UI",
+
+    // AI Settings (identified by provider + model, no name)
+    "ui.aiSettingsTitle": "🤖 AI Settings",
+    "ui.aiSettingsDesc": "Configure AI providers for enhanced translation. Identified by provider + model.",
+    "ui.aiProvider": "Provider",
+    "ui.aiModel": "Model",
+    "ui.aiStatus": "Status",
+    "ui.aiAuth": "Auth",
+    "ui.aiAdd": "➕ Add AI",
+    "ui.aiEnabled": "✅ Enabled",
+    "ui.aiDisabled": "❌ Disabled",
+    "ui.aiNoEntries": "(No AI configured)",
+    "ui.aiSelectProvider": "Select AI provider",
+    "ui.aiEnterToken": "Enter API key / token",
+    "ui.aiSelectModel": "Select model",
+    "ui.aiBaseUrl": "Enter base URL (required for custom provider)",
+    "ui.aiAdded": "✅ AI added: {0} / {1}",
+    "ui.aiUpdated": "✅ AI token updated: {0} / {1}",
+    "ui.aiDeleted": "🗑️ AI removed: {0} / {1}",
+    "ui.aiDeleteConfirm": "Remove AI entry: {0} / {1}?"
 };
 
 export class L10nManager {

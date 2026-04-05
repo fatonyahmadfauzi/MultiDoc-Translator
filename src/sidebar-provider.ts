@@ -25,6 +25,20 @@ import {
     updateChangelogLinksInReadme
 } from './translation-core';
 import { getL10n, initL10n, LANGUAGES } from './l10n';
+import {
+    loadAIConfig,
+    saveAIConfig,
+    addAIEntry,
+    toggleAIEntry,
+    deleteAIEntry,
+    updateAIEntryToken,
+    getActiveAIs,
+    maskToken,
+    getAILabel,
+    AI_PROVIDERS,
+    AI_MODELS_BY_PROVIDER,
+    AIEntry
+} from './ai-settings';
 
 export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
     public readonly output: vscode.OutputChannel;
@@ -139,6 +153,22 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                         break;
                     case 'changeLanguage':
                         await this.changeLanguage();
+                        break;
+                    // ✅ AI Settings commands
+                    case 'getAIList':
+                        this.sendAIListToWebview();
+                        break;
+                    case 'addAI':
+                        await this.addAIEntry();
+                        break;
+                    case 'toggleAI':
+                        await this.toggleAIEntry(msg.id);
+                        break;
+                    case 'deleteAI':
+                        await this.deleteAIEntry(msg.id);
+                        break;
+                    case 'editAIToken':
+                        await this.editAIToken(msg.id);
                         break;
                 }
             } catch (error) {
@@ -539,6 +569,24 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 ${t('actions.generate')}
             </button>
 
+            </div>
+
+            <!-- AI SETTINGS SECTION -->
+            <div class="section">
+                <div class="section-title">${t('ui.aiSettingsTitle')}</div>
+                <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-bottom: 10px;">
+                    ${t('ui.aiSettingsDesc')}
+                </div>
+                <div id="ai-table-container">
+                    <div style="font-size: 12px; color: var(--vscode-descriptionForeground); text-align: center; padding: 8px;">
+                        ${t('ui.aiNoEntries')}
+                    </div>
+                </div>
+                <button class="button" style="margin-top: 10px;" onclick="vscodePostMessage('addAI')">
+                    ${t('ui.aiAdd')}
+                </button>
+            </div>
+
             <!-- LANGUAGE SWITCHER -->
             <div class="section">
                 <div class="section-title">${t('ui.languageSectionTitle')}</div>
@@ -660,7 +708,62 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 // Minta terjemahan saat pertama kali load
                 document.addEventListener('DOMContentLoaded', function() {
                     vscodePostMessage('getTranslations');
+                    vscode.postMessage({ command: 'getAIList' });
                     updateButtonStates();
+                });
+
+                // AI functions
+                function toggleAI(id) {
+                    vscode.postMessage({ command: 'toggleAI', id: id });
+                }
+                function deleteAI(id) {
+                    vscode.postMessage({ command: 'deleteAI', id: id });
+                }
+                function editAIToken(id) {
+                    vscode.postMessage({ command: 'editAIToken', id: id });
+                }
+
+                function renderAITable(ais) {
+                    const container = document.getElementById('ai-table-container');
+                    if (!container) { return; }
+                    if (!ais || ais.length === 0) {
+                        container.innerHTML = '<div style="font-size:12px;color:var(--vscode-descriptionForeground);text-align:center;padding:8px;">(No AI configured)</div>';
+                        return;
+                    }
+                    let html = '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+                    html += '<thead><tr style="border-bottom:1px solid var(--vscode-panel-border);">';
+                    html += '<th style="text-align:left;padding:4px 6px;">Provider</th>';
+                    html += '<th style="text-align:left;padding:4px 6px;">Model</th>';
+                    html += '<th style="text-align:center;padding:4px 6px;">Status</th>';
+                    html += '<th style="text-align:left;padding:4px 6px;">Auth</th>';
+                    html += '<th style="padding:4px 2px;"></th>';
+                    html += '</tr></thead><tbody>';
+                    for (const ai of ais) {
+                        const statusBadge = ai.enabled
+                            ? '<span style="color:var(--vscode-testing-iconPassed);">✅</span>'
+                            : '<span style="color:var(--vscode-inputValidation-errorForeground);">○</span>';
+                        const opacity = ai.enabled ? '1' : '0.6';
+                        html += '<tr style="border-bottom:1px solid var(--vscode-panel-border);opacity:' + opacity + '">';
+                        html += '<td style="padding:4px 6px;">' + ai.provider + '</td>';
+                        html += '<td style="padding:4px 6px;">' + ai.model + '</td>';
+                        html += '<td style="text-align:center;padding:4px 6px;">' + statusBadge + '</td>';
+                        html += '<td style="padding:4px 6px;font-family:monospace;">' + ai.maskedToken + '</td>';
+                        html += '<td style="padding:4px 2px;white-space:nowrap;">';
+                        html += '<button class="button" style="padding:2px 6px;font-size:10px;margin:1px;" onclick="toggleAI(\'' + ai.id + '\')">' + (ai.enabled ? '⏸' : '▶') + '</button>';
+                        html += '<button class="button" style="padding:2px 6px;font-size:10px;margin:1px;" onclick="editAIToken(\'' + ai.id + '\')">🔑</button>';
+                        html += '<button class="button remove" style="padding:2px 6px;font-size:10px;margin:1px;" onclick="deleteAI(\'' + ai.id + '\')">🗑</button>';
+                        html += '</td></tr>';
+                    }
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                }
+
+                // Listen for AI list updates
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    if (message.command === 'updateAIList') {
+                        renderAITable(message.ais);
+                    }
                 });
             </script>
         </body>
@@ -1523,5 +1626,150 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
                 { modal: true }
             );
         }
+    }
+
+    // ──────────────────────────────────────────
+    // AI Settings handlers
+    // ──────────────────────────────────────────
+
+    /** Send the current AI list to the webview. */
+    private sendAIListToWebview(): void {
+        if (!this._view) { return; }
+        const extensionPath = this._context.extensionPath;
+        const config = loadAIConfig(extensionPath);
+        const aisForView = config.ais.map(ai => ({
+            id: ai.id,
+            provider: ai.provider,
+            model: ai.model,
+            maskedToken: maskToken(ai.token),
+            base_url: ai.base_url || null,
+            enabled: ai.enabled
+        }));
+        this._view.webview.postMessage({
+            command: 'updateAIList',
+            ais: aisForView
+        });
+    }
+
+    /** Interactive flow: select provider → enter token → select model → base_url (custom) → enable. */
+    async addAIEntry(): Promise<void> {
+        const t = this.l10n.t.bind(this.l10n);
+        const extensionPath = this._context.extensionPath;
+
+        // Step 1: Select provider
+        const providerItems = AI_PROVIDERS.map(p => ({ label: p }));
+        const providerPick = await vscode.window.showQuickPick(providerItems, {
+            title: t('ui.aiSelectProvider'),
+            placeHolder: t('ui.aiSelectProvider')
+        });
+        if (!providerPick) { return; }
+        const provider = providerPick.label;
+
+        // Step 2: Enter API key / token
+        const token = await vscode.window.showInputBox({
+            title: t('ui.aiEnterToken'),
+            prompt: t('ui.aiEnterToken'),
+            password: true,
+            placeHolder: provider === 'anthropic' ? 'sk-ant-...' : provider === 'openai' ? 'sk-...' : 'API key'
+        });
+        if (token === undefined) { return; } // cancelled
+
+        // Step 3: Select model
+        const models = AI_MODELS_BY_PROVIDER[provider] || [];
+        let model = '';
+        if (provider === 'custom' || models.length === 0) {
+            const customModel = await vscode.window.showInputBox({
+                title: t('ui.aiSelectModel'),
+                prompt: t('ui.aiSelectModel'),
+                placeHolder: 'e.g. llama-3-70b'
+            });
+            if (customModel === undefined) { return; }
+            model = customModel.trim() || 'custom';
+        } else {
+            const modelPick = await vscode.window.showQuickPick(models.map(m => ({ label: m })), {
+                title: t('ui.aiSelectModel'),
+                placeHolder: t('ui.aiSelectModel')
+            });
+            if (!modelPick) { return; }
+            model = modelPick.label;
+        }
+
+        // Step 4: base_url (only for custom provider)
+        let base_url: string | null = null;
+        if (provider === 'custom') {
+            const urlInput = await vscode.window.showInputBox({
+                title: t('ui.aiBaseUrl'),
+                prompt: t('ui.aiBaseUrl'),
+                placeHolder: 'https://your-api-endpoint.com/v1'
+            });
+            if (urlInput === undefined) { return; }
+            base_url = urlInput.trim() || null;
+        }
+
+        // Step 5: Enable?
+        const enablePick = await vscode.window.showQuickPick(
+            [
+                { label: t('ui.aiEnabled'), value: true },
+                { label: t('ui.aiDisabled'), value: false }
+            ],
+            { title: t('ui.aiStatus'), placeHolder: t('ui.aiStatus') }
+        );
+        if (!enablePick) { return; }
+        const enabled = enablePick.value;
+
+        addAIEntry(extensionPath, provider, model, token, base_url, enabled);
+        vscode.window.showInformationMessage(t('ui.aiAdded', provider, model));
+        this.sendAIListToWebview();
+    }
+
+    /** Toggle enabled flag for an AI entry. */
+    async toggleAIEntry(id: string): Promise<void> {
+        const extensionPath = this._context.extensionPath;
+        toggleAIEntry(extensionPath, id);
+        this.sendAIListToWebview();
+    }
+
+    /** Confirm and delete an AI entry. */
+    async deleteAIEntry(id: string): Promise<void> {
+        const t = this.l10n.t.bind(this.l10n);
+        const extensionPath = this._context.extensionPath;
+
+        const config = loadAIConfig(extensionPath);
+        const entry = config.ais.find(a => a.id === id);
+        if (!entry) { return; }
+
+        const confirm = await vscode.window.showWarningMessage(
+            t('ui.aiDeleteConfirm', entry.provider, entry.model),
+            { modal: true },
+            t('actions.yesRemove'),
+            t('actions.cancel')
+        );
+        if (confirm !== t('actions.yesRemove')) { return; }
+
+        deleteAIEntry(extensionPath, id);
+        vscode.window.showInformationMessage(t('ui.aiDeleted', entry.provider, entry.model));
+        this.sendAIListToWebview();
+    }
+
+    /** Update the API token for an AI entry. */
+    async editAIToken(id: string): Promise<void> {
+        const t = this.l10n.t.bind(this.l10n);
+        const extensionPath = this._context.extensionPath;
+
+        const config = loadAIConfig(extensionPath);
+        const entry = config.ais.find(a => a.id === id);
+        if (!entry) { return; }
+
+        const newToken = await vscode.window.showInputBox({
+            title: t('ui.aiEnterToken'),
+            prompt: t('ui.aiEnterToken'),
+            password: true,
+            placeHolder: 'New API key / token'
+        });
+        if (newToken === undefined) { return; }
+
+        updateAIEntryToken(extensionPath, id, newToken);
+        vscode.window.showInformationMessage(t('ui.aiUpdated', entry.provider, entry.model));
+        this.sendAIListToWebview();
     }
 }

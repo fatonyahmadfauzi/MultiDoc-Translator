@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ 拡張機能の言語を {0} に変更しました",
   "ui.languageCancelHint": "拡張機能UIの言語を変更するには言語を選択してください",
   "ui.languageSectionTitle": "拡張機能の言語",
-  "ui.languageSectionDesc": "この拡張機能UIの表示言語を変更"
+  "ui.languageSectionDesc": "この拡張機能UIの表示言語を変更",
+
+  "ui.aiAdd": "➕ AI追加",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "翻訳向上のためのAIプロバイダーを設定します。プロバイダー＋モデルで識別されます。",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "AIプロバイダーを選択",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "ベースURLを入力（カスタムプロバイダーに必要）",
+  "ui.aiSelectModel": "モデルを選択",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "認証",
+  "ui.aiSettingsTitle": "🤖 AI設定",
+  "ui.aiProvider": "プロバイダー",
+  "ui.aiEnterToken": "APIキー / トークンを入力",
+  "ui.aiStatus": "ステータス",
+  "ui.aiNoEntries": "（AI未設定）",
+  "ui.aiModel": "モデル"
 }

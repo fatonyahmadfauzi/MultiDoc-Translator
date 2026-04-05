@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Język rozszerzenia zmieniony na {0}",
   "ui.languageCancelHint": "Wybierz język, aby zmienić język UI rozszerzenia",
   "ui.languageSectionTitle": "Język rozszerzenia",
-  "ui.languageSectionDesc": "Zmień język wyświetlania UI tego rozszerzenia"
+  "ui.languageSectionDesc": "Zmień język wyświetlania UI tego rozszerzenia",
+
+  "ui.aiAdd": "➕ Dodaj AI",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "Skonfiguruj dostawców AI dla lepszego tłumaczenia. Identyfikowane przez dostawcę + model.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "Wybierz dostawcę AI",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Wprowadź bazowy URL (wymagany dla niestandardowego dostawcy)",
+  "ui.aiSelectModel": "Wybierz model",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 Ustawienia AI",
+  "ui.aiProvider": "Dostawca",
+  "ui.aiEnterToken": "Wprowadź klucz API / token",
+  "ui.aiStatus": "Status",
+  "ui.aiNoEntries": "(Brak skonfigurowanego AI)",
+  "ui.aiModel": "Model"
 }

@@ -159,5 +159,24 @@
   "ui.languageChanged": "✅ Erweiterungssprache auf {0} geändert",
   "ui.languageCancelHint": "Wählen Sie eine Sprache, um die UI-Sprache der Erweiterung zu ändern",
   "ui.languageSectionTitle": "Erweiterungssprache",
-  "ui.languageSectionDesc": "Anzeigesprache dieser Erweiterungs-UI ändern"
+  "ui.languageSectionDesc": "Anzeigesprache dieser Erweiterungs-UI ändern",
+
+  "ui.aiAdd": "➕ KI hinzufügen",
+  "ui.aiUpdated": "✅ AI provider updated: {0} - {1}",
+  "ui.aiAdded": "✅ AI provider added: {0} - {1}",
+  "ui.aiDeleted": "🗑️ AI provider deleted: {0} - {1}",
+  "ui.aiSettingsDesc": "KI-Anbieter für verbesserte Übersetzung konfigurieren. Identifiziert durch Anbieter + Modell.",
+  "ui.aiDeleteConfirm": "Delete AI provider {0} - {1}? [y/N]",
+  "ui.aiSelectProvider": "KI-Anbieter auswählen",
+  "ui.aiDisabled": "🔴 AI disabled: {0} - {1}",
+  "ui.aiBaseUrl": "Basis-URL eingeben (erforderlich für benutzerdefinierten Anbieter)",
+  "ui.aiSelectModel": "Modell auswählen",
+  "ui.aiEnabled": "🟢 AI enabled: {0} - {1}",
+  "ui.aiAuth": "Auth",
+  "ui.aiSettingsTitle": "🤖 KI-Einstellungen",
+  "ui.aiProvider": "Anbieter",
+  "ui.aiEnterToken": "API-Schlüssel / Token eingeben",
+  "ui.aiStatus": "Status",
+  "ui.aiNoEntries": "(Keine KI konfiguriert)",
+  "ui.aiModel": "Modell"
 }
