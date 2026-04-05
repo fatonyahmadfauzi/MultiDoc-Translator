@@ -1664,13 +1664,20 @@ export class TranslateSidebarProvider implements vscode.WebviewViewProvider {
         });
         if (!providerPick) { return; }
         const provider = providerPick.label;
+        const tokenPlaceholderByProvider: Record<string, string> = {
+            anthropic: 'sk-ant-...',
+            openai: 'sk-...',
+            groq: 'gsk_...',
+            deepseek: 'sk-...',
+            openrouter: 'sk-or-...'
+        };
 
         // Step 2: Enter API key / token
         const token = await vscode.window.showInputBox({
             title: t('ui.aiEnterToken'),
             prompt: t('ui.aiEnterToken'),
             password: true,
-            placeHolder: provider === 'anthropic' ? 'sk-ant-...' : provider === 'openai' ? 'sk-...' : 'API key'
+            placeHolder: tokenPlaceholderByProvider[provider] || 'API key'
         });
         if (token === undefined) { return; } // cancelled
 

@@ -5442,6 +5442,9 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
+    "groq": "Groq (API key)",
+    "deepseek": "DeepSeek (API key)",
+    "openrouter": "OpenRouter (API key)",
     "openai": "OpenAI ChatGPT (API key)",
     "gemini": "Google Gemini (API key)",
     "claude": "Anthropic Claude (API key)",
@@ -5453,6 +5456,9 @@ SUPPORTED_AI_PROVIDERS = {
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
+    "groq": "Depends on plan / token usage",
+    "deepseek": "Depends on plan / token usage",
+    "openrouter": "Depends on model / quota",
     "openai": "Depends on plan / token usage",
     "gemini": "Depends on model / quota",
     "claude": "Depends on plan / token usage",
@@ -5464,6 +5470,17 @@ AI_PROVIDER_DEFAULT_LIMITS = {
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
+}
+
+AI_PROVIDER_PRIORITY = {
+    "groq": 1,
+    "deepseek": 2,
+    "openrouter": 3,
+    "openai": 4,
+    "claude": 5,
+    "mistral": 6,
+    "custom": 7,
+    "gemini": 8,
 }
 
 
@@ -5628,6 +5645,12 @@ def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
             if cand in models:
                 return cand, models
         return models[0], models
+    if provider == "groq":
+        return "llama3-70b-8192", []
+    if provider == "deepseek":
+        return "deepseek-chat", []
+    if provider == "openrouter":
+        return "deepseek/deepseek-chat", []
     if provider == "openai":
         return "gpt-4o-mini", []
     if provider == "anthropic":
@@ -5645,6 +5668,12 @@ def format_ai_endpoint(entry: dict) -> str:
     base_url = (entry.get("base_url") or "").strip()
     if base_url:
         return base_url
+    if provider == "groq":
+        return "https://api.groq.com/openai/v1/chat/completions"
+    if provider == "deepseek":
+        return "https://api.deepseek.com/chat/completions"
+    if provider == "openrouter":
+        return "https://openrouter.ai/api/v1/chat/completions"
     if provider == "openai":
         return "https://api.openai.com/v1/chat/completions"
     if provider == "anthropic":
@@ -5830,19 +5859,34 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     token = ai_entry.get("token", "")
     base_url = ai_entry.get("base_url")
 
-    prompt = f"Translate the following text to {dest}. Maintain all markdown formatting, code blocks, links, and HTML exactly. Return ONLY the translated text, do not add any conversational text or wrapper. Wait, just output the raw result:\n\n{text}"
+    prompt = (
+        f"Translate the following text to {dest}. "
+        "Maintain all markdown formatting, code blocks, links, tables, placeholders like <<<PH_0>>>, "
+        "indentation, and line breaks exactly. "
+        "Return ONLY the translated text, do not add any conversational text or wrapper.\n\n"
+        f"{text}"
+    )
 
     headers = {}
     payload = {}
     url = ""
     
     try:
-        if provider in ["openai", "custom", "mistral"]:
+        if provider in ["openai", "custom", "mistral", "groq", "deepseek", "openrouter"]:
             debug_print(f"{provider} request sent", log_type="API")
             url = base_url if base_url else "https://api.openai.com/v1/chat/completions"
             if provider == "mistral" and not base_url:
                 url = "https://api.mistral.ai/v1/chat/completions"
+            elif provider == "groq" and not base_url:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+            elif provider == "deepseek" and not base_url:
+                url = "https://api.deepseek.com/chat/completions"
+            elif provider == "openrouter" and not base_url:
+                url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            if provider == "openrouter":
+                headers["HTTP-Referer"] = "https://github.com/fatonyahmadfauzi/MultiDoc-Translator"
+                headers["X-Title"] = "MultiDoc Translator"
             payload = {
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
@@ -5901,7 +5945,10 @@ def translate_text(text: str, dest: str) -> str:
         return text
 
     # Try AI Fallback Chain
-    active_ais = get_active_ais()
+    active_ais = sorted(
+        get_active_ais(),
+        key=lambda e: AI_PROVIDER_PRIORITY.get((e.get("provider") or "").lower(), 99)
+    )
     for ai_entry in active_ais:
         try:
             result = _translate_with_ai(text, dest, ai_entry)
@@ -8274,8 +8321,8 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
-                    # Available providers (custom removed for compatibility consistency)
-                    provider_list = ["openai", "anthropic", "google", "mistral"]
+                    # Available providers for AI mode
+                    provider_list = ["groq", "deepseek", "openrouter", "openai", "anthropic", "google", "mistral", "custom"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
