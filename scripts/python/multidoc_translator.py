@@ -5256,7 +5256,7 @@ def save_api_config(config: dict):
         print(Fore.RED + f"❌ Failed to save API config: {e}" + Style.RESET_ALL)
 
 
-def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active") -> str:
+def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
     entry = {
@@ -5267,6 +5267,7 @@ def add_api(name: str, provider: str, token: str, limit: str = "", status: str =
         "limit": limit or PROVIDER_DEFAULT_LIMITS.get(provider.lower(), ""),
         "status": status,
         "active": status == "active",
+        "test_status": test_status,
     }
     config["apis"].append(entry)
     save_api_config(config)
@@ -7271,7 +7272,7 @@ def interactive_menu():
                 else:
                     h_idx = cjk_ljust('#', 4)
                     h_name = cjk_ljust(t('ui.apiTableName'), 20)
-                    h_prov = cjk_ljust(t('ui.apiTableProvider'), 16)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), 24)
                     h_stat = t('ui.apiTableStatus')
                     print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
                     print("─" * 56)
@@ -7292,7 +7293,9 @@ def interactive_menu():
 
                         v_idx = cjk_ljust(idx, 4)
                         v_name = cjk_ljust(entry['name'], 20)
-                        v_prov = cjk_ljust(entry['provider'], 16)
+                        test_status = (entry.get('test_status') or "").strip()
+                        prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
+                        v_prov = cjk_ljust(prov_with_status, 24)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_name} {v_prov} "
                               f"{st_color}{st}{Style.RESET_ALL}")
@@ -7353,6 +7356,7 @@ def interactive_menu():
 
                     token_in = ""
                     _cancelled = False
+                    test_status = "n/a"
 
                     if provider == "google":
                         pass  # No token needed
@@ -7379,10 +7383,12 @@ def interactive_menu():
                         if test_result:
                             print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
                             print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
+                            test_status = "200"
                         else:
                             if soft_test:
                                 print(Fore.YELLOW + "⚠️ API test status: FALSE (no response)" + Style.RESET_ALL)
                                 print(Fore.YELLOW + "⚠️ API test did not return a result without token. Saving anyway (optional-token provider)." + Style.RESET_ALL)
+                                test_status = "false"
                             else:
                                 print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
                                 print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
@@ -7390,9 +7396,10 @@ def interactive_menu():
                                 if confirm_save != 'y':
                                     _api_msg = ""
                                     continue
+                                test_status = "false"
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
-                    add_api(name_in, provider, token_in, limit=default_lim, status="active")
+                    add_api(name_in, provider, token_in, limit=default_lim, status="active", test_status=test_status)
                     _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
 
 
