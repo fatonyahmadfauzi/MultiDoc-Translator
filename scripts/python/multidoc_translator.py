@@ -5233,7 +5233,6 @@ SUPPORTED_PROVIDERS = {
     "deepl":          "DeepL (Free/Pro — token required)",
     "mymemory":       "MyMemory (Free with optional token for higher quota)",
     "libretranslate": "LibreTranslate (Free self-hosted / public servers)",
-    "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
 }
 
 # Providers where API token is optional (can still work without token)
@@ -5246,7 +5245,6 @@ PROVIDER_DEFAULT_LIMITS = {
     "deepl":          "500k chars/month",
     "mymemory":       "1k req/day",
     "libretranslate": "Varies",
-    "papago":         "10k chars/day",
 }
 
 
@@ -5684,16 +5682,6 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             translated = data.get("translatedText")
             return translated if translated else None
-        elif provider == "papago":
-            # token format = "client_id:secret_key"
-            from deep_translator import PapagoTranslator
-            parts = token.split(":", 1)
-            client_id = parts[0].strip() if len(parts) >= 1 else ""
-            secret = parts[1].strip() if len(parts) >= 2 else ""
-            return PapagoTranslator(
-                client_id=client_id, secret_key=secret,
-                source="auto", target=dest
-            ).translate(text)
         else:
             # Unknown provider — skip
             return None
@@ -7632,12 +7620,6 @@ def interactive_menu():
                             else:
                                 deepl_prefix = "free" if deepl_mode == "1" else "pro"
                                 token_in = f"{deepl_prefix}:{deepl_key}"
-                    elif provider == "papago":
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Papago token format: client_id:secret_key{Style.RESET_ALL}")
-                        token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not token_in:
-                            _api_msg = ""
-                            _cancelled = True
                     elif provider == "libretranslate":
                         print(f"{Fore.WHITE}  LibreTranslate mode:{Style.RESET_ALL}")
                         print(f"{Fore.WHITE}    [1] Public server + API key (https://libretranslate.de/translate){Style.RESET_ALL}")
