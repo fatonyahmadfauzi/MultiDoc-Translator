@@ -11,6 +11,8 @@ import time
 import argparse
 import shutil
 import sys
+import types
+import functools
 import webbrowser
 import urllib.request
 import requests
@@ -77,7 +79,6 @@ def _copy_to_clipboard(text: str) -> bool:
 
 
 def open_debug_menu():
-    debug_print("[FUNC] open_debug_menu() called", color_on=False)
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
         print(f"\n{Fore.CYAN}Debug{Style.RESET_ALL}\n")
@@ -134,8 +135,6 @@ def _check_internet_blocking(color_on: bool):
     Fungsi ringan untuk menahan aliran CLI program agar tidak masuk menu
     utama sebelum ada koneksi internet (seperti Loading Screen GUI).
     """
-    debug_print("[FUNC] _check_internet_blocking() called")
-
     def is_connected():
         try:
             requests.get("https://raw.githubusercontent.com", timeout=3, stream=False)
@@ -6809,8 +6808,6 @@ def ask_target_directory():
     return True
 
 def interactive_menu():
-    debug_print("[FUNC] interactive_menu() called", color_on=False)
-
     # Require internet connection before showing menu (blocking spinner as in pixiv_login CLI)
     _check_internet_blocking(color_on=True)
 
@@ -7956,5 +7953,37 @@ def main():
     
     print("\n" + t("all_translated") + "\n")
 
+
+DEBUG_WRAP_EXCLUDED = {
+    "debug_print",
+    "_instrument_all_functions_for_debug",
+}
+DEBUG_WRAP_INSTALLED = False
+
+
+def _instrument_all_functions_for_debug():
+    global DEBUG_WRAP_INSTALLED
+    if DEBUG_WRAP_INSTALLED:
+        return
+
+    for func_name, func_obj in list(globals().items()):
+        if not isinstance(func_obj, types.FunctionType):
+            continue
+        if func_obj.__module__ != __name__:
+            continue
+        if func_name in DEBUG_WRAP_EXCLUDED:
+            continue
+
+        @functools.wraps(func_obj)
+        def wrapped(*args, __fn=func_obj, __name=func_name, **kwargs):
+            debug_print(f"[FUNC] {__name}() called", color_on=False)
+            return __fn(*args, **kwargs)
+
+        globals()[func_name] = wrapped
+
+    DEBUG_WRAP_INSTALLED = True
+
+
 if __name__ == "__main__":
+    _instrument_all_functions_for_debug()
     main()
