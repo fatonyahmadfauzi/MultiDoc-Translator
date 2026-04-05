@@ -7530,24 +7530,14 @@ def interactive_menu():
                 else:
                     _api_msg = ""
 
-                # Pre-input redraw frames so marquee motion is visible on screen
-                has_marquee_text = any(
-                    wcswidth(format_api_display_name(e)) > 36 or
-                    wcswidth((e.get('provider', '') if not (e.get('test_status') or '').strip()
-                             else f"{e.get('provider', '')} ({(e.get('test_status') or '').strip()}")) > 22
-                    for e in apis
-                )
-                if has_marquee_text and _api_anim_cycles < 4:
-                    _api_anim_cycles += 1
-                    time.sleep(0.15)
-                    continue
-                _api_anim_cycles = 0
-
-                api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
-
-                if api_choice not in ('0', '1', '2', '3', '4'):
-                    _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
-                    continue
+                while True:
+                    api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+                    if api_choice in ('0', '1', '2', '3', '4'):
+                        break
+                    if api_choice == "":
+                        # Ignore empty-enter without forcing full menu redraw
+                        continue
+                    print(Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL)
 
                 if api_choice == '0':
                     break
