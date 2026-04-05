@@ -5326,6 +5326,54 @@ def get_active_apis() -> list:
         and e["provider"] != "google"
     ]
 
+API_ERROR_PATTERNS = (
+    "authorization failed",
+    "quota exceeded",
+    "invalid email provided",
+)
+
+
+def is_successful_translation_result(result: str | None) -> bool:
+    """Return True only for valid translation output, not provider error payloads."""
+    if not result:
+        return False
+    lowered = str(result).strip().lower()
+    if not lowered:
+        return False
+    return not any(pattern in lowered for pattern in API_ERROR_PATTERNS)
+
+
+def refresh_api_health_status():
+    """
+    Realtime-ish health refresh for saved APIs:
+    - test active providers with a lightweight translation probe
+    - set test_status to '200' on success, 'false' on failure
+    - auto-disable provider when health check fails
+    """
+    config = load_api_config()
+    changed = False
+    for entry in config.get("apis", []):
+        curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
+        if curr_status != "active":
+            continue
+        provider = entry.get("provider", "")
+        token = entry.get("token", "")
+        probe = _translate_with_provider("hello", "fr", provider, token)
+        if is_successful_translation_result(probe):
+            if entry.get("test_status") != "200":
+                entry["test_status"] = "200"
+                changed = True
+        else:
+            if entry.get("test_status") != "false":
+                entry["test_status"] = "false"
+                changed = True
+            if entry.get("status") != "inactive" or entry.get("active", True):
+                entry["status"] = "inactive"
+                entry["active"] = False
+                changed = True
+    if changed:
+        save_api_config(config)
+
 
 def refresh_api_health_status():
     """
@@ -5562,7 +5610,7 @@ def translate_text(text: str, dest: str) -> str:
         name = api_entry.get("name", provider)
         try:
             result = _translate_with_provider(text, dest, provider, token)
-            if result:
+            if is_successful_translation_result(result):
                 return result
         except Exception:
             pass  # Fall through to next API
@@ -7504,7 +7552,7 @@ def interactive_menu():
                     # Test the API connection
                     print(Fore.YELLOW + t('ui.apiTesting'))
                     test_result = _translate_with_provider("hello", "fr", provider, token_in)
-                    if test_result:
+                    if is_successful_translation_result(test_result):
                         print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
                         print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
                         test_status = "200"
