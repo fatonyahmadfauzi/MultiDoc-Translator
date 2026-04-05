@@ -7405,19 +7405,17 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
-                    name_col_w = 36
                     provider_col_w = 16
                     response_col_w = 12
                     status_col_w = 10
                     auth_col_w = 24
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
                     h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
                     h_stat = cjk_ljust(t('ui.apiTableStatus'), status_col_w)
                     h_auth = t('ui.apiTableAuth')
-                    print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
-                    print("─" * 112)
+                    print(f"{Fore.WHITE}{h_idx} {h_prov} {h_resp} {h_stat} {h_auth}{Style.RESET_ALL}")
+                    print("─" * 88)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7434,13 +7432,12 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
                         v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
                         v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
                         v_stat = cjk_ljust(st, status_col_w)
                         v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
-                              f"{v_name} {v_prov} {v_resp} "
+                              f"{v_prov} {v_resp} "
                               f"{st_color}{v_stat}{Style.RESET_ALL} "
                               f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL}")
                     print()
