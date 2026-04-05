@@ -5288,6 +5288,16 @@ def format_api_display_name(entry: dict) -> str:
             return f"deepl (free - key:{token.split(':', 1)[1]})"
         if token.startswith("pro:"):
             return f"deepl (pro - key:{token.split(':', 1)[1]})"
+    if provider == "libretranslate":
+        if token.startswith("public:"):
+            return f"libretranslate (public - key:{token.split(':', 1)[1]})"
+        if token.startswith("self:"):
+            return f"libretranslate (self - {token.split(':', 1)[1]})"
+        if token.startswith("selfkey:"):
+            rest = token.split(":", 1)[1]
+            if "|" in rest:
+                key, endpoint = rest.split("|", 1)
+                return f"libretranslate (self - key:{key} @ {endpoint})"
     return entry.get("name", provider)
 
 
@@ -5598,12 +5608,53 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             return translated
         elif provider == "libretranslate":
-            from deep_translator import LibreTranslateTranslator
-            return LibreTranslateTranslator(
-                api_key=token or "",
-                source="auto",
-                target=dest
-            ).translate(text)
+            # LibreTranslate modes:
+            # public:<API_KEY>                -> https://libretranslate.de/translate
+            # self:<ENDPOINT_URL>             -> self-host no key
+            # selfkey:<API_KEY>|<ENDPOINT_URL> -> self-host with key
+            endpoint = "https://libretranslate.de/translate"
+            api_key = ""
+            tok = token.strip()
+
+            if tok.startswith("public:"):
+                api_key = tok.split(":", 1)[1].strip()
+                if not api_key:
+                    return None
+            elif tok.startswith("self:"):
+                endpoint = tok.split(":", 1)[1].strip()
+                if not endpoint:
+                    return None
+            elif tok.startswith("selfkey:"):
+                rest = tok.split(":", 1)[1]
+                if "|" not in rest:
+                    return None
+                api_key, endpoint = rest.split("|", 1)
+                api_key = api_key.strip()
+                endpoint = endpoint.strip()
+                if not endpoint:
+                    return None
+            elif tok:
+                # Backward-compatible token-only mode treated as public key
+                api_key = tok
+
+            payload = {
+                "q": text,
+                "source": "en",
+                "target": dest,
+                "format": "text",
+            }
+            if api_key:
+                payload["api_key"] = api_key
+
+            req = urllib.request.Request(
+                endpoint,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            return data.get("translatedText")
         elif provider == "yandex":
             from deep_translator import YandexTranslator
             return YandexTranslator(api_key=token, source="auto", target=dest).translate(text)
@@ -7552,6 +7603,41 @@ def interactive_menu():
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
                         if not token_in:
                             _api_msg = ""
+                            _cancelled = True
+                    elif provider == "libretranslate":
+                        print(f"{Fore.WHITE}  LibreTranslate mode:{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [1] Public server + API key (https://libretranslate.de/translate){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Self-host (no key) e.g. http://localhost:5000/translate{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [3] Self-host + API key{Style.RESET_ALL}")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        lt_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
+                        if lt_choice in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif lt_choice == "1":
+                            lt_key = input(f"{Fore.CYAN}  Enter public API key: {Fore.WHITE}").strip()
+                            if not lt_key:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"public:{lt_key}"
+                        elif lt_choice == "2":
+                            lt_endpoint = input(f"{Fore.CYAN}  Enter self-host endpoint URL: {Fore.WHITE}").strip()
+                            if not lt_endpoint:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"self:{lt_endpoint}"
+                        elif lt_choice == "3":
+                            lt_endpoint = input(f"{Fore.CYAN}  Enter self-host endpoint URL: {Fore.WHITE}").strip()
+                            lt_key = input(f"{Fore.CYAN}  Enter self-host API key: {Fore.WHITE}").strip()
+                            if not lt_endpoint or not lt_key:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"selfkey:{lt_key}|{lt_endpoint}"
+                        else:
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                             _cancelled = True
                     elif provider == "mymemory":
                         print(f"{Fore.WHITE}  MyMemory auth mode:{Style.RESET_ALL}")
