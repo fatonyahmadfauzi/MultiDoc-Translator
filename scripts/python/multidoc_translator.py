@@ -7599,7 +7599,13 @@ def interactive_menu():
                         v_idx = cjk_ljust(idx, 4)
                         v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
                         v_model = cjk_ljust(cjk_truncate(format_api_model(entry), model_col_w), model_col_w)
-                        v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
+                        if status == 'limit':
+                            resp_text = "429 (Limit)"
+                        elif status == 'inactive':
+                            resp_text = "n/a"
+                        else:
+                            resp_text = format_api_response_status(entry.get('test_status'))
+                        v_resp = cjk_ljust(cjk_truncate(resp_text, response_col_w), response_col_w)
                         v_stat = cjk_ljust(cjk_truncate(st, status_col_w), status_col_w)
                         v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
                         v_ep = cjk_ljust(cjk_truncate(format_api_endpoint(entry), endpoint_col_w), endpoint_col_w)
