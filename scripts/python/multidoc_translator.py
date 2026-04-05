@@ -7345,14 +7345,10 @@ def interactive_menu():
                         continue
                     provider = prov_list[int(prov_input) - 1]
 
-                    # Name input — empty to cancel
-                    name_in = input(f"{Fore.CYAN}{t('ui.apiEnterName')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not name_in:
-                        _api_msg = ""
-                        continue
+                    # Default name follows selected provider (no manual prompt)
+                    name_in = provider
 
                     token_in = ""
-                    endpoint_in = ""
                     _cancelled = False
 
                     if provider == "google":
@@ -7386,7 +7382,7 @@ def interactive_menu():
                                 continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
-                    add_api(name_in, provider, token_in, limit=default_lim, account="", status="active")
+                    add_api(name_in, provider, token_in, limit=default_lim, status="active")
                     _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
 
 
