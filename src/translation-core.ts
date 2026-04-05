@@ -151,6 +151,22 @@ export async function translateWithAIFallback(
     }
 
     const activeAIs = getActiveAIs(extensionPath);
+    const priorityOrder: Record<string, number> = {
+        // Recommended quality/stability order for README/CHANGELOG translation.
+        groq: 1,
+        deepseek: 2,
+        openrouter: 3,
+        openai: 4,
+        anthropic: 5,
+        mistral: 6,
+        custom: 7,
+        google: 8 // Google AI/Gemini kept lower than non-Gemini providers.
+    };
+    const prioritizedAIs = [...activeAIs].sort((a, b) => {
+        const pa = priorityOrder[a.provider.toLowerCase()] ?? 99;
+        const pb = priorityOrder[b.provider.toLowerCase()] ?? 99;
+        return pa - pb;
+    });
 
     // If no AI configured, fall straight through to Google
     if (activeAIs.length === 0) {
@@ -158,8 +174,9 @@ export async function translateWithAIFallback(
     }
 
     // Try each active AI in order
-    for (const ai of activeAIs) {
+    for (const ai of prioritizedAIs) {
         try {
+            Logger.log(`Trying AI provider ${ai.provider}/${ai.model} for lang=${to}`);
             const result = await translateWithSingleAI(text, to, ai);
             if (result && result !== text) {
                 return result;
@@ -176,9 +193,42 @@ export async function translateWithAIFallback(
 
 /** Translate using a single AI entry's API. Throws on hard failures. */
 async function translateWithSingleAI(text: string, to: string, ai: AIEntry): Promise<string> {
-    const prompt = `Translate the following text to the language with ISO code "${to}". Return ONLY the translated text, no explanation, no quotes.\n\nText:\n${text}`;
+    const prompt = [
+        `Translate the following text to the language with ISO code "${to}".`,
+        'Preserve markdown structure, code blocks, inline code, links, tables, indentation, and line breaks.',
+        'Do NOT alter machine placeholders like <<<PH_0>>>.',
+        'Return ONLY the translated text, no explanation, no quotes.',
+        '',
+        'Text:',
+        text
+    ].join('\n');
 
     switch (ai.provider.toLowerCase()) {
+        case 'groq':
+            return await callOpenAI(
+                ai.token,
+                ai.model || 'llama3-70b-8192',
+                prompt,
+                'https://api.groq.com/openai/v1'
+            );
+        case 'deepseek':
+            return await callOpenAI(
+                ai.token,
+                ai.model || 'deepseek-chat',
+                prompt,
+                'https://api.deepseek.com'
+            );
+        case 'openrouter':
+            return await callOpenAI(
+                ai.token,
+                ai.model || 'deepseek/deepseek-chat',
+                prompt,
+                'https://openrouter.ai/api/v1',
+                {
+                    'HTTP-Referer': 'https://github.com/fatonyahmadfauzi/MultiDoc-Translator',
+                    'X-Title': 'MultiDoc Translator'
+                }
+            );
         case 'openai':
             return await callOpenAI(ai.token, ai.model, prompt, ai.base_url);
         case 'anthropic':
@@ -195,13 +245,20 @@ async function translateWithSingleAI(text: string, to: string, ai: AIEntry): Pro
     }
 }
 
-async function callOpenAI(token: string, model: string, prompt: string, baseUrl?: string | null): Promise<string> {
+async function callOpenAI(
+    token: string,
+    model: string,
+    prompt: string,
+    baseUrl?: string | null,
+    extraHeaders?: Record<string, string>
+): Promise<string> {
     const url = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
     const res = await fetch(url, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(extraHeaders || {})
         },
         body: JSON.stringify({
             model,
