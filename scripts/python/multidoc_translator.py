@@ -7334,7 +7334,10 @@ def interactive_menu():
         # [10] AI Settings—always accessible
         try:
             ai_cfg = load_ai_config()
-            ai_active = sum(1 for e in ai_cfg.get('ais', []) if e.get('active', False))
+            ai_active = sum(
+                1 for e in ai_cfg.get('ais', [])
+                if e.get('enabled', False) and str(e.get('test_status') or "").strip() == "200"
+            )
             ai_total  = len(ai_cfg.get('ais', []))
             ai_label  = t('ui.aiSettings')
             if ai_total > 0:
