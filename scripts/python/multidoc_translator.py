@@ -7401,10 +7401,25 @@ def interactive_menu():
                     os.system('cls' if os.name == 'nt' else 'clear')
                     print(f"\n{Fore.CYAN}[+] {t('ui.apiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.apiProviders')}{Style.RESET_ALL}")
+                    used_google_free = any((e.get("provider") == "google") for e in apis)
+                    used_mymemory_free = any((e.get("provider") == "mymemory" and not (e.get("token") or "").strip()) for e in apis)
+                    used_mymemory_emails = {
+                        (e.get("token") or "").strip().lower()
+                        for e in apis
+                        if e.get("provider") == "mymemory" and (e.get("token") or "").lower().startswith("email:")
+                    }
+                    used_mymemory_keys = {
+                        (e.get("token") or "").strip()
+                        for e in apis
+                        if e.get("provider") == "mymemory" and (e.get("token") or "").lower().startswith("key:")
+                    }
                     prov_list = list(SUPPORTED_PROVIDERS.keys())
                     for pi, (pk, pdesc) in enumerate(SUPPORTED_PROVIDERS.items(), 1):
                         desc = t(f'ui.provider_{pk}')
-                        print(f"  [{pi}] {pk:<16} — {desc}")
+                        is_disabled = (pk == "google" and used_google_free)
+                        row_color = Fore.LIGHTBLACK_EX if is_disabled else Fore.WHITE
+                        suffix = " (already used)" if is_disabled else ""
+                        print(f"{row_color}  [{pi}] {pk:<16} — {desc}{suffix}{Style.RESET_ALL}")
                     print(f"  {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
                     prov_input = input(f"\n{Fore.CYAN}{t('ui.apiSelectProvider')} (1-{len(prov_list)}, 0=cancel): {Fore.WHITE}").strip()
                     if prov_input == '0' or prov_input == '':
@@ -7414,6 +7429,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     provider = prov_list[int(prov_input) - 1]
+                    if provider == "google" and used_google_free:
+                        _api_msg = Fore.YELLOW + "Google free is already used. Choose another provider." + Style.RESET_ALL
+                        continue
 
                     # Default name follows selected provider (no manual prompt)
                     name_in = provider
@@ -7432,30 +7450,45 @@ def interactive_menu():
                             _cancelled = True
                     elif provider == "mymemory":
                         print(f"{Fore.WHITE}  MyMemory auth mode:{Style.RESET_ALL}")
-                        print(f"    [1] Free (no token, no email)")
-                        print(f"    [2] Email mode (de=email@domain.com)")
-                        print(f"    [3] API key mode (key=API_KEY)")
+                        free_mode_color = Fore.LIGHTBLACK_EX if used_mymemory_free else Fore.WHITE
+                        print(f"{free_mode_color}    [1] Free (no token, no email){' (already used)' if used_mymemory_free else ''}{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Email mode (de=email@domain.com){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [3] API key mode (key=API_KEY){Style.RESET_ALL}")
                         print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
                         mm_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
                         if mm_choice in ("0", ""):
                             _api_msg = ""
                             _cancelled = True
                         elif mm_choice == "1":
-                            token_in = ""
+                            if used_mymemory_free:
+                                _api_msg = Fore.YELLOW + "MyMemory free mode is already used." + Style.RESET_ALL
+                                _cancelled = True
+                            else:
+                                token_in = ""
                         elif mm_choice == "2":
                             email_in = input(f"{Fore.CYAN}  Enter email (required): {Fore.WHITE}").strip()
                             if not email_in:
                                 _api_msg = ""
                                 _cancelled = True
                             else:
-                                token_in = f"email:{email_in}"
+                                candidate = f"email:{email_in}".lower()
+                                if candidate in used_mymemory_emails:
+                                    _api_msg = Fore.YELLOW + "MyMemory email already used." + Style.RESET_ALL
+                                    _cancelled = True
+                                else:
+                                    token_in = f"email:{email_in}"
                         elif mm_choice == "3":
                             key_in = input(f"{Fore.CYAN}  Enter API key (required): {Fore.WHITE}").strip()
                             if not key_in:
                                 _api_msg = ""
                                 _cancelled = True
                             else:
-                                token_in = f"key:{key_in}"
+                                candidate = f"key:{key_in}"
+                                if candidate in used_mymemory_keys:
+                                    _api_msg = Fore.YELLOW + "MyMemory API key already used." + Style.RESET_ALL
+                                    _cancelled = True
+                                else:
+                                    token_in = f"key:{key_in}"
                         else:
                             _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                             _cancelled = True
