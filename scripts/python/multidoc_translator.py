@@ -8257,6 +8257,17 @@ def interactive_menu():
                         _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
                         continue
 
+                    print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
+                    ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
+                    if ok:
+                        print(Fore.GREEN + f"✅ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ AI response: {ai_test_response}" + Style.RESET_ALL)
+                    else:
+                        print(Fore.RED + f"❌ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.RED + f"❌ AI response: {ai_test_response}" + Style.RESET_ALL)
+                        _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
+                        continue
+
                     enable_in = input(f"{Fore.CYAN}Enable this AI? [Y/n]: {Fore.WHITE}").strip().lower()
                     enabled = enable_in not in ('n', 'no')
 
