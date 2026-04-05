@@ -7607,8 +7607,10 @@ def interactive_menu():
                     elif provider == "libretranslate":
                         print(f"{Fore.WHITE}  LibreTranslate mode:{Style.RESET_ALL}")
                         print(f"{Fore.WHITE}    [1] Public server + API key (https://libretranslate.de/translate){Style.RESET_ALL}")
-                        print(f"{Fore.WHITE}    [2] Self-host (no key) e.g. http://localhost:5000/translate{Style.RESET_ALL}")
-                        print(f"{Fore.WHITE}    [3] Self-host + API key{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Self-host (no key, endpoint manual input){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [3] Self-host + API key (endpoint manual input){Style.RESET_ALL}")
+                        print(f"{Fore.LIGHTBLACK_EX}      Examples: http://localhost:5000/translate | http://localhost:8080/translate{Style.RESET_ALL}")
+                        print(f"{Fore.LIGHTBLACK_EX}                https://yourdomain.com/translate | https://yourdomain.com/api/translate{Style.RESET_ALL}")
                         print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
                         lt_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
                         if lt_choice in ("0", ""):
