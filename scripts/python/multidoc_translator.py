@@ -7306,18 +7306,21 @@ def interactive_menu():
                         continue
 
                     # Test the API connection
-                    skip_test = (provider in OPTIONAL_TOKEN_PROVIDERS and not token_in)
-                    if provider != "google" and not skip_test:
+                    if provider != "google":
+                        soft_test = (provider in OPTIONAL_TOKEN_PROVIDERS and not token_in)
                         print(Fore.YELLOW + t('ui.apiTesting'))
                         test_result = _translate_with_provider("hello", "fr", provider, token_in)
                         if test_result:
                             print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
                         else:
-                            print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
-                            confirm_save = input(f"{Fore.YELLOW}Save anyway? [y/N]: {Fore.WHITE}").strip().lower()
-                            if confirm_save != 'y':
-                                _api_msg = ""
-                                continue
+                            if soft_test:
+                                print(Fore.YELLOW + "⚠️ API test did not return a result without token. Saving anyway (optional-token provider)." + Style.RESET_ALL)
+                            else:
+                                print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
+                                confirm_save = input(f"{Fore.YELLOW}Save anyway? [y/N]: {Fore.WHITE}").strip().lower()
+                                if confirm_save != 'y':
+                                    _api_msg = ""
+                                    continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
                     add_api(name_in, provider, token_in, limit=default_lim, status="active")
