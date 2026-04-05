@@ -8127,11 +8127,23 @@ def interactive_menu():
                     print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
                     print("─" * 132)
                     for idx, entry in enumerate(ais, 1):
-                        status = "active" if entry.get('enabled', False) else "inactive"
+                        enabled = entry.get('enabled', False)
+                        ai_code = str(entry.get('test_status') or "").strip()
+                        if not enabled:
+                            status = "inactive"
+                        elif ai_code == "429":
+                            status = "limit"
+                        elif ai_code == "200":
+                            status = "active"
+                        else:
+                            status = "inactive"
 
                         if status == 'active':
                             st = t('ui.aiActive')
                             st_col = Fore.GREEN
+                        elif status == 'limit':
+                            st = t('ui.apiLimit')
+                            st_col = Fore.YELLOW
                         else:
                             st = t('ui.aiInactive')
                             st_col = Fore.RED
