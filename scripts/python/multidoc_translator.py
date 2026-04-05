@@ -7411,6 +7411,7 @@ def interactive_menu():
 
         elif choice == '9':
             # API Settings
+            _api_anim_cycles = 0
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
                 refresh_api_health_status()
@@ -7478,6 +7479,19 @@ def interactive_menu():
                     _api_msg = ""
                 else:
                     _api_msg = ""
+
+                # Pre-input redraw frames so marquee motion is visible on screen
+                has_marquee_text = any(
+                    wcswidth(format_api_display_name(e)) > 36 or
+                    wcswidth((e.get('provider', '') if not (e.get('test_status') or '').strip()
+                             else f"{e.get('provider', '')} ({(e.get('test_status') or '').strip()}")) > 22
+                    for e in apis
+                )
+                if has_marquee_text and _api_anim_cycles < 4:
+                    _api_anim_cycles += 1
+                    time.sleep(0.15)
+                    continue
+                _api_anim_cycles = 0
 
                 api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
 
