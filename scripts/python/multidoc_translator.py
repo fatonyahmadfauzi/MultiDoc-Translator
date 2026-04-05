@@ -8416,7 +8416,7 @@ def interactive_menu():
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
                     # Available providers for AI mode
-                    provider_list = ["openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"]
+                    provider_list = ["groq", "deepseek", "openrouter", "openai", "gemini", "claude", "mistral"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
