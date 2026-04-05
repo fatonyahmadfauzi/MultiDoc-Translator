@@ -5311,7 +5311,7 @@ def refresh_api_health_status():
     """
     Realtime-ish health refresh for saved APIs:
     - test active providers with a lightweight translation probe
-    - set test_status to '200' on success, 'false' on failure
+    - set test_status to '200' on success, '400' on failure
     - auto-disable provider when health check fails
     """
     config = load_api_config()
@@ -5337,6 +5337,29 @@ def refresh_api_health_status():
                 changed = True
     if changed:
         save_api_config(config)
+
+
+def refresh_ai_health_status():
+    """
+    Realtime-ish health refresh for enabled AI providers.
+    Updates test_status from server probe without changing user toggle state.
+    """
+    config = load_ai_config()
+    changed = False
+    for entry in config.get("ais", []):
+        if not entry.get("enabled", False):
+            continue
+        _, status_code, _ = test_ai_provider(
+            entry.get("provider", ""),
+            entry.get("model", ""),
+            entry.get("token", ""),
+            base_url=entry.get("base_url"),
+        )
+        if entry.get("test_status") != status_code:
+            entry["test_status"] = status_code
+            changed = True
+    if changed:
+        save_ai_config(config)
 
 
 # ---------------------- AI MANAGEMENT SYSTEM ----------------------
@@ -8064,6 +8087,7 @@ def interactive_menu():
             _ai_msg = ""
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
+                refresh_ai_health_status()
                 ai_cfg  = load_ai_config()
                 ais     = ai_cfg.get('ais', [])
                 ai_act  = sum(1 for e in ais if e.get('enabled', False))
