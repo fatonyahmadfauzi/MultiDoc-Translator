@@ -5427,6 +5427,34 @@ def test_ai_provider(provider: str, model: str, token: str, base_url: str = None
     return False, "false"
 
 
+def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
+    """Auto-select a model for provider. Returns (selected_model, discovered_models)."""
+    provider = (provider or "").lower()
+    if provider == "google":
+        models = fetch_google_gemini_models(token)
+        if not models:
+            return "gemini-2.5-flash", []
+        preferred = [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+        ]
+        for cand in preferred:
+            if cand in models:
+                return cand, models
+        return models[0], models
+    if provider == "openai":
+        return "gpt-4o-mini", []
+    if provider == "anthropic":
+        return "claude-3-5-sonnet-latest", []
+    if provider == "mistral":
+        return "mistral-small-latest", []
+    if provider == "custom":
+        return "custom-model", []
+    return "default-model", []
+
+
 # ---------------------- TRANSLATION FUNCTIONS ----------------------
 def _translate_with_provider(text: str, dest: str, provider: str, token: str) -> str | None:
     """
@@ -7999,30 +8027,12 @@ def interactive_menu():
                         _ai_msg = ""
                         continue
 
-                    if ai_provider == "google":
-                        available_models = fetch_google_gemini_models(token_in)
-                        if available_models:
-                            print(f"{Fore.WHITE}Available Gemini models from this API key:{Style.RESET_ALL}")
-                            max_show = min(12, len(available_models))
-                            for midx, mname in enumerate(available_models[:max_show], 1):
-                                print(f"  [{midx}] {mname}")
-                            print(f"  {Fore.LIGHTBLACK_EX}[m] Manual input{Style.RESET_ALL}")
-                            pick_in = input(f"{Fore.CYAN}Select model (1-{max_show}, m=manual): {Fore.WHITE}").strip().lower()
-                            if pick_in == 'm':
-                                model_in = input(f"{Fore.CYAN}Enter model (e.g. gemini-2.5-flash) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                            elif pick_in.isdigit() and 1 <= int(pick_in) <= max_show:
-                                model_in = available_models[int(pick_in) - 1]
-                            else:
-                                _ai_msg = Fore.RED + "Invalid model selection." + Style.RESET_ALL
-                                continue
-                        else:
-                            model_in = input(f"{Fore.CYAN}Enter model (e.g. gemini-2.5-flash) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    else:
-                        model_in = input(f"{Fore.CYAN}Enter model (e.g. gpt-4o, claude-3-5-sonnet-20241022) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-
-                    if not model_in:
-                        _ai_msg = ""
-                        continue
+                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                    if ai_provider == "google" and discovered_models:
+                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                    elif ai_provider == "google":
+                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
 
                     base_url = None
                     if ai_provider == "custom":
