@@ -5374,6 +5374,9 @@ API_ERROR_PATTERNS = (
     "authorization failed",
     "quota exceeded",
     "invalid email provided",
+    "service unavailable",
+    "invalid api key",
+    "too many requests",
 )
 
 
@@ -5654,7 +5657,10 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
             )
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-            return data.get("translatedText")
+            if isinstance(data, dict) and data.get("error"):
+                return None
+            translated = data.get("translatedText")
+            return translated if translated else None
         elif provider == "yandex":
             from deep_translator import YandexTranslator
             return YandexTranslator(api_key=token, source="auto", target=dest).translate(text)
