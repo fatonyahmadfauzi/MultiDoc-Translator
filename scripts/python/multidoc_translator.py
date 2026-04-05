@@ -5112,18 +5112,22 @@ def format_api_auth(entry: dict) -> str:
     """Auth column formatter with masked values."""
     provider = (entry.get("provider") or "").lower()
     token = (entry.get("token") or "").strip()
+
+    def _mask(raw: str) -> str:
+        value = (raw or "").strip()
+        if not value:
+            return "none"
+        return value[:6] + "••••••"
+
     if not token:
         return "free" if provider in OPTIONAL_TOKEN_PROVIDERS or provider == "google" else "none"
     if token.lower().startswith("email:"):
         email = token.split(":", 1)[1].strip()
-        return f"email:{email}" if email else "email"
+        return _mask(email)
     if ":" in token:
-        prefix, _, value = token.partition(":")
-        value = value.strip()
-        if value:
-            return f"{prefix}:{value[:6]}••••••"
-        return prefix
-    return token[:6] + "••••••"
+        _, _, value = token.partition(":")
+        return _mask(value)
+    return _mask(token)
 
 
 def format_api_response_status(test_status: str) -> str:
