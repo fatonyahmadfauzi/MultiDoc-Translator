@@ -5843,9 +5843,17 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
+def normalize_placeholders(text: str) -> str:
+    """Normalize placeholder variants before strict leak validation."""
+    normalized = text or ""
+    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
+    return normalized
+
+
 def validate_placeholders(text: str) -> bool:
     """Raise when protected placeholder leak is detected."""
-    if "<<<PH_" in (text or ""):
+    if "<<<PH_" in normalize_placeholders(text):
         raise ValueError("Placeholder leak detected")
     return True
 
@@ -5951,8 +5959,11 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
 
 
 def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
-    """Translate using one AI provider (deepseek/openrouter only), retry once on failure."""
+    """Translate using one AI provider, retry once on request/validation failure."""
     provider = (provider or "").lower()
+    if provider not in {"openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"}:
+        return None
+
     active = get_active_ai_providers()
     entry = next((e for e in active if (e.get("provider") or "").lower() == provider), None)
     if not entry:
@@ -5963,53 +5974,25 @@ def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
         return None
 
     model = (entry.get("model") or "").strip()
-    if provider == "deepseek":
-        model = model or "deepseek-chat"
-    elif provider == "openrouter":
-        model = model or "deepseek/deepseek-chat"
-    else:
-        return None
+    default_models = {
+        "openai": "gpt-4o-mini",
+        "gemini": "gemini-2.5-flash",
+        "claude": "claude-3-5-sonnet-latest",
+        "mistral": "mistral-small-latest",
+        "groq": "llama3-70b-8192",
+        "deepseek": "deepseek-chat",
+        "openrouter": "deepseek/deepseek-chat",
+    }
+    model = model or default_models[provider]
+    entry["model"] = model
 
-    prompt = (
-        f"Translate the following text to {target_lang}. "
-        "Preserve markdown, code blocks, links, tables, indentation, and line breaks exactly. "
-        "Do not alter placeholders like <<<PH_0>>>.\n\n"
-        f"{text}"
-    )
-
-    system_prompt = "You are a precise markdown translator."
     for attempt in range(2):
         if attempt == 0:
             debug_print(f"[AI] Using {provider}", log_type="API")
         else:
             debug_print(f"[AI] Retry {attempt + 1}/2 for provider {provider}", log_type="API")
         try:
-            if provider == "deepseek":
-                url = "https://api.deepseek.com/chat/completions"
-                headers = {
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                }
-            else:  # openrouter
-                url = "https://openrouter.ai/api/v1/chat/completions"
-                headers = {
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://your-app.example",
-                    "X-Title": "MultiDoc Translator",
-                }
-
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt},
-                ],
-                "temperature": 0
-            }
-            response = requests.post(url, headers=headers, json=payload, timeout=30)
-            response.raise_for_status()
-            result = ((response.json() or {}).get("choices") or [{}])[0].get("message", {}).get("content", "")
+            result = _translate_with_ai(text, target_lang, entry)
             if not is_successful_translation_result(result):
                 continue
             validate_placeholders(result)
@@ -6028,15 +6011,16 @@ def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
 
 
 def translate_with_fallback(text: str, dest: str) -> str | None:
-    """Fallback chain: deepseek -> openrouter -> GoogleTranslator."""
-    deepseek_result = translate_with_ai("deepseek", text, dest)
-    if is_successful_translation_result(deepseek_result):
-        return deepseek_result
-
-    debug_print("[AI] Fallback → openrouter", log_type="API")
-    openrouter_result = translate_with_ai("openrouter", text, dest)
-    if is_successful_translation_result(openrouter_result):
-        return openrouter_result
+    """Final fallback flow: active AI providers in order -> GoogleTranslator."""
+    for idx, ai_entry in enumerate(get_active_ai_providers()):
+        provider = (ai_entry.get("provider") or "").lower()
+        if provider not in {"openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"}:
+            continue
+        if idx > 0:
+            debug_print(f"[AI] Fallback → {provider}", log_type="API")
+        result = translate_with_ai(provider, text, dest)
+        if is_successful_translation_result(result):
+            return result
 
     debug_print("[AI] Fallback → google", log_type="API")
     for attempt in range(2):
