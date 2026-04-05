@@ -5221,6 +5221,9 @@ SUPPORTED_PROVIDERS = {
     "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
 }
 
+# Providers where API token is optional (can still work without token)
+OPTIONAL_TOKEN_PROVIDERS = {"mymemory", "libretranslate"}
+
 # Default quota/limits per translation provider
 PROVIDER_DEFAULT_LIMITS = {
     "google":         "Unlimited",
@@ -7361,7 +7364,7 @@ def interactive_menu():
                             _cancelled = True
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not token_in:
+                        if not token_in and provider not in OPTIONAL_TOKEN_PROVIDERS:
                             _api_msg = ""
                             _cancelled = True
 
