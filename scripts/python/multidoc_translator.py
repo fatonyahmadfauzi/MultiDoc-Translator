@@ -4587,6 +4587,22 @@ def cjk_truncate(text, max_width):
     return out + "…"
 
 
+def cjk_marquee(text, width, speed=4):
+    """
+    Marquee-style crop for long text.
+    When text fits, returns normal left-justified text.
+    When text exceeds width, returns a moving window (based on current time).
+    """
+    text_str = str(text)
+    if wcswidth(text_str) <= width:
+        return cjk_ljust(text_str, width)
+    pad = "   "
+    stream = text_str + pad + text_str
+    max_start = max(1, len(text_str) + len(pad))
+    start = int(time.time() * speed) % max_start
+    return cjk_ljust(cjk_truncate(stream[start:], width), width)
+
+
 def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
     """Create a simple text-based table showing translation status"""
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
@@ -7498,10 +7514,10 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
+                        v_name = cjk_marquee(format_api_display_name(entry), name_col_w)
                         test_status = (entry.get('test_status') or "").strip()
                         prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
-                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
+                        v_prov = cjk_marquee(prov_with_status, provider_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_name} {v_prov} "
                               f"{st_color}{st}{Style.RESET_ALL}")
@@ -7732,8 +7748,8 @@ def interactive_menu():
                     print("─" * 66)
                     for idx2, e2 in enumerate(apis, 1):
                         v_idx = cjk_ljust(f"{idx2}.", 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), edit_name_w), edit_name_w)
-                        v_prov = cjk_ljust(cjk_truncate(e2['provider'], edit_prov_w), edit_prov_w)
+                        v_name = cjk_marquee(format_api_display_name(e2), edit_name_w)
+                        v_prov = cjk_marquee(e2['provider'], edit_prov_w)
                         print(f"  {v_idx} {v_name} {v_prov}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
@@ -7888,7 +7904,7 @@ def interactive_menu():
                             st2_col = Fore.RED
 
                         v_idx = cjk_ljust(f"{idx2}.", 4)
-                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), toggle_name_w), toggle_name_w)
+                        v_name = cjk_marquee(format_api_display_name(e2), toggle_name_w)
                         v_stat = cjk_ljust(st2, toggle_status_w)
                         print(f"  {v_idx} {v_name} {st2_col}{v_stat}{Style.RESET_ALL}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
