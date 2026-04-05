@@ -5326,6 +5326,38 @@ def get_active_apis() -> list:
     ]
 
 
+def refresh_api_health_status():
+    """
+    Realtime-ish health refresh for saved APIs:
+    - test active providers with a lightweight translation probe
+    - set test_status to '200' on success, 'false' on failure
+    - auto-disable provider when health check fails
+    """
+    config = load_api_config()
+    changed = False
+    for entry in config.get("apis", []):
+        curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
+        if curr_status != "active":
+            continue
+        provider = entry.get("provider", "")
+        token = entry.get("token", "")
+        probe = _translate_with_provider("hello", "fr", provider, token)
+        if probe:
+            if entry.get("test_status") != "200":
+                entry["test_status"] = "200"
+                changed = True
+        else:
+            if entry.get("test_status") != "false":
+                entry["test_status"] = "false"
+                changed = True
+            if entry.get("status") != "inactive" or entry.get("active", True):
+                entry["status"] = "inactive"
+                entry["active"] = False
+                changed = True
+    if changed:
+        save_api_config(config)
+
+
 # ---------------------- AI MANAGEMENT SYSTEM ----------------------
 
 # AI config file path
@@ -7262,6 +7294,7 @@ def interactive_menu():
             # API Settings
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
+                refresh_api_health_status()
                 api_cfg = load_api_config()
                 apis = api_cfg.get('apis', [])
                 active_n = sum(1 for e in apis if e.get('active', False))
@@ -7378,7 +7411,6 @@ def interactive_menu():
                         continue
 
                     # Test the API connection
-                    soft_test = (provider in OPTIONAL_TOKEN_PROVIDERS and not token_in)
                     print(Fore.YELLOW + t('ui.apiTesting'))
                     test_result = _translate_with_provider("hello", "fr", provider, token_in)
                     if test_result:
@@ -7386,22 +7418,10 @@ def interactive_menu():
                         print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
                         test_status = "200"
                     else:
-                        if provider == "google":
-                            print(Fore.RED + "❌ Google API test failed. Entry was not saved." + Style.RESET_ALL)
-                            _api_msg = Fore.RED + "Google test failed. Please check internet connection and try again." + Style.RESET_ALL
-                            continue
-                        if soft_test:
-                            print(Fore.YELLOW + "⚠️ API test status: FALSE (no response)" + Style.RESET_ALL)
-                            print(Fore.YELLOW + "⚠️ API test did not return a result without token. Saving anyway (optional-token provider)." + Style.RESET_ALL)
-                            test_status = "false"
-                        else:
-                            print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
-                            print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
-                            confirm_save = input(f"{Fore.YELLOW}Save anyway? [y/N]: {Fore.WHITE}").strip().lower()
-                            if confirm_save != 'y':
-                                _api_msg = ""
-                                continue
-                            test_status = "false"
+                        print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
+                        print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
+                        _api_msg = Fore.RED + "API test failed. Entry was not saved." + Style.RESET_ALL
+                        continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
                     add_api(name_in, provider, token_in, limit=default_lim, status="active", test_status=test_status)
