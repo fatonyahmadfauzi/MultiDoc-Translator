@@ -5257,6 +5257,27 @@ def save_api_config(config: dict):
         print(Fore.RED + f"❌ Failed to save API config: {e}" + Style.RESET_ALL)
 
 
+def format_api_display_name(entry: dict) -> str:
+    """Display-friendly API name with mode/credential hint."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+    if provider == "google":
+        return "google (free)"
+    if provider == "mymemory":
+        if not token:
+            return "mymemory (free)"
+        if token.lower().startswith("email:"):
+            return f"mymemory ({token})"
+        if token.lower().startswith("key:"):
+            return f"mymemory ({token})"
+    if provider == "deepl":
+        if token.startswith("free:"):
+            return f"deepl (free - key:{token.split(':', 1)[1]})"
+        if token.startswith("pro:"):
+            return f"deepl (pro - key:{token.split(':', 1)[1]})"
+    return entry.get("name", provider)
+
+
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
@@ -7384,11 +7405,11 @@ def interactive_menu():
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
                     h_prov = cjk_ljust(t('ui.apiTableProvider'), 24)
                     h_stat = t('ui.apiTableStatus')
                     print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 56)
+                    print("─" * 78)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7405,7 +7426,7 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(entry['name'], 20)
+                        v_name = cjk_ljust(format_api_display_name(entry), 34)
                         test_status = (entry.get('test_status') or "").strip()
                         prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
                         v_prov = cjk_ljust(prov_with_status, 24)
@@ -7594,11 +7615,11 @@ def interactive_menu():
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
                     h_prov = t('ui.apiTableProvider')
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
-                        v_name = cjk_ljust(e2['name'], 20)
+                        v_name = cjk_ljust(format_api_display_name(e2), 34)
                         print(f"  {idx2}. {v_name} ({e2['provider']})")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
@@ -7609,23 +7630,50 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
-                    print(f"\n{Fore.WHITE}{t('ui.apiEditing', name=entry['name'], provider=entry['provider'])}{Style.RESET_ALL}")
-                    new_name = input(f"{Fore.CYAN}{t('ui.apiNewName', name=entry['name'])}: {Fore.WHITE}").strip()
-                    if new_name.lower() == 'q':
-                        _api_msg = ""
-                        continue
-                    new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
-                    if new_token.lower() == 'q':
-                        _api_msg = ""
-                        continue
                     updates = {}
-                    if new_name:
-                        updates['name'] = new_name
-                    if new_token:
-                        updates['token'] = new_token
+                    old_token = (entry.get("token") or "").strip()
+                    old_provider = (entry.get("provider") or "").strip().lower()
+
+                    if not old_token:
+                        _api_msg = Fore.YELLOW + "Free mode entries cannot be edited. Delete and re-add with credentials." + Style.RESET_ALL
+                        continue
+
+                    if old_provider == "mymemory":
+                        if old_token.lower().startswith("email:"):
+                            new_email = input(f"{Fore.CYAN}New MyMemory email (q=cancel): {Fore.WHITE}").strip()
+                            if new_email.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_email:
+                                updates['token'] = f"email:{new_email}"
+                        elif old_token.lower().startswith("key:"):
+                            new_key = input(f"{Fore.CYAN}New MyMemory API key (q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_key:
+                                updates['token'] = f"key:{new_key}"
+                        else:
+                            _api_msg = Fore.YELLOW + "Unsupported MyMemory token format. Delete and re-add." + Style.RESET_ALL
+                            continue
+                    elif old_provider == "deepl":
+                        mode = "pro" if old_token.startswith("pro:") else "free"
+                        new_key = input(f"{Fore.CYAN}New DeepL API key for {mode} mode (q=cancel): {Fore.WHITE}").strip()
+                        if new_key.lower() == 'q':
+                            _api_msg = ""
+                            continue
+                        if new_key:
+                            updates['token'] = f"{mode}:{new_key}"
+                    else:
+                        new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
+                        if new_token.lower() == 'q':
+                            _api_msg = ""
+                            continue
+                        if new_token:
+                            updates['token'] = new_token
                     if updates:
                         edit_api(entry['id'], **updates)
-                        _api_msg = Fore.GREEN + t('ui.apiUpdated', name=new_name or entry['name']) + Style.RESET_ALL
+                        _api_msg = Fore.GREEN + t('ui.apiUpdated', name=format_api_display_name(entry)) + Style.RESET_ALL
                     else:
                         _api_msg = ""
 
@@ -7635,11 +7683,11 @@ def interactive_menu():
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
                     h_prov = t('ui.apiTableProvider')
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
-                        v_name = cjk_ljust(e2['name'], 20)
+                        v_name = cjk_ljust(format_api_display_name(e2), 34)
                         print(f"  {idx2}. {v_name} ({e2['provider']})")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToDelete')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
@@ -7650,10 +7698,10 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
-                    confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=entry['name']) + " " + Fore.WHITE).strip().lower()
+                    confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=format_api_display_name(entry)) + " " + Fore.WHITE).strip().lower()
                     if confirm == 'y':
                         delete_api(entry['id'])
-                        _api_msg = Fore.GREEN + t('ui.apiDeleted', name=entry['name']) + Style.RESET_ALL
+                        _api_msg = Fore.GREEN + t('ui.apiDeleted', name=format_api_display_name(entry)) + Style.RESET_ALL
                     else:
                         _api_msg = ""
 
@@ -7663,7 +7711,7 @@ def interactive_menu():
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
+                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
                     h_stat = t('ui.apiTableStatus')
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_stat}{Style.RESET_ALL}")
                     for idx2, e2 in enumerate(apis, 1):
@@ -7678,7 +7726,7 @@ def interactive_menu():
                         else:
                             st2 = t('ui.apiInactive')
 
-                        v_name = cjk_ljust(e2['name'], 20)
+                        v_name = cjk_ljust(format_api_display_name(e2), 34)
                         print(f"  {idx2}. {v_name} {st2}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToToggle')} (1-{len(apis)}, 0=back): {Fore.WHITE}").strip()
