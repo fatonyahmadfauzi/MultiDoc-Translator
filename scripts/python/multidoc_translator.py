@@ -27,6 +27,11 @@ init(autoreset=True)
 DEBUG_MODE = False
 DEBUG_LOGS = []
 DEBUG_MAX_LINES = 1000
+EXCLUDE_DEBUG_FUNCS = {
+    "t", "colorize",
+    "debug_print", "debug_trace", "debug_exception",
+    "_instrument_all_functions_for_debug"
+}
 
 # Simple ANSI constants and helpers to mimic pixiv style coloring
 class Ansi:
@@ -41,18 +46,58 @@ def colorize(text: str, color_code: str, color_on: bool):
     return f"{color_code}{text}{Ansi.RESET}"
 
 
-def debug_print(msg: str, color_on: bool = True):
+def debug_print(msg: str, log_type: str = "FLOW", color_on: bool = True, **kwargs):
+    # Backward/alternate compatibility
+    if "type" in kwargs and kwargs["type"]:
+        log_type = str(kwargs["type"])
+    if "log_type" in kwargs and kwargs["log_type"]:
+        log_type = str(kwargs["log_type"])
+    log_type = str(log_type).upper()
     stamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    log_message = f"{stamp} | {msg}"
+    log_message = f"{stamp} | [{log_type}] {msg}"
     DEBUG_LOGS.append(log_message)
     if len(DEBUG_LOGS) > DEBUG_MAX_LINES:
         del DEBUG_LOGS[:-DEBUG_MAX_LINES]
 
     if os.getenv("DEBUG", "0") in ("1", "true", "True") or DEBUG_MODE:
+        color_map = {
+            "FUNC": Fore.CYAN,
+            "ERROR": Fore.RED,
+            "CONFIG": Fore.MAGENTA,
+            "FLOW": Fore.GREEN,
+            "API": Fore.BLUE,
+            "PERF": Fore.YELLOW,
+        }
+        prefix_color = color_map.get(log_type, Fore.YELLOW)
         if color_on:
-            print(Fore.YELLOW + "[DEBUG] " + log_message + Style.RESET_ALL)
+            print(prefix_color + log_message + Style.RESET_ALL)
         else:
-            print("[DEBUG] " + log_message)
+            print(log_message)
+
+
+def debug_exception(func_name: str, error: Exception):
+    debug_print(f"{func_name}() failed: {error}", log_type="ERROR")
+
+
+def debug_trace(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        fn = func.__name__
+        if fn not in EXCLUDE_DEBUG_FUNCS:
+            debug_print(f"{fn}() called", log_type="FUNC")
+        start = time.perf_counter()
+        try:
+            result = func(*args, **kwargs)
+        except Exception as e:
+            if fn not in EXCLUDE_DEBUG_FUNCS:
+                debug_exception(fn, e)
+            raise
+        finally:
+            if fn not in EXCLUDE_DEBUG_FUNCS:
+                elapsed = time.perf_counter() - start
+                debug_print(f"{fn}() {elapsed:.2f}s", log_type="PERF")
+        return result
+    return wrapper
 
 
 def _copy_to_clipboard(text: str) -> bool:
@@ -98,14 +143,21 @@ def open_debug_menu():
         if debug_choice == '1':
             copied = _copy_to_clipboard("\n".join(DEBUG_LOGS))
             if copied:
-                debug_print("Debug copied.", color_on=False)
+                debug_print("Debug copied.", log_type="FLOW", color_on=False)
             else:
-                debug_print("Failed to copy debug (clipboard tool unavailable).", color_on=False)
+                debug_print("Failed to copy debug (clipboard tool unavailable).", log_type="ERROR", color_on=False)
         elif debug_choice == '2':
             DEBUG_LOGS.clear()
-            debug_print("Debug logs cleared.", color_on=False)
+            debug_print("Debug logs cleared.", log_type="FLOW", color_on=False)
         elif debug_choice == '0':
             break
+
+
+def log_startup_config(lang_value: str = ""):
+    debug_print(f"OUTPUT_DIR = {OUTPUT_DIR}", log_type="CONFIG")
+    debug_print(f"SOURCE_FILE = {SOURCE_FILE}", log_type="CONFIG")
+    debug_print(f"LANG = {lang_value or DISPLAY_LANG if 'DISPLAY_LANG' in globals() else ''}", log_type="CONFIG")
+    debug_print(f"DEBUG_MODE = {DEBUG_MODE}", log_type="CONFIG")
 
 # Fix emoji encoding for Windows
 import io
@@ -5616,11 +5668,13 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
     try:
         provider = provider.lower()
         if provider == "google":
+            debug_print("GoogleTranslate request sent", log_type="API")
             return GoogleTranslator(source="auto", target=dest).translate(text)
         elif provider == "googlecloud":
             api_key = token.strip()
             if not api_key:
                 return None
+            debug_print("GoogleCloud request sent", log_type="API")
             endpoint = f"https://translation.googleapis.com/language/translate/v2?key={urllib.parse.quote(api_key)}"
             payload = json.dumps({
                 "q": text,
@@ -5639,6 +5693,7 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             return translations[0].get("translatedText")
         elif provider == "deepl":
+            debug_print("DeepL request sent", log_type="API")
             # DeepL direct API with endpoint mode:
             # free:<API_KEY> -> https://api-free.deepl.com/v2/translate
             # pro:<API_KEY>  -> https://api.deepl.com/v2/translate
@@ -5675,6 +5730,7 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             return translations[0].get("text")
         elif provider == "mymemory":
+            debug_print("MyMemory request sent", log_type="API")
             # MyMemory direct API:
             # - free: .../get?q=...&langpair=en|id
             # - email mode: add &de=email@example.com
@@ -5709,6 +5765,7 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             return translated
         elif provider == "libretranslate":
+            debug_print("LibreTranslate request sent", log_type="API")
             # LibreTranslate modes:
             # public:<API_KEY>                -> https://libretranslate.de/translate
             # self:<ENDPOINT_URL>             -> self-host no key
@@ -5781,6 +5838,7 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     
     try:
         if provider in ["openai", "custom", "mistral"]:
+            debug_print(f"{provider} request sent", log_type="API")
             url = base_url if base_url else "https://api.openai.com/v1/chat/completions"
             if provider == "mistral" and not base_url:
                 url = "https://api.mistral.ai/v1/chat/completions"
@@ -5795,6 +5853,7 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             return resp.json()["choices"][0]["message"]["content"].strip()
             
         elif provider == "anthropic":
+            debug_print("anthropic request sent", log_type="API")
             url = base_url if base_url else "https://api.anthropic.com/v1/messages"
             headers = {
                 "x-api-key": token,
@@ -5811,6 +5870,7 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             return resp.json()["content"][0]["text"].strip()
             
         elif provider == "google":
+            debug_print("google ai request sent", log_type="API")
             url = base_url if base_url else f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={token}"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -6687,6 +6747,7 @@ def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, o
         return False
     
     valid_langs = [code for code in lang_codes if code in LANGUAGES and code != 'en']
+    debug_print(f"Translating languages: {', '.join(valid_langs) if valid_langs else '-'}", log_type="FLOW")
     
     if not valid_langs:
         print(t("errors.noLanguagesSelected"))
@@ -6710,6 +6771,7 @@ def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, o
     # Show progress mode
     mode_text = t("progress.translatingWithChangelog") if with_changelog else t("progress.translatingReadmeOnly")
     print(t("progress.startingTranslation", count=len(valid_langs), mode_text=mode_text))
+    debug_print(f"Translation start mode={mode_text} count={len(valid_langs)}", log_type="FLOW")
     
     success_count = 0
     
@@ -6758,6 +6820,7 @@ def translate_with_changelog(lang_codes, with_changelog=True, target_dir=None, o
                       if with_changelog else 
                       t("success.translationCompletedReadmeOnly", count=success_count))
     print(success_message)
+    debug_print(f"Translation completed. success_count={success_count}", log_type="FLOW")
     
     return success_count > 0
 
@@ -6983,6 +7046,7 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
         f.write(final_text)
 
     print(t("readme_created", path=dest_path))
+    debug_print(f"Saved file: {dest_path}", log_type="FLOW")
 
     # After successfully translating README, handle CHANGELOG only when requested
     if include_changelog and has_changelog_file() and has_changelog_section_in_readme():
@@ -7283,7 +7347,7 @@ def interactive_menu():
 
         # Get user input
         choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
-        debug_print(f"User selected main menu option: {choice}", color_on=False)
+        debug_print(f"Selected menu: {choice}", log_type="FLOW", color_on=False)
         
         # Check if remove option is disabled
         if choice == '3' and remove_disabled:
@@ -8376,10 +8440,12 @@ def interactive_menu():
 def main():
     if len(sys.argv) == 1:
         init_display_language()
+        log_startup_config(get_display_language())
         interactive_menu()
         return
 
     display_lang = init_display_language()
+    log_startup_config(display_lang)
     
     # Check --display parameter
     for i, arg in enumerate(sys.argv):
@@ -8593,10 +8659,6 @@ def main():
     print("\n" + t("all_translated") + "\n")
 
 
-DEBUG_WRAP_EXCLUDED = {
-    "debug_print",
-    "_instrument_all_functions_for_debug",
-}
 DEBUG_WRAP_INSTALLED = False
 
 
@@ -8610,15 +8672,9 @@ def _instrument_all_functions_for_debug():
             continue
         if func_obj.__module__ != __name__:
             continue
-        if func_name in DEBUG_WRAP_EXCLUDED:
+        if func_name in EXCLUDE_DEBUG_FUNCS:
             continue
-
-        @functools.wraps(func_obj)
-        def wrapped(*args, __fn=func_obj, __name=func_name, **kwargs):
-            debug_print(f"[FUNC] {__name}() called", color_on=False)
-            return __fn(*args, **kwargs)
-
-        globals()[func_name] = wrapped
+        globals()[func_name] = debug_trace(func_obj)
 
     DEBUG_WRAP_INSTALLED = True
 
