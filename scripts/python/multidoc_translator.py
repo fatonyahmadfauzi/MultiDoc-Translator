@@ -5137,6 +5137,8 @@ def format_api_response_status(test_status: str) -> str:
         return "200 (OK)"
     if ts == "400":
         return "400 (Bad Req)"
+    if ts == "401":
+        return "401 (Unauthorized)"
     if ts == "403":
         return "403 (Forbidden)"
     if ts == "404":
@@ -7632,7 +7634,7 @@ def interactive_menu():
                 else:
                     provider_col_w = 16
                     model_col_w = 10
-                    response_col_w = 12
+                    response_col_w = 16
                     status_col_w = 16
                     auth_col_w = 16
                     endpoint_col_w = 56
@@ -8109,7 +8111,10 @@ def interactive_menu():
                 refresh_ai_health_status()
                 ai_cfg  = load_ai_config()
                 ais     = ai_cfg.get('ais', [])
-                ai_act  = sum(1 for e in ais if e.get('enabled', False))
+                ai_act  = sum(
+                    1 for e in ais
+                    if e.get('enabled', False) and str(e.get('test_status') or "").strip() == "200"
+                )
 
                 print(f"\n{Fore.MAGENTA}{t('ui.aiMenuTitle')}{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}{t('ui.aiSavedNote')}{Style.RESET_ALL}\n")
@@ -8120,7 +8125,8 @@ def interactive_menu():
                     h_idx = cjk_ljust('#', 4)
                     h_prov = cjk_ljust(t('ui.aiTableProvider'), 14)
                     h_model = cjk_ljust("Model", 20)
-                    h_resp = cjk_ljust(t('ui.apiTableResponse'), 12)
+                    response_col_w = 16
+                    h_resp = cjk_ljust(t('ui.apiTableResponse'), response_col_w)
                     h_stat = cjk_ljust(t('ui.aiTableStatus'), 16)
                     h_auth = cjk_ljust("Auth", 14)
                     h_ep = "Endpoint"
@@ -8151,7 +8157,7 @@ def interactive_menu():
                         v_idx   = cjk_ljust(str(idx) + ".", 4)
                         v_prov  = cjk_ljust(entry.get('provider', 'unknown'), 14)
                         v_model = cjk_ljust(entry.get('model', 'unknown'), 20)
-                        v_resp = cjk_ljust(format_api_response_status(entry.get('test_status')), 12)
+                        v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
                         v_ep = cjk_ljust(cjk_truncate(format_ai_endpoint(entry), 56), 56)
                         
                         tok = entry.get('token', '')
