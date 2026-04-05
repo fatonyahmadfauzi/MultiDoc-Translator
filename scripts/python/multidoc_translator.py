@@ -5203,6 +5203,13 @@ def format_api_endpoint(entry: dict) -> str:
     return "default"
 
 
+def is_system_default_api(entry: dict) -> bool:
+    """True when entry is the built-in Google free fallback."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+    return provider == "google" and token == ""
+
+
 def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
@@ -7844,6 +7851,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be edited." + Style.RESET_ALL
+                        continue
                     updates = {}
                     old_token = (entry.get("token") or "").strip()
                     old_provider = (entry.get("provider") or "").strip().lower()
@@ -7958,6 +7968,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be deleted." + Style.RESET_ALL
+                        continue
                     confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=format_api_display_name(entry)) + " " + Fore.WHITE).strip().lower()
                     if confirm == 'y':
                         delete_api(entry['id'])
@@ -8005,6 +8018,9 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
+                    if is_system_default_api(entry):
+                        _api_msg = Fore.YELLOW + "Google free (default system) cannot be enabled/disabled." + Style.RESET_ALL
+                        continue
                     new_status = toggle_api(entry['id'])
                     if new_status == "active":
                         _api_msg = Fore.GREEN + t('ui.apiEnabled', name=entry['name']) + Style.RESET_ALL
