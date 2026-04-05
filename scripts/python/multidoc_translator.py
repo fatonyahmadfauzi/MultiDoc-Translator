@@ -5318,7 +5318,22 @@ def refresh_api_health_status():
     changed = False
     for entry in config.get("apis", []):
         curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
-        if curr_status != "active":
+        # Built-in Google free should always be treated as fallback-active.
+        if is_system_default_api(entry):
+            provider = entry.get("provider", "")
+            token = entry.get("token", "")
+            probe = _translate_with_provider("hello", "fr", provider, token)
+            target_status = "200" if is_successful_translation_result(probe) else "400"
+            if entry.get("test_status") != target_status:
+                entry["test_status"] = target_status
+                changed = True
+            if entry.get("status") != "active" or entry.get("active") is not True:
+                entry["status"] = "active"
+                entry["active"] = True
+                changed = True
+            continue
+
+        if curr_status == "inactive":
             continue
         provider = entry.get("provider", "")
         token = entry.get("token", "")
@@ -5326,6 +5341,10 @@ def refresh_api_health_status():
         if is_successful_translation_result(probe):
             if entry.get("test_status") != "200":
                 entry["test_status"] = "200"
+                changed = True
+            if curr_status == "limit":
+                entry["status"] = "active"
+                entry["active"] = True
                 changed = True
         else:
             if entry.get("test_status") != "400":
