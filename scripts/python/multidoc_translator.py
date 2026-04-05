@@ -8227,18 +8227,35 @@ def interactive_menu():
                         _ai_msg = ""
                         continue
 
-                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
-                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
-                    if ai_provider == "google" and discovered_models:
-                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
-                    elif ai_provider == "google":
-                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
-
                     base_url = None
                     if ai_provider == "custom":
                         endpoint_in = input(f"{Fore.CYAN}Endpoint URL (Base URL) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if endpoint_in:
-                            base_url = endpoint_in
+                        if not endpoint_in:
+                            _ai_msg = Fore.YELLOW + "Custom provider requires endpoint URL." + Style.RESET_ALL
+                            continue
+                        base_url = endpoint_in
+                        model_in = input(f"{Fore.CYAN}Custom model name {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
+                        if not model_in:
+                            _ai_msg = Fore.YELLOW + "Custom provider requires model name." + Style.RESET_ALL
+                            continue
+                    else:
+                        model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                        print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                        if ai_provider == "google" and discovered_models:
+                            print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                        elif ai_provider == "google":
+                            print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
+
+                    print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
+                    ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
+                    if ok:
+                        print(Fore.GREEN + f"✅ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.GREEN + f"✅ AI response: {ai_test_response}" + Style.RESET_ALL)
+                    else:
+                        print(Fore.RED + f"❌ AI test status: {ai_test_status}" + Style.RESET_ALL)
+                        print(Fore.RED + f"❌ AI response: {ai_test_response}" + Style.RESET_ALL)
+                        _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}). Entry was not saved." + Style.RESET_ALL
+                        continue
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
                     ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
@@ -8286,13 +8303,26 @@ def interactive_menu():
                         updates['token'] = new_key
                         
                     if entry.get('provider') == 'custom':
+                        new_model = input(f"{Fore.CYAN}New model [{entry.get('model','custom-model')}]: {Fore.WHITE}").strip()
+                        if new_model:
+                            updates['model'] = new_model
                         new_base = input(f"{Fore.CYAN}New Base URL [{entry.get('base_url','')}]: {Fore.WHITE}").strip()
                         if new_base:
                             updates['base_url'] = new_base
 
                     if updates:
+                        if entry.get('provider') == 'custom':
+                            check_model = updates.get('model', entry.get('model', 'custom-model'))
+                            check_token = updates.get('token', entry.get('token', ''))
+                            check_base = updates.get('base_url', entry.get('base_url'))
+                            print(Fore.YELLOW + "🔍 Testing updated custom AI connection..." + Style.RESET_ALL)
+                            ok, ai_test_status, ai_test_response = test_ai_provider('custom', check_model, check_token, base_url=check_base)
+                            if not ok:
+                                _ai_msg = Fore.RED + f"Custom AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
+                                continue
+                            updates['test_status'] = ai_test_status
                         edit_ai(entry['id'], **updates)
-                        _ai_msg = Fore.GREEN + t('ui.aiUpdated', provider=entry['provider'], model=entry.get('model', 'unknown')) + Style.RESET_ALL
+                        _ai_msg = Fore.GREEN + t('ui.aiUpdated', provider=entry['provider'], model=updates.get('model', entry.get('model', 'unknown'))) + Style.RESET_ALL
                     else:
                         _ai_msg = ""
 
