@@ -5159,6 +5159,8 @@ def format_api_model(entry: dict) -> str:
     if provider == "libretranslate":
         if token.startswith("self:") or token.startswith("selfkey:"):
             return "self-host"
+        if token.startswith("public:"):
+            return "public"
         return "free"
     if provider == "mymemory":
         if token.startswith("email:"):
@@ -5186,12 +5188,14 @@ def format_api_endpoint(entry: dict) -> str:
     if provider == "libretranslate":
         tok = token.lower()
         if tok.startswith("self:"):
-            return token.split(":", 1)[1].strip() or "self-host"
+            manual_endpoint = token.split(":", 1)[1].strip()
+            return manual_endpoint or "self-host"
         if tok.startswith("selfkey:"):
             rest = token.split(":", 1)[1]
             if "|" in rest:
                 _, endpoint = rest.split("|", 1)
-                return endpoint.strip() or "self-host"
+                manual_endpoint = endpoint.strip()
+                return manual_endpoint or "self-host"
             return "self-host"
         return "https://libretranslate.com/translate"
     if provider == "custom":
