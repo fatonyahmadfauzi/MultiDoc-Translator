@@ -5233,7 +5233,6 @@ SUPPORTED_PROVIDERS = {
     "deepl":          "DeepL (Free/Pro — token required)",
     "mymemory":       "MyMemory (Free with optional token for higher quota)",
     "libretranslate": "LibreTranslate (Free self-hosted / public servers)",
-    "microsoft":      "Microsoft Azure Translator (token required — free tier 2M chars/month)",
     "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
 }
 
@@ -5247,7 +5246,6 @@ PROVIDER_DEFAULT_LIMITS = {
     "deepl":          "500k chars/month",
     "mymemory":       "1k req/day",
     "libretranslate": "Varies",
-    "microsoft":      "2M chars/month",
     "papago":         "10k chars/day",
 }
 
@@ -5686,9 +5684,6 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
                 return None
             translated = data.get("translatedText")
             return translated if translated else None
-        elif provider == "microsoft":
-            from deep_translator import MicrosoftTranslator
-            return MicrosoftTranslator(api_key=token, source="auto", target=dest).translate(text)
         elif provider == "papago":
             # token format = "client_id:secret_key"
             from deep_translator import PapagoTranslator
