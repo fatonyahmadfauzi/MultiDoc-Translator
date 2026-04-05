@@ -7865,10 +7865,13 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
+                    toggle_name_w = 36
+                    toggle_status_w = 14
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
-                    h_stat = t('ui.apiTableStatus')
+                    h_name = cjk_ljust(t('ui.apiTableName'), toggle_name_w)
+                    h_stat = cjk_ljust(t('ui.apiTableStatus'), toggle_status_w)
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_stat}{Style.RESET_ALL}")
+                    print("─" * 58)
                     for idx2, e2 in enumerate(apis, 1):
                         status = e2.get('status')
                         if not status:
@@ -7876,13 +7879,18 @@ def interactive_menu():
                         
                         if status == 'limit':
                             st2 = t('ui.apiLimit')
+                            st2_col = Fore.YELLOW
                         elif status == 'active':
                             st2 = t('ui.apiActive')
+                            st2_col = Fore.GREEN
                         else:
                             st2 = t('ui.apiInactive')
+                            st2_col = Fore.RED
 
-                        v_name = cjk_ljust(format_api_display_name(e2), 34)
-                        print(f"  {idx2}. {v_name} {st2}")
+                        v_idx = cjk_ljust(f"{idx2}.", 4)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), toggle_name_w), toggle_name_w)
+                        v_stat = cjk_ljust(st2, toggle_status_w)
+                        print(f"  {v_idx} {v_name} {st2_col}{v_stat}{Style.RESET_ALL}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToToggle')} (1-{len(apis)}, 0=back): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
