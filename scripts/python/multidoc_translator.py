@@ -13,6 +13,7 @@ import shutil
 import sys
 import webbrowser
 import urllib.request
+import urllib.parse
 import requests
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
@@ -450,6 +451,7 @@ Examples:
         "ui.apiNewToken": "New token (Enter to keep, q=cancel)",
         "ui.apiActiveLabel": "active",
         "ui.provider_google": "Google Translate (Free, no token needed)",
+        "ui.provider_googlecloud": "Google Cloud Translation API (API key required)",
         "ui.provider_deepl": "DeepL (Free/Pro — token required)",
         "ui.provider_mymemory": "MyMemory (Free with optional token for higher quota)",
         "ui.provider_libretranslate": "LibreTranslate (Free self-hosted / public servers)",
@@ -478,11 +480,11 @@ Examples:
         "ui.aiProviders": "AI Providers:",
         "ui.aiEnterName": "Enter a name for this AI",
         "ui.aiAuthType": "Authentication method",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Enter API key",
-        "ui.aiBrowserOpening": "🌐 Opening browser for login...",
-        "ui.aiBrowserNote": "Browser opened. Log in, then press Enter to continue.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(removed)",
+        "ui.aiEnterKey": "Enter API key or token",
+        "ui.aiBrowserOpening": "Browser login removed. Use API key/token.",
+        "ui.aiBrowserNote": "Use API key/token authentication.",
         "ui.aiSelectToEdit": "Enter AI number to edit",
         "ui.aiSelectToDelete": "Enter AI number to delete",
         "ui.aiSelectToToggle": "Enter AI number to enable/disable",
@@ -503,7 +505,7 @@ Examples:
         "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
         "ui.ai_provider_perplexity": "Perplexity AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + key)",
+        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -819,6 +821,7 @@ Contoh:
         "ui.apiNewToken": "Token baru (Enter untuk pertahankan, q=batal)",
         "ui.apiActiveLabel": "aktif",
         "ui.provider_google": "Google Translate (Gratis, tidak perlu token)",
+        "ui.provider_googlecloud": "Google Cloud Translation API (wajib API key)",
         "ui.provider_deepl": "DeepL (Gratis/Pro — memerlukan token)",
         "ui.provider_mymemory": "MyMemory (Gratis dengan token opsional untuk kuota lebih)",
         "ui.provider_libretranslate": "LibreTranslate (Self-hosted gratis / server publik)",
@@ -847,11 +850,11 @@ Contoh:
         "ui.aiProviders": "Provider AI:",
         "ui.aiEnterName": "Masukkan nama untuk AI ini",
         "ui.aiAuthType": "Metode autentikasi",
-        "ui.aiAuthKey": "[1] API Key",
-        "ui.aiAuthBrowser": "[2] Login via browser",
-        "ui.aiEnterKey": "Masukkan API key",
-        "ui.aiBrowserOpening": "🌐 Membuka browser untuk login...",
-        "ui.aiBrowserNote": "Browser dibuka. Login, lalu tekan Enter untuk melanjutkan.",
+        "ui.aiAuthKey": "API Key / Token",
+        "ui.aiAuthBrowser": "(dihapus)",
+        "ui.aiEnterKey": "Masukkan API key atau token",
+        "ui.aiBrowserOpening": "Login browser dihapus. Gunakan API key/token.",
+        "ui.aiBrowserNote": "Gunakan autentikasi API key/token.",
         "ui.aiSelectToEdit": "Masukkan nomor AI untuk diedit",
         "ui.aiSelectToDelete": "Masukkan nomor AI untuk dihapus",
         "ui.aiSelectToToggle": "Masukkan nomor AI untuk aktifkan/nonaktifkan",
@@ -866,13 +869,13 @@ Contoh:
         "ui.aiNewName": "Nama baru [{name}] (Enter untuk pertahankan, q=batal)",
         "ui.aiNewKey": "API key baru (Enter untuk pertahankan, q=batal)",
         "ui.aiCancelHint": "(kosongkan untuk batal)",
-        "ui.ai_provider_openai": "OpenAI ChatGPT (API key atau login browser)",
-        "ui.ai_provider_gemini": "Google Gemini (API key atau login browser)",
-        "ui.ai_provider_claude": "Anthropic Claude (API key atau login browser)",
-        "ui.ai_provider_copilot": "Microsoft Copilot (login browser)",
-        "ui.ai_provider_mistral": "Mistral AI (API key atau login browser)",
-        "ui.ai_provider_perplexity": "Perplexity AI (API key atau login browser)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + key)",
+        "ui.ai_provider_openai": "OpenAI ChatGPT (API key)",
+        "ui.ai_provider_gemini": "Google Gemini (API key)",
+        "ui.ai_provider_claude": "Anthropic Claude (API key)",
+        "ui.ai_provider_copilot": "Microsoft Copilot (API key)",
+        "ui.ai_provider_mistral": "Mistral AI (API key)",
+        "ui.ai_provider_perplexity": "Perplexity AI (API key)",
+        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -4508,6 +4511,19 @@ def cjk_ljust(text, width):
     return text_str + (' ' * pad_len)
 
 
+def cjk_truncate(text, max_width):
+    """Truncate text by terminal display width and append ellipsis when needed."""
+    text_str = str(text)
+    if wcswidth(text_str) <= max_width:
+        return text_str
+    out = ""
+    for ch in text_str:
+        if wcswidth(out + ch + "…") > max_width:
+            break
+        out += ch
+    return out + "…"
+
+
 def create_translation_status_table(base_output_dir=None, target_dir=None, include_readme=True, include_changelog=True):
     """Create a simple text-based table showing translation status"""
     output_dirs = resolve_translation_output_dirs(base_output_dir, target_dir)
@@ -5148,25 +5164,22 @@ API_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'api_config.json')
 # Supported provider keys
 SUPPORTED_PROVIDERS = {
     "google":         "Google Translate (Free, no token needed)",
+    "googlecloud":    "Google Cloud Translation API (API key required)",
     "deepl":          "DeepL (Free/Pro — token required)",
     "mymemory":       "MyMemory (Free with optional token for higher quota)",
     "libretranslate": "LibreTranslate (Free self-hosted / public servers)",
-    "yandex":         "Yandex Translate (token required — free tier available)",
-    "microsoft":      "Microsoft Azure Translator (token required — free tier 2M chars/month)",
-    "papago":         "Papago / Naver (best for Korean — client_id:secret_key format)",
-    "custom":         "Custom REST API (any HTTP endpoint with Bearer token)",
 }
+
+# Providers where API token is optional (can still work without token)
+OPTIONAL_TOKEN_PROVIDERS = {"mymemory", "libretranslate"}
 
 # Default quota/limits per translation provider
 PROVIDER_DEFAULT_LIMITS = {
     "google":         "Unlimited",
+    "googlecloud":    "Depends on billing/quota",
     "deepl":          "500k chars/month",
     "mymemory":       "1k req/day",
     "libretranslate": "Varies",
-    "yandex":         "1M chars/month",
-    "microsoft":      "2M chars/month",
-    "papago":         "10k chars/day",
-    "custom":         "Varies",
 }
 
 
@@ -5190,7 +5203,40 @@ def save_api_config(config: dict):
         print(Fore.RED + f"❌ Failed to save API config: {e}" + Style.RESET_ALL)
 
 
-def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active") -> str:
+def format_api_display_name(entry: dict) -> str:
+    """Display-friendly API name with mode/credential hint."""
+    provider = (entry.get("provider") or "").lower()
+    token = (entry.get("token") or "").strip()
+    if provider == "google":
+        return "google (free)"
+    if provider == "googlecloud":
+        return f"googlecloud (key:{token})" if token else "googlecloud"
+    if provider == "mymemory":
+        if not token:
+            return "mymemory (free)"
+        if token.lower().startswith("email:"):
+            return f"mymemory ({token})"
+        if token.lower().startswith("key:"):
+            return f"mymemory ({token})"
+    if provider == "deepl":
+        if token.startswith("free:"):
+            return f"deepl (free - key:{token.split(':', 1)[1]})"
+        if token.startswith("pro:"):
+            return f"deepl (pro - key:{token.split(':', 1)[1]})"
+    if provider == "libretranslate":
+        if token.startswith("public:"):
+            return f"libretranslate (public server - key:{token.split(':', 1)[1]})"
+        if token.startswith("self:"):
+            return f"libretranslate (self-host - endpoint:{token.split(':', 1)[1]})"
+        if token.startswith("selfkey:"):
+            rest = token.split(":", 1)[1]
+            if "|" in rest:
+                key, endpoint = rest.split("|", 1)
+                return f"libretranslate (self-host - endpoint:{endpoint} key:{key})"
+    return entry.get("name", provider)
+
+
+def add_api(name: str, provider: str, token: str, limit: str = "", status: str = "active", test_status: str = "") -> str:
     """Add a new API entry. Returns the new entry's id."""
     config = load_api_config()
     entry = {
@@ -5201,6 +5247,7 @@ def add_api(name: str, provider: str, token: str, limit: str = "", status: str =
         "limit": limit or PROVIDER_DEFAULT_LIMITS.get(provider.lower(), ""),
         "status": status,
         "active": status == "active",
+        "test_status": test_status,
     }
     config["apis"].append(entry)
     save_api_config(config)
@@ -5258,6 +5305,57 @@ def get_active_apis() -> list:
         and e["provider"] != "google"
     ]
 
+API_ERROR_PATTERNS = (
+    "authorization failed",
+    "quota exceeded",
+    "invalid email provided",
+    "service unavailable",
+    "invalid api key",
+    "too many requests",
+)
+
+
+def is_successful_translation_result(result: str | None) -> bool:
+    """Return True only for valid translation output, not provider error payloads."""
+    if not result:
+        return False
+    lowered = str(result).strip().lower()
+    if not lowered:
+        return False
+    return not any(pattern in lowered for pattern in API_ERROR_PATTERNS)
+
+
+def refresh_api_health_status():
+    """
+    Realtime-ish health refresh for saved APIs:
+    - test active providers with a lightweight translation probe
+    - set test_status to '200' on success, 'false' on failure
+    - auto-disable provider when health check fails
+    """
+    config = load_api_config()
+    changed = False
+    for entry in config.get("apis", []):
+        curr_status = entry.get("status", "active" if entry.get("active", False) else "inactive")
+        if curr_status != "active":
+            continue
+        provider = entry.get("provider", "")
+        token = entry.get("token", "")
+        probe = _translate_with_provider("hello", "fr", provider, token)
+        if is_successful_translation_result(probe):
+            if entry.get("test_status") != "200":
+                entry["test_status"] = "200"
+                changed = True
+        else:
+            if entry.get("test_status") != "false":
+                entry["test_status"] = "false"
+                changed = True
+            if entry.get("status") != "inactive" or entry.get("active", True):
+                entry["status"] = "inactive"
+                entry["active"] = False
+                changed = True
+    if changed:
+        save_api_config(config)
+
 
 # ---------------------- AI MANAGEMENT SYSTEM ----------------------
 
@@ -5266,35 +5364,14 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
-    "openai":      "OpenAI ChatGPT",
-    "gemini":      "Google Gemini",
-    "claude":      "Anthropic Claude",
-    "copilot":     "Microsoft Copilot",
-    "mistral":     "Mistral AI",
-    "perplexity":  "Perplexity AI",
-    "custom":      "Custom AI Endpoint",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
-    "openai":      "Pay-per-use",
-    "gemini":      "60 req/min (free)",
-    "claude":      "Pay-per-use",
-    "copilot":     "Unlimited (browser)",
-    "mistral":     "Pay-per-use",
-    "perplexity":  "5 req/min (free)",
-    "custom":      "Varies",
 }
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
-    "openai":      "https://chat.openai.com",
-    "gemini":      "https://gemini.google.com",
-    "claude":      "https://claude.ai",
-    "copilot":     "https://copilot.microsoft.com",
-    "mistral":     "https://chat.mistral.ai",
-    "perplexity":  "https://www.perplexity.ai",
-    "custom":      None,
 }
 
 
@@ -5396,60 +5473,150 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
     """
     try:
         provider = provider.lower()
-        if provider == "deepl":
-            from deep_translator import DeeplTranslator
-            return DeeplTranslator(api_key=token, source="auto", target=dest).translate(text)
-        elif provider == "mymemory":
-            from deep_translator import MyMemoryTranslator
-            translator = MyMemoryTranslator(source="auto", target=dest)
-            if token:
-                translator.api_key = token
-            return translator.translate(text)
-        elif provider == "libretranslate":
-            from deep_translator import LibreTranslateTranslator
-            return LibreTranslateTranslator(
-                api_key=token or "",
-                source="auto",
-                target=dest
-            ).translate(text)
-        elif provider == "yandex":
-            from deep_translator import YandexTranslator
-            return YandexTranslator(api_key=token, source="auto", target=dest).translate(text)
-        elif provider == "microsoft":
-            from deep_translator import MicrosoftTranslator
-            return MicrosoftTranslator(api_key=token, source="auto", target=dest).translate(text)
-        elif provider == "papago":
-            # token format = "client_id:secret_key"
-            from deep_translator import PapagoTranslator
-            parts = token.split(":", 1)
-            client_id = parts[0].strip() if len(parts) >= 1 else ""
-            secret = parts[1].strip() if len(parts) >= 2 else ""
-            return PapagoTranslator(
-                client_id=client_id, secret_key=secret,
-                source="auto", target=dest
-            ).translate(text)
-        elif provider == "custom":
-            # Custom REST API — expects entry to have 'endpoint' field
-            # POST {endpoint} with JSON {q: text, target: dest}
-            # Auth header: Bearer <token> (or no auth if token is blank)
-            import urllib.request as _urllib
-            import json as _json
-            endpoint = token.split("|", 1)[1] if "|" in token else ""
-            real_token = token.split("|", 1)[0] if "|" in token else token
-            if not endpoint:
+        if provider == "google":
+            return GoogleTranslator(source="auto", target=dest).translate(text)
+        elif provider == "googlecloud":
+            api_key = token.strip()
+            if not api_key:
                 return None
-            payload = _json.dumps({"q": text, "target": dest, "source": "auto"}).encode()
-            req = _urllib.Request(endpoint, data=payload,
-                                  headers={"Content-Type": "application/json"})
-            if real_token:
-                req.add_header("Authorization", f"Bearer {real_token}")
-            with _urllib.urlopen(req, timeout=10) as resp:
-                data = _json.loads(resp.read())
-            # Try common response field names
-            for key in ("translatedText", "translation", "text", "result", "output"):
-                if key in data:
-                    return data[key]
-            return None
+            endpoint = f"https://translation.googleapis.com/language/translate/v2?key={urllib.parse.quote(api_key)}"
+            payload = json.dumps({
+                "q": text,
+                "target": dest,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            translations = ((data.get("data") or {}).get("translations") or [])
+            if not translations:
+                return None
+            return translations[0].get("translatedText")
+        elif provider == "deepl":
+            # DeepL direct API with endpoint mode:
+            # free:<API_KEY> -> https://api-free.deepl.com/v2/translate
+            # pro:<API_KEY>  -> https://api.deepl.com/v2/translate
+            mode = "free"
+            real_key = token.strip()
+            if token.startswith("free:"):
+                mode = "free"
+                real_key = token.split(":", 1)[1].strip()
+            elif token.startswith("pro:"):
+                mode = "pro"
+                real_key = token.split(":", 1)[1].strip()
+
+            if not real_key:
+                return None
+
+            endpoint = "https://api-free.deepl.com/v2/translate" if mode == "free" else "https://api.deepl.com/v2/translate"
+            payload = json.dumps({
+                "text": [text],
+                "target_lang": dest.upper(),
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={
+                    "Authorization": f"DeepL-Auth-Key {real_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            translations = data.get("translations") or []
+            if not translations:
+                return None
+            return translations[0].get("text")
+        elif provider == "mymemory":
+            # MyMemory direct API:
+            # - free: .../get?q=...&langpair=en|id
+            # - email mode: add &de=email@example.com
+            # - key mode: add &key=API_KEY
+            base_url = "https://api.mymemory.translated.net/get"
+            params = {
+                "q": text,
+                "langpair": f"en|{dest}",
+            }
+            if token.startswith("email:"):
+                params["de"] = token.split(":", 1)[1].strip()
+            elif token.startswith("key:"):
+                params["key"] = token.split(":", 1)[1].strip()
+            elif token:
+                # Backward-compatibility for older saved entries
+                params["key"] = token
+
+            url = f"{base_url}?{urllib.parse.urlencode(params)}"
+            with urllib.request.urlopen(url, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            response_status = str(data.get("responseStatus", "")).strip()
+            translated = (data.get("responseData", {}) or {}).get("translatedText", "")
+            response_details = str(data.get("responseDetails", "")).strip().lower()
+
+            # MyMemory can return text like "INVALID EMAIL PROVIDED" with responseStatus=403
+            # Treat non-200 and known invalid responses as failure.
+            if response_status != "200":
+                return None
+            if not translated:
+                return None
+            if "invalid" in translated.lower() or "invalid" in response_details:
+                return None
+            return translated
+        elif provider == "libretranslate":
+            # LibreTranslate modes:
+            # public:<API_KEY>                -> https://libretranslate.de/translate
+            # self:<ENDPOINT_URL>             -> self-host no key
+            # selfkey:<API_KEY>|<ENDPOINT_URL> -> self-host with key
+            endpoint = "https://libretranslate.de/translate"
+            api_key = ""
+            tok = token.strip()
+
+            if tok.startswith("public:"):
+                api_key = tok.split(":", 1)[1].strip()
+                if not api_key:
+                    return None
+            elif tok.startswith("self:"):
+                endpoint = tok.split(":", 1)[1].strip()
+                if not endpoint:
+                    return None
+            elif tok.startswith("selfkey:"):
+                rest = tok.split(":", 1)[1]
+                if "|" not in rest:
+                    return None
+                api_key, endpoint = rest.split("|", 1)
+                api_key = api_key.strip()
+                endpoint = endpoint.strip()
+                if not endpoint:
+                    return None
+            elif tok:
+                # Backward-compatible token-only mode treated as public key
+                api_key = tok
+
+            payload = {
+                "q": text,
+                "source": "en",
+                "target": dest,
+                "format": "text",
+            }
+            if api_key:
+                payload["api_key"] = api_key
+
+            req = urllib.request.Request(
+                endpoint,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            if isinstance(data, dict) and data.get("error"):
+                return None
+            translated = data.get("translatedText")
+            return translated if translated else None
         else:
             # Unknown provider — skip
             return None
@@ -5475,7 +5642,7 @@ def translate_text(text: str, dest: str) -> str:
         name = api_entry.get("name", provider)
         try:
             result = _translate_with_provider(text, dest, provider, token)
-            if result:
+            if is_successful_translation_result(result):
                 return result
         except Exception:
             pass  # Fall through to next API
@@ -7235,6 +7402,7 @@ def interactive_menu():
             # API Settings
             while True:
                 os.system('cls' if os.name == 'nt' else 'clear')
+                refresh_api_health_status()
                 api_cfg = load_api_config()
                 apis = api_cfg.get('apis', [])
                 active_n = sum(1 for e in apis if e.get('active', False))
@@ -7245,12 +7413,14 @@ def interactive_menu():
                 if not apis:
                     print(f"{Fore.LIGHTBLACK_EX}{t('ui.apiNoEntries')}{Style.RESET_ALL}")
                 else:
+                    name_col_w = 36
+                    provider_col_w = 22
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
-                    h_prov = cjk_ljust(t('ui.apiTableProvider'), 16)
+                    h_name = cjk_ljust(t('ui.apiTableName'), name_col_w)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), provider_col_w)
                     h_stat = t('ui.apiTableStatus')
                     print(f"{Fore.WHITE}{h_idx} {h_name} {h_prov} {h_stat}{Style.RESET_ALL}")
-                    print("─" * 56)
+                    print("─" * 72)
                     for idx, entry in enumerate(apis, 1):
                         status = entry.get('status')
                         if not status:
@@ -7267,8 +7437,10 @@ def interactive_menu():
                             st_color = Fore.RED
 
                         v_idx = cjk_ljust(idx, 4)
-                        v_name = cjk_ljust(entry['name'], 20)
-                        v_prov = cjk_ljust(entry['provider'], 16)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(entry), name_col_w), name_col_w)
+                        test_status = (entry.get('test_status') or "").strip()
+                        prov_with_status = entry['provider'] if not test_status else f"{entry['provider']} ({test_status})"
+                        v_prov = cjk_ljust(cjk_truncate(prov_with_status, provider_col_w), provider_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_name} {v_prov} "
                               f"{st_color}{st}{Style.RESET_ALL}")
@@ -7296,11 +7468,14 @@ def interactive_menu():
                 else:
                     _api_msg = ""
 
-                api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
-
-                if api_choice not in ('0', '1', '2', '3', '4'):
-                    _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
-                    continue
+                while True:
+                    api_choice = input(f"\n{Fore.YELLOW}[+] {t('ui.selectOption')} {Fore.WHITE}").strip()
+                    if api_choice in ('0', '1', '2', '3', '4'):
+                        break
+                    if api_choice == "":
+                        # Ignore empty-enter without forcing full menu redraw
+                        continue
+                    print(Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL)
 
                 if api_choice == '0':
                     break
@@ -7310,10 +7485,25 @@ def interactive_menu():
                     os.system('cls' if os.name == 'nt' else 'clear')
                     print(f"\n{Fore.CYAN}[+] {t('ui.apiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.apiProviders')}{Style.RESET_ALL}")
+                    used_google_free = any((e.get("provider") == "google") for e in apis)
+                    used_mymemory_free = any((e.get("provider") == "mymemory" and not (e.get("token") or "").strip()) for e in apis)
+                    used_mymemory_emails = {
+                        (e.get("token") or "").strip().lower()
+                        for e in apis
+                        if e.get("provider") == "mymemory" and (e.get("token") or "").lower().startswith("email:")
+                    }
+                    used_mymemory_keys = {
+                        (e.get("token") or "").strip()
+                        for e in apis
+                        if e.get("provider") == "mymemory" and (e.get("token") or "").lower().startswith("key:")
+                    }
                     prov_list = list(SUPPORTED_PROVIDERS.keys())
                     for pi, (pk, pdesc) in enumerate(SUPPORTED_PROVIDERS.items(), 1):
                         desc = t(f'ui.provider_{pk}')
-                        print(f"  [{pi}] {pk:<16} — {desc}")
+                        is_disabled = (pk == "google" and used_google_free)
+                        row_color = Fore.LIGHTBLACK_EX if is_disabled else Fore.WHITE
+                        suffix = " (already used)" if is_disabled else ""
+                        print(f"{row_color}  [{pi}] {pk:<16} — {desc}{suffix}{Style.RESET_ALL}")
                     print(f"  {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
                     prov_input = input(f"\n{Fore.CYAN}{t('ui.apiSelectProvider')} (1-{len(prov_list)}, 0=cancel): {Fore.WHITE}").strip()
                     if prov_input == '0' or prov_input == '':
@@ -7323,42 +7513,130 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     provider = prov_list[int(prov_input) - 1]
-
-                    # Name input — empty to cancel
-                    name_in = input(f"{Fore.CYAN}{t('ui.apiEnterName')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                    if not name_in:
-                        _api_msg = ""
+                    if provider == "google" and used_google_free:
+                        _api_msg = Fore.YELLOW + "Google free is already used. Choose another provider." + Style.RESET_ALL
                         continue
 
+                    # Default name follows selected provider (no manual prompt)
+                    name_in = provider
+
                     token_in = ""
-                    endpoint_in = ""
                     _cancelled = False
+                    test_status = "n/a"
 
                     if provider == "google":
                         pass  # No token needed
-                    elif provider == "papago":
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Papago token format: client_id:secret_key{Style.RESET_ALL}")
-                        token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (client_id:secret_key) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not token_in:
-                            _api_msg = ""
-                            _cancelled = True
-                    elif provider == "custom":
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Custom API: POST endpoint receiving JSON {{q, source, target}}{Style.RESET_ALL}")
-                        print(f"{Fore.LIGHTBLACK_EX}  ℹ️  Response must contain one of: translatedText / translation / text / result / output{Style.RESET_ALL}")
-                        endpoint_in = input(f"{Fore.CYAN}  Endpoint URL {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
+                    elif provider == "googlecloud":
+                        cloud_key = input(f"{Fore.CYAN}  Enter Google Cloud API key: {Fore.WHITE}").strip()
+                        if not cloud_key:
                             _api_msg = ""
                             _cancelled = True
                         else:
-                            token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} (optional Bearer token) {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                            if not token_in:
+                            token_in = cloud_key
+                    elif provider == "deepl":
+                        print(f"{Fore.WHITE}  DeepL endpoint mode:{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [1] Free  — https://api-free.deepl.com/v2/translate{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Pro   — https://api.deepl.com/v2/translate{Style.RESET_ALL}")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        deepl_mode = input(f"{Fore.CYAN}  Select mode (1-2, 0=cancel): {Fore.WHITE}").strip()
+                        if deepl_mode in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif deepl_mode not in ("1", "2"):
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                            _cancelled = True
+                        else:
+                            deepl_key = input(f"{Fore.CYAN}  Enter DeepL API key: {Fore.WHITE}").strip()
+                            if not deepl_key:
                                 _api_msg = ""
                                 _cancelled = True
                             else:
-                                token_in = f"{token_in}|{endpoint_in}"
+                                deepl_prefix = "free" if deepl_mode == "1" else "pro"
+                                token_in = f"{deepl_prefix}:{deepl_key}"
+                    elif provider == "libretranslate":
+                        print(f"{Fore.WHITE}  LibreTranslate mode:{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [1] Public server + API key (https://libretranslate.de/translate){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Self-host (no key, endpoint manual input){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [3] Self-host + API key (endpoint manual input){Style.RESET_ALL}")
+                        print(f"{Fore.LIGHTBLACK_EX}      Examples: http://localhost:5000/translate | http://localhost:8080/translate{Style.RESET_ALL}")
+                        print(f"{Fore.LIGHTBLACK_EX}                https://yourdomain.com/translate | https://yourdomain.com/api/translate{Style.RESET_ALL}")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        lt_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
+                        if lt_choice in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif lt_choice == "1":
+                            lt_key = input(f"{Fore.CYAN}  Enter public API key: {Fore.WHITE}").strip()
+                            if not lt_key:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"public:{lt_key}"
+                        elif lt_choice == "2":
+                            lt_endpoint = input(f"{Fore.CYAN}  Enter self-host endpoint URL: {Fore.WHITE}").strip()
+                            if not lt_endpoint:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"self:{lt_endpoint}"
+                        elif lt_choice == "3":
+                            lt_endpoint = input(f"{Fore.CYAN}  Enter self-host endpoint URL: {Fore.WHITE}").strip()
+                            lt_key = input(f"{Fore.CYAN}  Enter self-host API key: {Fore.WHITE}").strip()
+                            if not lt_endpoint or not lt_key:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                token_in = f"selfkey:{lt_key}|{lt_endpoint}"
+                        else:
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                            _cancelled = True
+                    elif provider == "mymemory":
+                        print(f"{Fore.WHITE}  MyMemory auth mode:{Style.RESET_ALL}")
+                        free_mode_color = Fore.LIGHTBLACK_EX if used_mymemory_free else Fore.WHITE
+                        print(f"{free_mode_color}    [1] Free (no token, no email){' (already used)' if used_mymemory_free else ''}{Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [2] Email mode (de=email@domain.com){Style.RESET_ALL}")
+                        print(f"{Fore.WHITE}    [3] API key mode (key=API_KEY){Style.RESET_ALL}")
+                        print(f"    {Fore.LIGHTBLACK_EX}[0] {t('ui.apiCancel')}{Style.RESET_ALL}")
+                        mm_choice = input(f"{Fore.CYAN}  Select mode (1-3, 0=cancel): {Fore.WHITE}").strip()
+                        if mm_choice in ("0", ""):
+                            _api_msg = ""
+                            _cancelled = True
+                        elif mm_choice == "1":
+                            if used_mymemory_free:
+                                _api_msg = Fore.YELLOW + "MyMemory free mode is already used." + Style.RESET_ALL
+                                _cancelled = True
+                            else:
+                                token_in = ""
+                        elif mm_choice == "2":
+                            email_in = input(f"{Fore.CYAN}  Enter email (required): {Fore.WHITE}").strip()
+                            if not email_in:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                candidate = f"email:{email_in}".lower()
+                                if candidate in used_mymemory_emails:
+                                    _api_msg = Fore.YELLOW + "MyMemory email already used." + Style.RESET_ALL
+                                    _cancelled = True
+                                else:
+                                    token_in = f"email:{email_in}"
+                        elif mm_choice == "3":
+                            key_in = input(f"{Fore.CYAN}  Enter API key (required): {Fore.WHITE}").strip()
+                            if not key_in:
+                                _api_msg = ""
+                                _cancelled = True
+                            else:
+                                candidate = f"key:{key_in}"
+                                if candidate in used_mymemory_keys:
+                                    _api_msg = Fore.YELLOW + "MyMemory API key already used." + Style.RESET_ALL
+                                    _cancelled = True
+                                else:
+                                    token_in = f"key:{key_in}"
+                        else:
+                            _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
+                            _cancelled = True
                     else:
                         token_in = input(f"{Fore.CYAN}{t('ui.apiEnterToken')} {Fore.LIGHTBLACK_EX}{t('ui.apiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not token_in:
+                        if not token_in and provider not in OPTIONAL_TOKEN_PROVIDERS:
                             _api_msg = ""
                             _cancelled = True
 
@@ -7366,20 +7644,20 @@ def interactive_menu():
                         continue
 
                     # Test the API connection
-                    if provider != "google":
-                        print(Fore.YELLOW + t('ui.apiTesting'))
-                        test_result = _translate_with_provider("hello", "fr", provider, token_in)
-                        if test_result:
-                            print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
-                        else:
-                            print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
-                            confirm_save = input(f"{Fore.YELLOW}Save anyway? [y/N]: {Fore.WHITE}").strip().lower()
-                            if confirm_save != 'y':
-                                _api_msg = ""
-                                continue
+                    print(Fore.YELLOW + t('ui.apiTesting'))
+                    test_result = _translate_with_provider("hello", "fr", provider, token_in)
+                    if is_successful_translation_result(test_result):
+                        print(Fore.GREEN + t('ui.apiTestSuccess', result=test_result))
+                        print(Fore.GREEN + "✅ API test status: TRUE (response received)" + Style.RESET_ALL)
+                        test_status = "200"
+                    else:
+                        print(Fore.RED + "❌ API test status: FALSE (no response/invalid token)" + Style.RESET_ALL)
+                        print(Fore.RED + t('ui.apiTestFailed', error='No response or invalid token'))
+                        _api_msg = Fore.RED + "API test failed. Entry was not saved." + Style.RESET_ALL
+                        continue
 
                     default_lim = PROVIDER_DEFAULT_LIMITS.get(provider, "")
-                    add_api(name_in, provider, token_in, limit=default_lim, account="", status="active")
+                    add_api(name_in, provider, token_in, limit=default_lim, status="active", test_status=test_status)
                     _api_msg = Fore.GREEN + t('ui.apiAdded', name=name_in) + Style.RESET_ALL
 
 
@@ -7388,13 +7666,18 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
+                    edit_name_w = 36
+                    edit_prov_w = 18
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
-                    h_prov = t('ui.apiTableProvider')
+                    h_name = cjk_ljust(t('ui.apiTableName'), edit_name_w)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), edit_prov_w)
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
+                    print("─" * 66)
                     for idx2, e2 in enumerate(apis, 1):
-                        v_name = cjk_ljust(e2['name'], 20)
-                        print(f"  {idx2}. {v_name} ({e2['provider']})")
+                        v_idx = cjk_ljust(f"{idx2}.", 4)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), edit_name_w), edit_name_w)
+                        v_prov = cjk_ljust(cjk_truncate(e2['provider'], edit_prov_w), edit_prov_w)
+                        print(f"  {v_idx} {v_name} {v_prov}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -7404,23 +7687,91 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
-                    print(f"\n{Fore.WHITE}{t('ui.apiEditing', name=entry['name'], provider=entry['provider'])}{Style.RESET_ALL}")
-                    new_name = input(f"{Fore.CYAN}{t('ui.apiNewName', name=entry['name'])}: {Fore.WHITE}").strip()
-                    if new_name.lower() == 'q':
-                        _api_msg = ""
-                        continue
-                    new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
-                    if new_token.lower() == 'q':
-                        _api_msg = ""
-                        continue
                     updates = {}
-                    if new_name:
-                        updates['name'] = new_name
-                    if new_token:
-                        updates['token'] = new_token
+                    old_token = (entry.get("token") or "").strip()
+                    old_provider = (entry.get("provider") or "").strip().lower()
+
+                    if not old_token:
+                        _api_msg = Fore.YELLOW + "Free mode entries cannot be edited. Delete and re-add with credentials." + Style.RESET_ALL
+                        continue
+
+                    if old_provider == "mymemory":
+                        if old_token.lower().startswith("email:"):
+                            new_email = input(f"{Fore.CYAN}New MyMemory email (q=cancel): {Fore.WHITE}").strip()
+                            if new_email.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_email:
+                                updates['token'] = f"email:{new_email}"
+                        elif old_token.lower().startswith("key:"):
+                            new_key = input(f"{Fore.CYAN}New MyMemory API key (q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_key:
+                                updates['token'] = f"key:{new_key}"
+                        else:
+                            _api_msg = Fore.YELLOW + "Unsupported MyMemory token format. Delete and re-add." + Style.RESET_ALL
+                            continue
+                    elif old_provider == "deepl":
+                        mode = "pro" if old_token.startswith("pro:") else "free"
+                        new_key = input(f"{Fore.CYAN}New DeepL API key for {mode} mode (q=cancel): {Fore.WHITE}").strip()
+                        if new_key.lower() == 'q':
+                            _api_msg = ""
+                            continue
+                        if new_key:
+                            updates['token'] = f"{mode}:{new_key}"
+                    elif old_provider == "libretranslate":
+                        if old_token.startswith("public:"):
+                            new_key = input(f"{Fore.CYAN}New LibreTranslate public API key (q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_key:
+                                updates['token'] = f"public:{new_key}"
+                        elif old_token.startswith("self:"):
+                            current_endpoint = old_token.split(":", 1)[1]
+                            new_endpoint = input(f"{Fore.CYAN}New self-host endpoint [{current_endpoint}] (q=cancel): {Fore.WHITE}").strip()
+                            if new_endpoint.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_endpoint:
+                                updates['token'] = f"self:{new_endpoint}"
+                        elif old_token.startswith("selfkey:"):
+                            rest = old_token.split(":", 1)[1]
+                            if "|" in rest:
+                                current_key, current_endpoint = rest.split("|", 1)
+                            else:
+                                current_key, current_endpoint = "", ""
+                            new_endpoint = input(f"{Fore.CYAN}New self-host endpoint [{current_endpoint}] (q=cancel): {Fore.WHITE}").strip()
+                            if new_endpoint.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            new_key = input(f"{Fore.CYAN}New self-host API key (Enter to keep current, q=cancel): {Fore.WHITE}").strip()
+                            if new_key.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            final_endpoint = new_endpoint if new_endpoint else current_endpoint
+                            final_key = new_key if new_key else current_key
+                            if final_endpoint and final_key:
+                                updates['token'] = f"selfkey:{final_key}|{final_endpoint}"
+                        else:
+                            new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
+                            if new_token.lower() == 'q':
+                                _api_msg = ""
+                                continue
+                            if new_token:
+                                updates['token'] = new_token
+                    else:
+                        new_token = input(f"{Fore.CYAN}{t('ui.apiNewToken')}: {Fore.WHITE}").strip()
+                        if new_token.lower() == 'q':
+                            _api_msg = ""
+                            continue
+                        if new_token:
+                            updates['token'] = new_token
                     if updates:
                         edit_api(entry['id'], **updates)
-                        _api_msg = Fore.GREEN + t('ui.apiUpdated', name=new_name or entry['name']) + Style.RESET_ALL
+                        _api_msg = Fore.GREEN + t('ui.apiUpdated', name=format_api_display_name(entry)) + Style.RESET_ALL
                     else:
                         _api_msg = ""
 
@@ -7429,13 +7780,18 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
+                    del_name_w = 36
+                    del_prov_w = 18
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
-                    h_prov = t('ui.apiTableProvider')
+                    h_name = cjk_ljust(t('ui.apiTableName'), del_name_w)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), del_prov_w)
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
+                    print("─" * 66)
                     for idx2, e2 in enumerate(apis, 1):
-                        v_name = cjk_ljust(e2['name'], 20)
-                        print(f"  {idx2}. {v_name} ({e2['provider']})")
+                        v_idx = cjk_ljust(f"{idx2}.", 4)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), del_name_w), del_name_w)
+                        v_prov = cjk_ljust(cjk_truncate(e2['provider'], del_prov_w), del_prov_w)
+                        print(f"  {v_idx} {v_name} {v_prov}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToDelete')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -7445,10 +7801,10 @@ def interactive_menu():
                         _api_msg = Fore.RED + t('ui.apiInvalidNumber') + Style.RESET_ALL
                         continue
                     entry = apis[int(num_in) - 1]
-                    confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=entry['name']) + " " + Fore.WHITE).strip().lower()
+                    confirm = input(Fore.RED + t('ui.apiConfirmDelete', name=format_api_display_name(entry)) + " " + Fore.WHITE).strip().lower()
                     if confirm == 'y':
                         delete_api(entry['id'])
-                        _api_msg = Fore.GREEN + t('ui.apiDeleted', name=entry['name']) + Style.RESET_ALL
+                        _api_msg = Fore.GREEN + t('ui.apiDeleted', name=format_api_display_name(entry)) + Style.RESET_ALL
                     else:
                         _api_msg = ""
 
@@ -7457,10 +7813,13 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
+                    toggle_name_w = 36
+                    toggle_status_w = 14
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 20)
-                    h_stat = t('ui.apiTableStatus')
+                    h_name = cjk_ljust(t('ui.apiTableName'), toggle_name_w)
+                    h_stat = cjk_ljust(t('ui.apiTableStatus'), toggle_status_w)
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_stat}{Style.RESET_ALL}")
+                    print("─" * 58)
                     for idx2, e2 in enumerate(apis, 1):
                         status = e2.get('status')
                         if not status:
@@ -7468,13 +7827,18 @@ def interactive_menu():
                         
                         if status == 'limit':
                             st2 = t('ui.apiLimit')
+                            st2_col = Fore.YELLOW
                         elif status == 'active':
                             st2 = t('ui.apiActive')
+                            st2_col = Fore.GREEN
                         else:
                             st2 = t('ui.apiInactive')
+                            st2_col = Fore.RED
 
-                        v_name = cjk_ljust(e2['name'], 20)
-                        print(f"  {idx2}. {v_name} {st2}")
+                        v_idx = cjk_ljust(f"{idx2}.", 4)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), toggle_name_w), toggle_name_w)
+                        v_stat = cjk_ljust(st2, toggle_status_w)
+                        print(f"  {v_idx} {v_name} {st2_col}{v_stat}{Style.RESET_ALL}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.back')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToToggle')} (1-{len(apis)}, 0=back): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
@@ -7570,6 +7934,9 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     ai_prov_list = list(SUPPORTED_AI_PROVIDERS.keys())
+                    if not ai_prov_list:
+                        _ai_msg = Fore.YELLOW + "No supported AI providers available in this build." + Style.RESET_ALL
+                        continue
                     for pi, pk in enumerate(ai_prov_list, 1):
                         desc = t(f'ui.ai_provider_{pk}')
                         print(f"  [{pi}] {pk:<12} — {desc}")
