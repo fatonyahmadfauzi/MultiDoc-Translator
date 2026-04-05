@@ -7715,13 +7715,18 @@ def interactive_menu():
                     if not apis:
                         _api_msg = Fore.YELLOW + t('ui.apiNoEntries') + Style.RESET_ALL
                         continue
+                    edit_name_w = 36
+                    edit_prov_w = 18
                     h_idx = cjk_ljust('#', 4)
-                    h_name = cjk_ljust(t('ui.apiTableName'), 34)
-                    h_prov = t('ui.apiTableProvider')
+                    h_name = cjk_ljust(t('ui.apiTableName'), edit_name_w)
+                    h_prov = cjk_ljust(t('ui.apiTableProvider'), edit_prov_w)
                     print(f"\n{Fore.WHITE}{h_idx} {h_name} {h_prov}{Style.RESET_ALL}")
+                    print("─" * 66)
                     for idx2, e2 in enumerate(apis, 1):
-                        v_name = cjk_ljust(format_api_display_name(e2), 34)
-                        print(f"  {idx2}. {v_name} ({e2['provider']})")
+                        v_idx = cjk_ljust(f"{idx2}.", 4)
+                        v_name = cjk_ljust(cjk_truncate(format_api_display_name(e2), edit_name_w), edit_name_w)
+                        v_prov = cjk_ljust(cjk_truncate(e2['provider'], edit_prov_w), edit_prov_w)
+                        print(f"  {v_idx} {v_name} {v_prov}")
                     print(f"  {Fore.LIGHTBLACK_EX}0. {t('ui.apiCancel')}{Style.RESET_ALL}")
                     num_in = input(f"{Fore.CYAN}{t('ui.apiSelectToEdit')} (1-{len(apis)}, 0=cancel): {Fore.WHITE}").strip()
                     if num_in == '0' or num_in == '':
