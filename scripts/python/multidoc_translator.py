@@ -7562,7 +7562,7 @@ def interactive_menu():
                     provider_col_w = 16
                     model_col_w = 10
                     response_col_w = 12
-                    status_col_w = 10
+                    status_col_w = 16
                     auth_col_w = 16
                     endpoint_col_w = 56
                     h_idx = cjk_ljust('#', 4)
@@ -7593,7 +7593,7 @@ def interactive_menu():
                         v_prov = cjk_ljust(cjk_truncate(entry['provider'], provider_col_w), provider_col_w)
                         v_model = cjk_ljust(cjk_truncate(format_api_model(entry), model_col_w), model_col_w)
                         v_resp = cjk_ljust(cjk_truncate(format_api_response_status(entry.get('test_status')), response_col_w), response_col_w)
-                        v_stat = cjk_ljust(st, status_col_w)
+                        v_stat = cjk_ljust(cjk_truncate(st, status_col_w), status_col_w)
                         v_auth = cjk_ljust(cjk_truncate(format_api_auth(entry), auth_col_w), auth_col_w)
                         v_ep = cjk_ljust(cjk_truncate(format_api_endpoint(entry), endpoint_col_w), endpoint_col_w)
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
@@ -8032,7 +8032,7 @@ def interactive_menu():
                     h_prov = cjk_ljust(t('ui.aiTableProvider'), 14)
                     h_model = cjk_ljust("Model", 20)
                     h_resp = cjk_ljust(t('ui.apiTableResponse'), 12)
-                    h_stat = cjk_ljust(t('ui.aiTableStatus'), 10)
+                    h_stat = cjk_ljust(t('ui.aiTableStatus'), 16)
                     h_auth = cjk_ljust("Auth", 14)
                     h_ep = "Endpoint"
                     print(f"{Fore.WHITE}{h_idx} {h_prov} {h_model} {h_resp} {h_stat} {h_auth} {h_ep}{Style.RESET_ALL}")
@@ -8062,7 +8062,7 @@ def interactive_menu():
                             
                         print(f"{Fore.WHITE}{v_idx}{Style.RESET_ALL} "
                               f"{v_prov} {v_model} {v_resp} "
-                              f"{st_col}{cjk_ljust(st, 10)}{Style.RESET_ALL} "
+                              f"{st_col}{cjk_ljust(cjk_truncate(st, 16), 16)}{Style.RESET_ALL} "
                               f"{Fore.LIGHTBLACK_EX}{v_auth}{Style.RESET_ALL} "
                               f"{Fore.LIGHTBLACK_EX}{v_ep}{Style.RESET_ALL}")
                     print()
