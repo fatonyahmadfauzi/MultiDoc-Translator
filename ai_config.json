@@ -2,7 +2,7 @@
   "ais": [
     {
       "id": "269cfac5-c29c-4590-ac9a-a6172b5b5a45",
-      "provider": "google",
+      "provider": "gemini",
       "model": "gemini-2.5-flash",
       "token": "AIzaSyDIQa04AU4UFGVpWl-6JaTVXccxaBd-ffI",
       "base_url": null,
