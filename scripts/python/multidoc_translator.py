@@ -6066,8 +6066,13 @@ def translate_with_fallback(text: str, dest: str) -> str | None:
         try:
             result = _translate_with_ai(text, dest, ai_entry, suppress_errors=True)
             if is_successful_translation_result(result):
-                debug_print(f"[FALLBACK] AI '{provider}' succeeded (len={len(str(result))})", log_type="API")
-                return result
+                try:
+                    validate_no_placeholder_leak(result)
+                    debug_print(f"[FALLBACK] AI '{provider}' succeeded (len={len(str(result))})", log_type="API")
+                    return result
+                except ValueError as e:
+                    debug_print(f"[FALLBACK] Provider returned result with placeholders: {e}", log_type="ERROR")
+                    continue
             debug_print(f"[FALLBACK] AI '{provider}' failed: {_describe_translation_failure(result)}", log_type="API")
         except Exception as e:
             debug_print(f"[FALLBACK] AI '{provider}' exception: {e}", log_type="API")
@@ -6081,8 +6086,13 @@ def translate_with_fallback(text: str, dest: str) -> str | None:
         try:
             result = _translate_with_provider(text, dest, provider, token)
             if is_successful_translation_result(result):
-                debug_print(f"[FALLBACK] API '{provider}' succeeded (len={len(str(result))})", log_type="API")
-                return result
+                try:
+                    validate_no_placeholder_leak(result)
+                    debug_print(f"[FALLBACK] API '{provider}' succeeded (len={len(str(result))})", log_type="API")
+                    return result
+                except ValueError as e:
+                    debug_print(f"[FALLBACK] Provider returned result with placeholders: {e}", log_type="ERROR")
+                    continue
             debug_print(f"[FALLBACK] API '{provider}' failed: {_describe_translation_failure(result)}", log_type="API")
         except Exception as e:
             debug_print(f"[FALLBACK] API '{provider}' exception: {e}", log_type="API")
@@ -6092,8 +6102,13 @@ def translate_with_fallback(text: str, dest: str) -> str | None:
         try:
             result = GoogleTranslator(source="auto", target=dest).translate(text)
             if is_successful_translation_result(result):
-                debug_print(f"[FALLBACK] Google succeeded attempt {attempt + 1} (len={len(str(result))})", log_type="API")
-                return result
+                try:
+                    validate_no_placeholder_leak(result)
+                    debug_print(f"[FALLBACK] Google succeeded attempt {attempt + 1} (len={len(str(result))})", log_type="API")
+                    return result
+                except ValueError as e:
+                    debug_print(f"[FALLBACK] Provider returned result with placeholders: {e}", log_type="ERROR")
+                    continue
             debug_print(f"[FALLBACK] Google attempt {attempt + 1} failed: {_describe_translation_failure(result)}", log_type="API")
         except Exception as e:
             debug_print(f"[FALLBACK] Google attempt {attempt + 1} exception: {e}", log_type="API")
@@ -6151,20 +6166,72 @@ def normalize_placeholder_variants(text: str) -> str:
 
 
 def restore_markdown_tokens(text: str, mapping: dict[str, str]) -> str:
+    """Restore placeholders and log unmapped tokens."""
     restored = normalize_placeholder_variants(text)
+    missing = []
     for placeholder, original in sorted(mapping.items(), key=lambda kv: len(kv[0]), reverse=True):
-        restored = restored.replace(placeholder, original)
+        if placeholder in restored:
+            restored = restored.replace(placeholder, original)
+        else:
+            missing.append(placeholder)
+    if missing:
+        debug_print(f"[RESTORE] WARNING: {len(missing)} placeholders not found in text: {missing[:5]}", log_type="WARN")
     return restored
 
 
-def validate_no_placeholder_leak(text: str) -> None:
-    normalized = normalize_placeholder_variants(text)
-    if "<<<PH_" in normalized:
-        raise ValueError("Placeholder leak detected")
-    if re.search(r"__\s*p\s*\d+\s*__", normalized, flags=re.IGNORECASE):
-        raise ValueError("Legacy placeholder artifact detected")
-    if re.search(r"\bP\d+\b", normalized):
-        raise ValueError("Broken placeholder artifact detected")
+def validate_no_placeholder_leak(text: str, raise_on_leak: bool = True) -> bool:
+    """Strict check for any placeholder remnants in final text."""
+    leak_patterns = [
+        r"<<<PH_\d+>>>",
+        r"__\s*p\s*\d+\s*__",
+        r"\bP\d+\b",
+    ]
+    for pat in leak_patterns:
+        if re.search(pat, text or "", re.IGNORECASE):
+            if raise_on_leak:
+                raise ValueError(f"Placeholder leak detected: {pat!r} in text snippet: {(text or '')[:200]!r}")
+            return False
+    if re.search(r"&lt;&lt;&lt;PH_\d+&gt;&gt;&gt;", text or "", re.IGNORECASE):
+        if raise_on_leak:
+            raise ValueError(f"Escaped placeholder leak: {(text or '')[:200]!r}")
+        return False
+    return True
+
+
+def safe_write_file(file_path: str, content: str, backup_suffix: str = ".bak") -> bool:
+    """
+    Write content to file_path only if strict placeholder validation passes.
+    Keep/restore backup on write or post-write validation failure.
+    """
+    try:
+        validate_no_placeholder_leak(content)
+    except ValueError as e:
+        debug_print(f"[SAFE_WRITE] Validation failed for {file_path}: {e}", log_type="ERROR")
+        if os.path.exists(file_path + backup_suffix):
+            debug_print(f"[SAFE_WRITE] Keeping existing backup: {file_path}{backup_suffix}", log_type="ERROR")
+        return False
+
+    if os.path.exists(file_path):
+        try:
+            shutil.copy2(file_path, file_path + backup_suffix)
+        except Exception as e:
+            debug_print(f"[SAFE_WRITE] Failed to create backup: {e}", log_type="WARN")
+
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        with open(file_path, "r", encoding="utf-8") as f:
+            written = f.read()
+        validate_no_placeholder_leak(written)
+        if os.path.exists(file_path + backup_suffix):
+            os.remove(file_path + backup_suffix)
+        return True
+    except Exception as e:
+        debug_print(f"[SAFE_WRITE] Write or post-validation failed: {e}", log_type="ERROR")
+        if os.path.exists(file_path + backup_suffix):
+            shutil.move(file_path + backup_suffix, file_path)
+            debug_print(f"[SAFE_WRITE] Restored backup for {file_path}", log_type="WARN")
+        return False
 
 
 def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
@@ -6205,8 +6272,17 @@ def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[st
             last_error = e
             debug_print(f"[PIPELINE] Attempt {attempt + 1} failed: {e}", log_type="ERROR")
             if attempt == 0:
-                debug_print("[PIPELINE] Retrying...", log_type="FLOW")
+                debug_print("[PIPELINE] Retrying with fallback translator...", log_type="FLOW")
                 time.sleep(1)
+                try:
+                    forced = GoogleTranslator(source="auto", target=target_lang).translate(protected_text)
+                    if forced and is_successful_translation_result(forced):
+                        restored = restore_markdown_tokens(str(forced).strip(), mapping)
+                        validate_no_placeholder_leak(restored)
+                        debug_print("[PIPELINE] Retry succeeded with Google Translate", log_type="FLOW")
+                        return restored
+                except Exception:
+                    pass
     raise ValueError(f"Translation pipeline failed after 2 attempts. Last reason: {last_error}")
 
 
@@ -6700,8 +6776,17 @@ def translate_changelog_line_with_pipeline(line: str, translate_code: str, extra
             last_error = e
             debug_print(f"[CHANGELOG] Validation failure reason: {e}", log_type="ERROR")
             if attempt == 0:
-                debug_print(f"[CHANGELOG] Retry reason: {e}", log_type="FLOW")
+                debug_print("[CHANGELOG] Retry with fallback translator...", log_type="FLOW")
                 time.sleep(1)
+                try:
+                    forced = GoogleTranslator(source="auto", target=translate_code).translate(protected_text)
+                    if forced and is_successful_translation_result(forced):
+                        restored = restore_markdown_tokens(str(forced).strip(), mapping)
+                        validate_no_placeholder_leak(restored)
+                        debug_print("[CHANGELOG] Retry succeeded with Google Translate", log_type="FLOW")
+                        return restored
+                except Exception:
+                    pass
             else:
                 debug_print(f"[CHANGELOG] Final failure reason: {e}", log_type="ERROR")
     raise ValueError(f"CHANGELOG translation failed after 2 attempts. Last reason: {last_error}")
@@ -6807,9 +6892,10 @@ def translate_changelog(lang_code, lang_info, protected):
         # Combine header and body
         final_changelog = f"{translated_header}\n\n---\n{translated_body}"
         
-        # Write translated CHANGELOG file
-        with open(changelog_dest_path, "w", encoding="utf-8") as f:
-            f.write(final_changelog)
+        # Safe write translated CHANGELOG file
+        if not safe_write_file(changelog_dest_path, final_changelog):
+            print(Fore.RED + f"❌ Failed to save {changelog_dest_path} due to placeholder leaks. Backup preserved." + Style.RESET_ALL)
+            return False
         
         print(t("changelog_created", path=changelog_dest_path))
         return True
@@ -7370,8 +7456,9 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
         # Continue with untranslated tables
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with open(dest_path, "w", encoding="utf-8") as f:
-        f.write(final_text)
+    if not safe_write_file(dest_path, final_text):
+        print(Fore.RED + f"❌ Failed to save {dest_path} due to placeholder leaks. Backup preserved." + Style.RESET_ALL)
+        return
 
     print(t("readme_created", path=dest_path))
     debug_print(f"Saved file: {dest_path}", log_type="FLOW")
