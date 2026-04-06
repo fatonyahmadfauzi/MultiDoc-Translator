@@ -7401,6 +7401,7 @@ def fix_broken_placeholders(text: str) -> str:
 
 def repair_translations(target_dir=None, output_base_dir=None):
     """Repair language switchers positioning, remove duplicates, and detect translation failures."""
+    global OUTPUT_DIR
     _msg_repair_starting = t("ui.repairStarting")
     print(Fore.CYAN + f"\n[+] {_msg_repair_starting}")
     
