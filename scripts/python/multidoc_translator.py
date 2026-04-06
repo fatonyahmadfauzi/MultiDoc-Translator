@@ -7384,6 +7384,7 @@ def repair_translations(target_dir=None, output_base_dir=None):
     rebuilt_files = []
     rebuild_failed_files = []
     rebuild_failed_langs = set()
+    langs_with_issues = set()
     protected = load_protected_phrases()
     
     if not os.path.exists(SOURCE_FILE):
@@ -7401,20 +7402,16 @@ def repair_translations(target_dir=None, output_base_dir=None):
         base_name = os.path.basename(file_path)
         backup_path = f"{file_path}.bak"
         temp_target_path = f"{file_path}.tmp"
-        staging_root = os.path.join(OUTPUT_DIR, ".repair_staging")
-        staging_dir = os.path.join(staging_root, f"{lang_code}_{int(time.time() * 1000)}")
 
         try:
-            os.makedirs(staging_dir, exist_ok=True)
             print(Fore.YELLOW + f"   📦 Backing up corrupted file: {os.path.basename(backup_path)}")
             os.replace(file_path, backup_path)
         except Exception as backup_error:
             print(Fore.RED + f"   - [ERROR] Failed to backup corrupted file {base_name}: {backup_error}")
+            print(Fore.YELLOW + f"   - [WARN] {LANGUAGES[lang_code][0]} ({lang_code}) not fully repaired")
             return False
 
-        original_output_dir = OUTPUT_DIR
         try:
-            OUTPUT_DIR = staging_dir
             if file_type == "README":
                 print(Fore.CYAN + f"   🔄 Re-translating {base_name} from original README.md")
                 translate_readme(lang_code, LANGUAGES[lang_code], protected, include_changelog=False)
@@ -7424,12 +7421,11 @@ def repair_translations(target_dir=None, output_base_dir=None):
                 print(Fore.CYAN + f"   🔄 Re-translating {base_name} from original CHANGELOG.md")
                 translate_changelog(lang_code, LANGUAGES[lang_code], protected)
 
-            staged_file = os.path.join(staging_dir, base_name)
-            if not os.path.exists(staged_file):
-                raise RuntimeError("staged rebuilt file was not generated")
+            if not os.path.exists(file_path):
+                raise RuntimeError("rebuilt file was not generated")
 
             # Transactional finalization: stage to temp path first, then atomically replace target.
-            shutil.copyfile(staged_file, temp_target_path)
+            shutil.copyfile(file_path, temp_target_path)
             os.replace(temp_target_path, file_path)
             print(Fore.GREEN + f"   ✅ Rebuilt {base_name} successfully")
 
@@ -7438,7 +7434,7 @@ def repair_translations(target_dir=None, output_base_dir=None):
                 print(Fore.GREEN + f"   🗑️ Removed backup file: {os.path.basename(backup_path)}")
             return True
         except Exception as rebuild_error:
-            print(Fore.RED + f"   ❌ Rebuild failed for {base_name}: {rebuild_error}")
+            print(Fore.RED + f"   - [ERROR] {base_name}: rebuild failed ({rebuild_error})")
             try:
                 if os.path.exists(file_path):
                     os.remove(file_path)
@@ -7451,10 +7447,8 @@ def repair_translations(target_dir=None, output_base_dir=None):
                     print(Fore.RED + f"   - [ERROR] Backup file missing; cannot restore {base_name}")
             except Exception as restore_error:
                 print(Fore.RED + f"   - [ERROR] Failed to restore backup for {base_name}: {restore_error}")
+            print(Fore.YELLOW + f"   - [WARN] {LANGUAGES[lang_code][0]} ({lang_code}) not fully repaired")
             return False
-        finally:
-            OUTPUT_DIR = original_output_dir
-            shutil.rmtree(staging_dir, ignore_errors=True)
         
     for lang_code in sorted(scan_langs):
         if lang_code not in LANGUAGES:
@@ -7500,12 +7494,15 @@ def repair_translations(target_dir=None, output_base_dir=None):
                     else:
                         rebuild_failed_files.append(base_name)
                         rebuild_failed_langs.add(lang_code)
+                        langs_with_issues.add(lang_code)
             except Exception as e:
                 print(Fore.RED + f"   - [ERROR] {base_name}: {t('ui.repairErrorScan', error=e)}")
+                print(Fore.YELLOW + f"   - [WARN] {LANGUAGES[lang_code][0]} ({lang_code}) not fully repaired")
+                langs_with_issues.add(lang_code)
 
         # Keep existing failure scan logic for translated README only
         if os.path.exists(readme_path):
-            if lang_code in rebuild_failed_langs:
+            if lang_code in rebuild_failed_langs or lang_code in langs_with_issues:
                 print(Fore.RED + f"   - [ERROR] {LANGUAGES[lang_code][0]} ({lang_code}): rebuild failed; language status not marked as OK.")
                 continue
             try:
