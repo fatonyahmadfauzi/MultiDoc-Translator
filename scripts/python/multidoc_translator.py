@@ -6010,28 +6010,97 @@ def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
     return None
 
 
+def _has_real_translatable_text(text: str) -> bool:
+    """
+    Return True only when text still has meaningful human text
+    after placeholder + markdown stripping.
+    """
+    stripped = re.sub(r"<<<PH_\d+>>>", " ", text or "")
+    stripped = re.sub(r"[*_#>`|~=\\[\\](){}<>\\\\-]", " ", stripped)
+    stripped = re.sub(r"https?://\\S+", " ", stripped)
+    stripped = re.sub(r"\b[\d.:/\-]+\b", " ", stripped)
+    words = [w for w in stripped.split() if len(w) >= 2 and re.search(r"[a-zA-Z]", w)]
+    has_text = len(words) >= 1
+    if not has_text:
+        debug_print(
+            f"[SKIP] No real translatable text after protection. Words={words!r} | Stripped={stripped[:80]!r}",
+            log_type="FLOW"
+        )
+    return has_text
+
+
+def _describe_translation_failure(result) -> str:
+    """Explain why a translation result is considered invalid."""
+    if result is None:
+        return "Provider returned None (network/auth/quota issue)"
+    s = str(result).strip()
+    if not s:
+        return "Provider returned an empty string"
+    lowered = s.lower()
+    for pattern in API_ERROR_PATTERNS:
+        if pattern in lowered:
+            return f"Provider error payload matched '{pattern}': {s[:80]!r}"
+    if re.search(r"<<<PH_\d+>>>", s):
+        return f"Result still contains unresolved placeholders: {s[:80]!r}"
+    if re.search(r"__p\d+__", s, re.IGNORECASE):
+        return f"Result contains legacy placeholders: {s[:80]!r}"
+    return f"Unknown invalid result: {s[:80]!r}"
+
+
 def translate_with_fallback(text: str, dest: str) -> str | None:
-    """Final fallback flow: active AI providers in order -> GoogleTranslator."""
-    for idx, ai_entry in enumerate(get_active_ai_providers()):
+    """
+    Fallback chain:
+    1) active AI providers
+    2) active API providers (non-google)
+    3) GoogleTranslator
+    """
+    if not text or not text.strip():
+        debug_print("[FALLBACK] Input text empty; skipping translation", log_type="FLOW")
+        return text
+
+    for ai_entry in get_active_ai_providers():
         provider = (ai_entry.get("provider") or "").lower()
         if provider not in {"openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"}:
             continue
-        if idx > 0:
-            debug_print(f"[AI] Fallback → {provider}", log_type="API")
-        result = translate_with_ai(provider, text, dest)
-        if is_successful_translation_result(result):
-            return result
-
-    debug_print("[AI] Fallback → google", log_type="API")
-    for attempt in range(2):
+        debug_print(f"[FALLBACK] Trying AI provider: {provider}", log_type="API")
         try:
-            translated = GoogleTranslator(source="auto", target=dest).translate(text)
-            validate_placeholders(translated)
-            return translated
-        except ValueError:
-            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+            result = _translate_with_ai(text, dest, ai_entry, suppress_errors=True)
+            if is_successful_translation_result(result):
+                debug_print(f"[FALLBACK] AI '{provider}' succeeded (len={len(str(result))})", log_type="API")
+                return result
+            debug_print(f"[FALLBACK] AI '{provider}' failed: {_describe_translation_failure(result)}", log_type="API")
         except Exception as e:
-            debug_print(f"[API] google fallback failed: {e}", log_type="API")
+            debug_print(f"[FALLBACK] AI '{provider}' exception: {e}", log_type="API")
+
+    for api_entry in get_active_apis():
+        provider = api_entry.get("provider", "")
+        token = api_entry.get("token", "")
+        if provider == "google":
+            continue
+        debug_print(f"[FALLBACK] Trying API provider: {provider}", log_type="API")
+        try:
+            result = _translate_with_provider(text, dest, provider, token)
+            if is_successful_translation_result(result):
+                debug_print(f"[FALLBACK] API '{provider}' succeeded (len={len(str(result))})", log_type="API")
+                return result
+            debug_print(f"[FALLBACK] API '{provider}' failed: {_describe_translation_failure(result)}", log_type="API")
+        except Exception as e:
+            debug_print(f"[FALLBACK] API '{provider}' exception: {e}", log_type="API")
+
+    debug_print("[FALLBACK] Trying GoogleTranslator", log_type="API")
+    for attempt in range(3):
+        try:
+            result = GoogleTranslator(source="auto", target=dest).translate(text)
+            if is_successful_translation_result(result):
+                debug_print(f"[FALLBACK] Google succeeded attempt {attempt + 1} (len={len(str(result))})", log_type="API")
+                return result
+            debug_print(f"[FALLBACK] Google attempt {attempt + 1} failed: {_describe_translation_failure(result)}", log_type="API")
+        except Exception as e:
+            debug_print(f"[FALLBACK] Google attempt {attempt + 1} exception: {e}", log_type="API")
+        if attempt < 2:
+            time.sleep(2)
+
+    debug_print(f"[FALLBACK] All providers failed for dest='{dest}'. Input preview={text[:60]!r}", log_type="ERROR")
     return None
 
 
@@ -6099,31 +6168,46 @@ def validate_no_placeholder_leak(text: str) -> None:
 
 
 def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
-    """Protect -> translate -> restore -> validate with retry + provider fallback."""
+    """Protect -> maybe-skip -> translate -> restore -> validate."""
     debug_print("[PIPELINE] Protecting markdown tokens", log_type="FLOW")
     protected_text, mapping = protect_markdown_tokens(text, extra_patterns)
-    debug_print(f"[PIPELINE] Protected tokens: {len(mapping)}", log_type="FLOW")
+    debug_print(
+        f"[PIPELINE] Protected tokens: {len(mapping)} | len={len(protected_text)} | preview={protected_text[:80]!r}",
+        log_type="FLOW"
+    )
+
+    if not _has_real_translatable_text(protected_text):
+        debug_print("[PIPELINE] No real translatable text; restore-only path", log_type="FLOW")
+        restored = restore_markdown_tokens(protected_text, mapping)
+        validate_no_placeholder_leak(restored)
+        return restored
 
     last_error = None
     for attempt in range(2):
         try:
-            debug_print("[PIPELINE] Translation started", log_type="FLOW")
+            debug_print(f"[PIPELINE] Translation attempt {attempt + 1}/2 started", log_type="FLOW")
             translated = translate_with_fallback(protected_text, target_lang)
-            if not is_successful_translation_result(translated):
-                raise ValueError("Empty translation result")
+            if translated is None:
+                raise ValueError("translate_with_fallback returned None (all providers failed)")
+            translated_str = str(translated).strip()
+            if not translated_str:
+                raise ValueError("translate_with_fallback returned an empty string")
+            if not is_successful_translation_result(translated_str):
+                raise ValueError(_describe_translation_failure(translated_str))
+
+            debug_print(f"[PIPELINE] Raw translated len={len(translated_str)} preview={translated_str[:80]!r}", log_type="FLOW")
             debug_print("[PIPELINE] Restoring placeholders", log_type="FLOW")
-            restored = restore_markdown_tokens(translated, mapping)
+            restored = restore_markdown_tokens(translated_str, mapping)
             validate_no_placeholder_leak(restored)
-            debug_print("[PIPELINE] Validation passed", log_type="FLOW")
+            debug_print(f"[PIPELINE] Validation passed | restored len={len(restored)}", log_type="FLOW")
             return restored
         except Exception as e:
             last_error = e
-            debug_print(f"[PIPELINE] Validation failed: {e}", log_type="ERROR")
+            debug_print(f"[PIPELINE] Attempt {attempt + 1} failed: {e}", log_type="ERROR")
             if attempt == 0:
-                debug_print(f"[PIPELINE] Retrying translation (reason: {e})", log_type="FLOW")
-            else:
-                debug_print(f"[PIPELINE] Final failure reason: {e}", log_type="ERROR")
-    raise ValueError(f"Translation pipeline failed after retry: {last_error}")
+                debug_print("[PIPELINE] Retrying...", log_type="FLOW")
+                time.sleep(1)
+    raise ValueError(f"Translation pipeline failed after 2 attempts. Last reason: {last_error}")
 
 
 def translate_block_preserving_format(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
@@ -6552,47 +6636,75 @@ def protect_specific_phrases(text, lang_code):
 
 # ---------------------- CHANGELOG TRANSLATION ----------------------
 def translate_changelog_line_with_pipeline(line: str, translate_code: str, extra_patterns: list[str] | None = None) -> str:
-    """Specialized CHANGELOG translation with explicit debug trace and strict placeholder validation."""
+    """CHANGELOG-specific translation with debug trace and strict leak validation."""
+    stripped = line.strip()
+    if not stripped:
+        return line
+    if re.match(r"^\s*[-=]+\s*$", line):
+        return line
+    if re.match(r"^#{1,3}\s+\[[\d.]+\]", line):
+        return line
+    if re.match(r"^\[[\d.]+\]:\s*https?://", line):
+        return line
+
     changelog_patterns = [
-        r"\\r\\n",                                  # literal \r\n sequence
-        r"\\n",                                     # literal \n sequence
-        r"\*\*[^*\n]*_[^_\n]+_[^*\n]*\*\*",        # markdown emphasis mix like **bold + _italic_ mix**
+        r"\[[\d\.]+\]:\s*\S+",
+        r"\bv\d+\.\d+(?:\.\d+)?\b",
+        r"\b\d{4}-\d{2}-\d{2}\b",
     ]
     if extra_patterns:
-        changelog_patterns.extend(extra_patterns)
+        skip_patterns = {r"\\r\\n", r"\\n", r"\*\*[^*\n]*_[^_\n]+_[^*\n]*\*\*"}
+        changelog_patterns.extend(p for p in extra_patterns if p not in skip_patterns)
 
-    debug_print("[CHANGELOG] Source line loaded", log_type="FLOW")
+    debug_print(f"[CHANGELOG] Source line loaded | len={len(line)} | preview={line[:80]!r}", log_type="FLOW")
     protected_text, mapping = protect_markdown_tokens(line, changelog_patterns)
-    debug_print(f"[CHANGELOG] Protected token count: {len(mapping)}", log_type="FLOW")
+    debug_print(
+        f"[CHANGELOG] Protected token count: {len(mapping)} | len={len(protected_text)} | preview={protected_text[:80]!r}",
+        log_type="FLOW"
+    )
+
+    if not _has_real_translatable_text(protected_text):
+        debug_print("[CHANGELOG] No translatable text after protection; restore-only path", log_type="FLOW")
+        restored = restore_markdown_tokens(protected_text, mapping)
+        validate_no_placeholder_leak(restored)
+        return restored
 
     last_error = None
     for attempt in range(2):
         try:
-            debug_print("[CHANGELOG] Translation request started", log_type="FLOW")
+            debug_print(f"[CHANGELOG] Translation request started ({attempt + 1}/2)", log_type="FLOW")
             translated = translate_with_fallback(protected_text, translate_code)
-            if not is_successful_translation_result(translated):
-                raise ValueError("Empty translation result")
+            if translated is None:
+                raise ValueError(f"translate_with_fallback returned None for dest='{translate_code}'")
+            translated_str = str(translated).strip()
+            if not translated_str:
+                raise ValueError(f"translate_with_fallback returned empty string for dest='{translate_code}'")
+            if not is_successful_translation_result(translated_str):
+                raise ValueError(_describe_translation_failure(translated_str))
 
+            debug_print(f"[CHANGELOG] Raw translated len={len(translated_str)} | preview={translated_str[:80]!r}", log_type="FLOW")
             debug_print("[CHANGELOG] Restore step started", log_type="FLOW")
-            restored = restore_markdown_tokens(translated, mapping)
+            restored = restore_markdown_tokens(translated_str, mapping)
             validate_no_placeholder_leak(restored)
 
             if re.search(r"__\s*p\s*\d+\s*__", restored, flags=re.IGNORECASE):
-                raise ValueError("Legacy placeholder token __pN__ remained after restore")
+                raise ValueError(f"Legacy placeholder token __pN__ remained: {restored[:60]!r}")
             if "<<<PH_" in restored:
-                raise ValueError("Machine placeholder token <<<PH_n>>> remained after restore")
+                raise ValueError(f"Machine placeholder token <<<PH_n>>> remained: {restored[:60]!r}")
             if re.search(r"\bP\d+\b", restored):
-                raise ValueError("Broken placeholder token Pn remained after restore")
+                raise ValueError(f"Broken placeholder token Pn remained: {restored[:60]!r}")
 
+            debug_print("[CHANGELOG] Translation and restore succeeded", log_type="FLOW")
             return restored
         except Exception as e:
             last_error = e
             debug_print(f"[CHANGELOG] Validation failure reason: {e}", log_type="ERROR")
             if attempt == 0:
                 debug_print(f"[CHANGELOG] Retry reason: {e}", log_type="FLOW")
+                time.sleep(1)
             else:
                 debug_print(f"[CHANGELOG] Final failure reason: {e}", log_type="ERROR")
-    raise ValueError(f"CHANGELOG translation failed after retry: {last_error}")
+    raise ValueError(f"CHANGELOG translation failed after 2 attempts. Last reason: {last_error}")
 
 
 def translate_changelog(lang_code, lang_info, protected):
