@@ -7345,8 +7345,19 @@ def repair_translations(target_dir=None, output_base_dir=None):
     print(Fore.YELLOW + f"\n{_msg_repair_step2}")
     print(Fore.YELLOW + "   - Additional scan: placeholder corruption (__p0__, __ p1__, P0/P1 variants)")
     existing_langs = get_existing_translated_languages()
+    scan_langs = set(existing_langs)
+    # Include languages that may only have translated CHANGELOG files.
+    if os.path.exists(OUTPUT_DIR):
+        for filename in os.listdir(OUTPUT_DIR):
+            if not (filename.startswith("CHANGELOG-") and filename.endswith(".md")):
+                continue
+            code_part = filename.replace("CHANGELOG-", "").replace(".md", "").strip().lower()
+            if code_part in {"jp", "zh", "kr"}:
+                scan_langs.add(code_part)
+            else:
+                scan_langs.add(code_part)
     failed_langs = []
-    placeholder_fixed_langs = []
+    placeholder_fixed_files = []
     
     if not os.path.exists(SOURCE_FILE):
         print(Fore.RED + "   Error: Root README.md not found.")
@@ -7359,30 +7370,46 @@ def repair_translations(target_dir=None, output_base_dir=None):
         print(Fore.RED + f"   Failed to read source file: {e}")
         return False
         
-    for lang_code in existing_langs:
+    for lang_code in sorted(scan_langs):
         if lang_code == "jp":
             readme_path = os.path.join(OUTPUT_DIR, "README-JP.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-JP.md")
         elif lang_code == "zh":
             readme_path = os.path.join(OUTPUT_DIR, "README-ZH.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-ZH.md")
         elif lang_code == "kr":
             readme_path = os.path.join(OUTPUT_DIR, "README-KR.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-KR.md")
         else:
             readme_path = os.path.join(OUTPUT_DIR, f"README-{lang_code.upper()}.md")
+            changelog_path = os.path.join(OUTPUT_DIR, f"CHANGELOG-{lang_code.upper()}.md")
             
+        # Placeholder corruption repair for both README and CHANGELOG
+        for file_path in (readme_path, changelog_path):
+            if not os.path.exists(file_path):
+                continue
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    file_content = f.read()
+
+                if has_broken_placeholder(file_content):
+                    base_name = os.path.basename(file_path)
+                    print(Fore.YELLOW + f"   ⚠️ Placeholder corruption detected in {base_name}")
+                    repaired_content = fix_broken_placeholders(file_content)
+                    if repaired_content != file_content:
+                        with open(file_path, "w", encoding="utf-8", newline="") as wf:
+                            wf.write(repaired_content)
+                        placeholder_fixed_files.append(base_name)
+                        print(Fore.GREEN + f"   ✅ Fixed placeholder corruption in {base_name}")
+            except Exception as e:
+                print(Fore.RED + f"   - [ERROR] {os.path.basename(file_path)}: {t('ui.repairErrorScan', error=e)}")
+
+        # Keep existing failure scan logic for translated README only
         if os.path.exists(readme_path):
             try:
                 with open(readme_path, "r", encoding="utf-8") as f:
                     trans_content = f.read()
-
-                if has_broken_placeholder(trans_content):
-                    print(Fore.YELLOW + f"   ⚠️ Placeholder corruption detected in {os.path.basename(readme_path)}")
-                    repaired_content = fix_broken_placeholders(trans_content)
-                    if repaired_content != trans_content:
-                        with open(readme_path, "w", encoding="utf-8", newline="") as wf:
-                            wf.write(repaired_content)
-                        trans_content = repaired_content
-                        placeholder_fixed_langs.append(lang_code)
-                        print(Fore.GREEN + f"   ✅ Fixed placeholder corruption in {os.path.basename(readme_path)}")
+                trans_content = fix_broken_placeholders(trans_content)
                 
                 # Strip markdown syntax and compare structural words
                 def strip_md(text):
@@ -7410,8 +7437,8 @@ def repair_translations(target_dir=None, output_base_dir=None):
         print(Fore.CYAN + f"\n3. {t('ui.retranslatingFailed', count=len(failed_langs), langs=', '.join(failed_langs))}")
         translate_with_changelog(failed_langs, with_changelog=has_changelog_file(), target_dir=target_dir, output_base_dir=output_base_dir)
         print(Fore.GREEN + f"\n{t('ui.repairFixed')}")
-    elif placeholder_fixed_langs:
-        fixed_names = ", ".join([LANGUAGES[c][0] for c in placeholder_fixed_langs if c in LANGUAGES]) or ", ".join(placeholder_fixed_langs)
+    elif placeholder_fixed_files:
+        fixed_names = ", ".join(placeholder_fixed_files)
         print(Fore.GREEN + f"\n✅ Placeholder corruption repaired in: {fixed_names}")
     else:
         print(Fore.GREEN + f"\n{t('ui.repairSuccess')}")
