@@ -577,7 +577,6 @@ Examples:
         "ui.provider_yandex": "Yandex Translate (token required — free tier available)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token required — free tier 2M chars/month)",
         "ui.provider_papago": "Papago / Naver (best for Korean — client_id:secret_key format)",
-        "ui.provider_custom": "Custom REST API (any HTTP endpoint with Bearer token)",
         "ui.aiSettings": "AI Settings (Optional)",
         "ui.aiMenuTitle": "🤖 AI Settings — Optional AI Providers",
         "ui.aiSavedNote": "💡 AI config saved in ai_config.json (keep private!)",
@@ -608,7 +607,6 @@ Examples:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "Custom AI (API endpoint + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Usage limit (Enter to use default, e.g. 500k/month)",
         "ui.limitDefault": "Default: {value}",
@@ -939,7 +937,6 @@ Contoh:
         "ui.provider_yandex": "Yandex Translate (memerlukan token — tersedia tier gratis)",
         "ui.provider_microsoft": "Microsoft Azure Translator (memerlukan token — tier gratis 2M kar/bulan)",
         "ui.provider_papago": "Papago / Naver (terbaik untuk Korea — format client_id:secret_key)",
-        "ui.provider_custom": "Custom REST API (endpoint HTTP apapun dengan Bearer token)",
         "ui.aiSettings": "Pengaturan AI (Opsional)",
         "ui.aiMenuTitle": "🤖 Pengaturan AI — Provider AI Opsional",
         "ui.aiSavedNote": "💡 Konfigurasi AI disimpan di ai_config.json (jaga kerahasiaannya!)",
@@ -970,7 +967,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini (API key)",
         "ui.ai_provider_claude": "Anthropic Claude (API key)",
         "ui.ai_provider_mistral": "Mistral AI (API key)",
-        "ui.ai_provider_custom": "AI Kustom (endpoint API + token)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Batas penggunaan (Enter untuk pakai default, mis. 500k/bulan)",
         "ui.limitDefault": "Default: {value}",
@@ -1293,7 +1289,6 @@ Contoh:
         "ui.provider_yandex": "Yandex翻訳（トークン必要 — 無料枠あり）",
         "ui.provider_microsoft": "Microsoft Azure翻訳（トークン必要 — 無料枠月200万文字）",
         "ui.provider_papago": "Papago / Naver（韓国語最適 — client_id:secret_key形式）",
-        "ui.provider_custom": "カスタムREST API（Bearerトークン付きのHTTPエンドポイント）",
         "ui.aiSettings": "AI設定（オプション）",
         "ui.aiMenuTitle": "🤖 AI設定 — オプションAIプロバイダー",
         "ui.aiSavedNote": "💡 AI設定はai_config.jsonに保存されます（非公開に！）",
@@ -1324,7 +1319,6 @@ Contoh:
         "ui.ai_provider_gemini": "Google Gemini（APIキー）",
         "ui.ai_provider_claude": "Anthropic Claude（APIキー）",
         "ui.ai_provider_mistral": "Mistral AI（APIキー）",
-        "ui.ai_provider_custom": "カスタムAI（APIエンドポイント＋キー）",
         "ui.tableLimit": "制限",
         "ui.enterLimit": "使用制限 (Enterでデフォルト使用、例: 50万文字/月)",
         "ui.limitDefault": "デフォルト: {value}",
@@ -1646,7 +1640,6 @@ Beispiele:
         "ui.provider_yandex": "Yandex Übersetzer (Token erforderlich — kostenlose Stufe verfügbar)",
         "ui.provider_microsoft": "Microsoft Azure Übersetzer (Token erforderlich — kostenlose Stufe 2M Zeichen/Monat)",
         "ui.provider_papago": "Papago / Naver (am besten für Koreanisch — client_id:secret_key Format)",
-        "ui.provider_custom": "Benutzerdefinierte REST API (beliebiger HTTP-Endpunkt mit Bearer-Token)",
         "ui.aiSettings": "KI-Einstellungen (Optional)",
         "ui.aiMenuTitle": "🤖 KI-Einstellungen — Optionale KI-Anbieter",
         "ui.aiSavedNote": "💡 KI-Konfiguration in ai_config.json gespeichert (privat halten!)",
@@ -1677,7 +1670,6 @@ Beispiele:
         "ui.ai_provider_gemini": "Google Gemini (API-Schlüssel)",
         "ui.ai_provider_claude": "Anthropic Claude (API-Schlüssel)",
         "ui.ai_provider_mistral": "Mistral AI (API-Schlüssel)",
-        "ui.ai_provider_custom": "Benutzerdefinierte KI (API-Endpunkt + Schlüssel)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Nutzungslimit (Enter für Standard, z.B. 500k/Monat)",
         "ui.limitDefault": "Standard: {value}",
@@ -1999,7 +1991,6 @@ Ejemplos:
         "ui.provider_yandex": "Yandex Translate (token requerido — nivel gratuito disponible)",
         "ui.provider_microsoft": "Microsoft Azure Translator (token requerido — nivel gratuito 2M car/mes)",
         "ui.provider_papago": "Papago / Naver (mejor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (cualquier endpoint HTTP con Bearer token)",
         "ui.aiSettings": "Configuración de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configuración de IA — Proveedores de IA opcionales",
         "ui.aiSavedNote": "💡 Configuración de IA guardada en ai_config.json (¡manténgalo privado!)",
@@ -2030,7 +2021,6 @@ Ejemplos:
         "ui.ai_provider_gemini": "Google Gemini (clave API)",
         "ui.ai_provider_claude": "Anthropic Claude (clave API)",
         "ui.ai_provider_mistral": "Mistral AI (clave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + clave)",
         "ui.tableLimit": "Límite",
         "ui.enterLimit": "Límite de uso (Enter para default, ej. 500k/mes)",
         "ui.limitDefault": "Predeterminado: {value}",
@@ -2354,7 +2344,6 @@ Exemples :
         "ui.provider_yandex": "Yandex Traduction (jeton requis — niveau gratuit disponible)",
         "ui.provider_microsoft": "Microsoft Azure Traduction (jeton requis — niveau gratuit 2M car/mois)",
         "ui.provider_papago": "Papago / Naver (meilleur pour le coréen — format client_id:secret_key)",
-        "ui.provider_custom": "API REST personnalisée (tout endpoint HTTP avec jeton Bearer)",
         "ui.aiSettings": "Paramètres IA (Optionnel)",
         "ui.aiMenuTitle": "🤖 Paramètres IA — Fournisseurs IA optionnels",
         "ui.aiSavedNote": "💡 Config IA sauvegardée dans ai_config.json (garder privé !)",
@@ -2385,7 +2374,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (clé API)",
         "ui.ai_provider_claude": "Anthropic Claude (clé API)",
         "ui.ai_provider_mistral": "Mistral AI (clé API)",
-        "ui.ai_provider_custom": "IA personnalisée (endpoint API + clé)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite d'utilisation (Enter pour défaut, ex. 500k/mois)",
         "ui.limitDefault": "Défaut : {value}",
@@ -2708,7 +2696,6 @@ Exemples :
         "ui.provider_yandex": "Yandex 번역 (토큰 필요 — 무료 티어 제공)",
         "ui.provider_microsoft": "Microsoft Azure 번역 (토큰 필요 — 무료 티어 월 200만 자)",
         "ui.provider_papago": "Papago / Naver (한국어에 최적 — client_id:secret_key 형식)",
-        "ui.provider_custom": "커스텀 REST API (Bearer 토큰이 있는 HTTP 엔드포인트)",
         "ui.aiSettings": "AI 설정 (선택)",
         "ui.aiMenuTitle": "🤖 AI 설정 — 선택적 AI 제공자",
         "ui.aiSavedNote": "💡 AI 설정이 ai_config.json에 저장됩니다 (비공개 유지!)",
@@ -2739,7 +2726,6 @@ Exemples :
         "ui.ai_provider_gemini": "Google Gemini (API 키)",
         "ui.ai_provider_claude": "Anthropic Claude (API 키)",
         "ui.ai_provider_mistral": "Mistral AI (API 키)",
-        "ui.ai_provider_custom": "커스텀 AI (API 엔드포인트 + 키)",
         "ui.tableLimit": "제한",
         "ui.enterLimit": "사용 제한 (기본값 Enter, 예: 50만/월)",
         "ui.limitDefault": "기본값: {value}",
@@ -3061,7 +3047,6 @@ Przykłady:
         "ui.provider_yandex": "Yandex Tłumacz (wymagany token — dostępny bezpłatny poziom)",
         "ui.provider_microsoft": "Microsoft Azure Tłumacz (wymagany token — bezpłatny poziom 2M znaków/mies.)",
         "ui.provider_papago": "Papago / Naver (najlepszy dla koreańskiego — format client_id:secret_key)",
-        "ui.provider_custom": "Niestandardowe API REST (dowolny endpoint HTTP z tokenem Bearer)",
         "ui.aiSettings": "Ustawienia AI (Opcjonalne)",
         "ui.aiMenuTitle": "🤖 Ustawienia AI — Opcjonalni dostawcy AI",
         "ui.aiSavedNote": "💡 Konfiguracja AI zapisana w ai_config.json (zachowaj prywatność!)",
@@ -3092,7 +3077,6 @@ Przykłady:
         "ui.ai_provider_gemini": "Google Gemini (klucz API)",
         "ui.ai_provider_claude": "Anthropic Claude (klucz API)",
         "ui.ai_provider_mistral": "Mistral AI (klucz API)",
-        "ui.ai_provider_custom": "Niestandardowe AI (endpoint API + klucz)",
         "ui.tableLimit": "Limit",
         "ui.enterLimit": "Limit użycia (Enter dla domyślnego, np. 500k/mies.)",
         "ui.limitDefault": "Domyślny: {value}",
@@ -3414,7 +3398,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex Tradutor (token necessário — nível gratuito disponível)",
         "ui.provider_microsoft": "Microsoft Azure Tradutor (token necessário — nível gratuito 2M car/mês)",
         "ui.provider_papago": "Papago / Naver (melhor para coreano — formato client_id:secret_key)",
-        "ui.provider_custom": "API REST personalizada (qualquer endpoint HTTP com token Bearer)",
         "ui.aiSettings": "Configurações de IA (Opcional)",
         "ui.aiMenuTitle": "🤖 Configurações de IA — Provedores de IA opcionais",
         "ui.aiSavedNote": "💡 Configuração de IA salva em ai_config.json (manter privado!)",
@@ -3445,7 +3428,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (chave API)",
         "ui.ai_provider_claude": "Anthropic Claude (chave API)",
         "ui.ai_provider_mistral": "Mistral AI (chave API)",
-        "ui.ai_provider_custom": "IA personalizada (endpoint API + chave)",
         "ui.tableLimit": "Limite",
         "ui.enterLimit": "Limite de uso (Enter para padrão, ex. 500k/mês)",
         "ui.limitDefault": "Padrão: {value}",
@@ -3767,7 +3749,6 @@ Exemplos:
         "ui.provider_yandex": "Яндекс.Переводчик (требуется токен — доступен бесплатный уровень)",
         "ui.provider_microsoft": "Microsoft Azure Переводчик (требуется токен — бесплатный уровень 2М сим/мес)",
         "ui.provider_papago": "Papago / Naver (лучший для корейского — формат client_id:secret_key)",
-        "ui.provider_custom": "Пользовательский REST API (любой HTTP-эндпоинт с Bearer-токеном)",
         "ui.aiSettings": "Настройки ИИ (Опционально)",
         "ui.aiMenuTitle": "🤖 Настройки ИИ — Опциональные провайдеры ИИ",
         "ui.aiSavedNote": "💡 Конфиг ИИ сохранён в ai_config.json (храните в тайне!)",
@@ -3798,7 +3779,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini (API-токен)",
         "ui.ai_provider_claude": "Anthropic Claude (API-токен)",
         "ui.ai_provider_mistral": "Mistral AI (API-токен)",
-        "ui.ai_provider_custom": "Пользовательский ИИ (HTTP-эндпоинт + токен)",
         "ui.tableLimit": "Лимит",
         "ui.enterLimit": "Лимит использования (Enter для умолчания, напр. 500k/мес)",
         "ui.limitDefault": "По умолчанию: {value}",
@@ -4120,7 +4100,6 @@ Exemplos:
         "ui.provider_yandex": "Yandex 翻译（需要令牌 — 提供免费套餐）",
         "ui.provider_microsoft": "Microsoft Azure 翻译（需要令牌 — 免费套餐每月200万字符）",
         "ui.provider_papago": "Papago / Naver（最适合韩语 — client_id:secret_key 格式）",
-        "ui.provider_custom": "自定义 REST API（支持 Bearer 令牌的任意 HTTP 端点）",
         "ui.aiSettings": "AI 设置（可选）",
         "ui.aiMenuTitle": "🤖 AI 设置 — 可选 AI 服务商",
         "ui.aiSavedNote": "💡 AI 配置已保存到 ai_config.json（请保密！）",
@@ -4151,7 +4130,6 @@ Exemplos:
         "ui.ai_provider_gemini": "Google Gemini（API 密钥）",
         "ui.ai_provider_claude": "Anthropic Claude（API 密钥）",
         "ui.ai_provider_mistral": "Mistral AI（API 密钥）",
-        "ui.ai_provider_custom": "自定义 AI（API 端点 + 密钥）",
         "ui.tableLimit": "限额",
         "ui.enterLimit": "使用限额（Enter使用默认，如 50万/月）",
         "ui.limitDefault": "默认：{value}",
@@ -5260,8 +5238,6 @@ def format_api_endpoint(entry: dict) -> str:
                 return manual_endpoint or "self-host"
             return "self-host"
         return "https://libretranslate.com/translate"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5442,37 +5418,73 @@ AI_CONFIG_FILE = os.path.join(_SCRIPT_DIR, '..', '..', 'ai_config.json')
 
 # Supported AI providers
 SUPPORTED_AI_PROVIDERS = {
+    "groq": "Groq (API key)",
+    "deepseek": "DeepSeek (API key)",
+    "openrouter": "OpenRouter (API key)",
     "openai": "OpenAI ChatGPT (API key)",
     "gemini": "Google Gemini (API key)",
     "claude": "Anthropic Claude (API key)",
-    "copilot": "Microsoft Copilot (API key)",
     "mistral": "Mistral AI (API key)",
-    "perplexity": "Perplexity AI (API key)",
-    "custom": "Custom AI (API endpoint + token)",
 }
 
 # Default quota/limits per AI provider
 AI_PROVIDER_DEFAULT_LIMITS = {
+    "groq": "Depends on plan / token usage",
+    "deepseek": "Depends on plan / token usage",
+    "openrouter": "Depends on model / quota",
     "openai": "Depends on plan / token usage",
     "gemini": "Depends on model / quota",
     "claude": "Depends on plan / token usage",
-    "copilot": "Depends on plan / quota",
     "mistral": "Depends on plan / token usage",
-    "perplexity": "Depends on plan / quota",
-    "custom": "Custom / provider-defined",
 }
 
 # Browser login URLs for each AI provider
 AI_PROVIDER_URLS = {
 }
 
+AI_PROVIDER_PRIORITY = {
+    "groq": 1,
+    "deepseek": 2,
+    "openrouter": 3,
+    "openai": 4,
+    "claude": 5,
+    "mistral": 6,
+    "gemini": 7,
+}
+
+ALLOWED_AI_PROVIDERS = set(SUPPORTED_AI_PROVIDERS.keys())
+
 
 def load_ai_config() -> dict:
     """Load AI configuration from ai_config.json."""
+    def normalize_provider(provider: str) -> str:
+        p = (provider or "").strip().lower()
+        # Backward compatibility migration
+        if p == "google":
+            return "gemini"
+        if p == "anthropic":
+            return "claude"
+        return p
+
     if os.path.exists(AI_CONFIG_FILE):
         try:
             with open(AI_CONFIG_FILE, encoding='utf-8') as f:
-                return json.load(f)
+                raw = json.load(f)
+                ais = []
+                changed = False
+                for entry in raw.get("ais", []):
+                    normalized_provider = normalize_provider(entry.get("provider", ""))
+                    if normalized_provider not in ALLOWED_AI_PROVIDERS:
+                        changed = True
+                        continue
+                    if normalized_provider != entry.get("provider"):
+                        changed = True
+                    entry["provider"] = normalized_provider
+                    ais.append(entry)
+                config = {"ais": ais}
+                if changed:
+                    save_ai_config(config)
+                return config
         except Exception:
             pass
     return {"ais": []}
@@ -5614,7 +5626,7 @@ def test_ai_provider(provider: str, model: str, token: str, base_url: str = None
 def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
     """Auto-select a model for provider. Returns (selected_model, discovered_models)."""
     provider = (provider or "").lower()
-    if provider == "google":
+    if provider == "gemini":
         models = fetch_google_gemini_models(token)
         if not models:
             return "gemini-2.5-flash", []
@@ -5628,14 +5640,18 @@ def auto_select_ai_model(provider: str, token: str) -> tuple[str, list[str]]:
             if cand in models:
                 return cand, models
         return models[0], models
+    if provider == "groq":
+        return "llama3-70b-8192", []
+    if provider == "deepseek":
+        return "deepseek-chat", []
+    if provider == "openrouter":
+        return "deepseek/deepseek-chat", []
     if provider == "openai":
         return "gpt-4o-mini", []
-    if provider == "anthropic":
+    if provider == "claude":
         return "claude-3-5-sonnet-latest", []
     if provider == "mistral":
         return "mistral-small-latest", []
-    if provider == "custom":
-        return "custom-model", []
     return "default-model", []
 
 
@@ -5645,17 +5661,21 @@ def format_ai_endpoint(entry: dict) -> str:
     base_url = (entry.get("base_url") or "").strip()
     if base_url:
         return base_url
+    if provider == "groq":
+        return "https://api.groq.com/openai/v1/chat/completions"
+    if provider == "deepseek":
+        return "https://api.deepseek.com/chat/completions"
+    if provider == "openrouter":
+        return "https://openrouter.ai/api/v1/chat/completions"
     if provider == "openai":
         return "https://api.openai.com/v1/chat/completions"
-    if provider == "anthropic":
+    if provider == "claude":
         return "https://api.anthropic.com/v1/messages"
-    if provider == "google":
+    if provider == "gemini":
         model = (entry.get("model") or "gemini-2.5-flash").strip()
         return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     if provider == "mistral":
         return "https://api.mistral.ai/v1/chat/completions"
-    if provider == "custom":
-        return "custom endpoint"
     return "default"
 
 
@@ -5823,6 +5843,29 @@ def _translate_with_provider(text: str, dest: str, provider: str, token: str) ->
         return None
 
 
+def normalize_placeholders(text: str) -> str:
+    """Normalize placeholder variants before strict leak validation."""
+    normalized = text or ""
+    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
+    return normalized
+
+
+def validate_placeholders(text: str) -> bool:
+    """Raise when protected placeholder leak is detected."""
+    if "<<<PH_" in normalize_placeholders(text):
+        raise ValueError("Placeholder leak detected")
+    return True
+
+
+def get_active_ai_providers() -> list[dict]:
+    """Get enabled AI providers sorted by priority."""
+    return sorted(
+        get_active_ais(),
+        key=lambda e: AI_PROVIDER_PRIORITY.get((e.get("provider") or "").lower(), 99)
+    )
+
+
 def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bool = True) -> str | None:
     """Implement AI provider translation logic for Python fallback."""
     provider = ai_entry.get("provider", "").lower()
@@ -5830,19 +5873,34 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
     token = ai_entry.get("token", "")
     base_url = ai_entry.get("base_url")
 
-    prompt = f"Translate the following text to {dest}. Maintain all markdown formatting, code blocks, links, and HTML exactly. Return ONLY the translated text, do not add any conversational text or wrapper. Wait, just output the raw result:\n\n{text}"
+    prompt = (
+        f"Translate the following text to {dest}. "
+        "Maintain all markdown formatting, code blocks, links, tables, placeholders like <<<PH_0>>>, "
+        "indentation, and line breaks exactly. "
+        "Return ONLY the translated text, do not add any conversational text or wrapper.\n\n"
+        f"{text}"
+    )
 
     headers = {}
     payload = {}
     url = ""
     
     try:
-        if provider in ["openai", "custom", "mistral"]:
+        if provider in ["openai", "mistral", "groq", "deepseek", "openrouter"]:
             debug_print(f"{provider} request sent", log_type="API")
             url = base_url if base_url else "https://api.openai.com/v1/chat/completions"
             if provider == "mistral" and not base_url:
                 url = "https://api.mistral.ai/v1/chat/completions"
+            elif provider == "groq" and not base_url:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+            elif provider == "deepseek" and not base_url:
+                url = "https://api.deepseek.com/chat/completions"
+            elif provider == "openrouter" and not base_url:
+                url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            if provider == "openrouter":
+                headers["HTTP-Referer"] = "https://github.com/fatonyahmadfauzi/MultiDoc-Translator"
+                headers["X-Title"] = "MultiDoc Translator"
             payload = {
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
@@ -5852,8 +5910,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["choices"][0]["message"]["content"].strip()
             
-        elif provider == "anthropic":
-            debug_print("anthropic request sent", log_type="API")
+        elif provider == "claude":
+            debug_print("claude request sent", log_type="API")
             url = base_url if base_url else "https://api.anthropic.com/v1/messages"
             headers = {
                 "x-api-key": token,
@@ -5869,8 +5927,8 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["content"][0]["text"].strip()
             
-        elif provider == "google":
-            debug_print("google ai request sent", log_type="API")
+        elif provider == "gemini":
+            debug_print("gemini request sent", log_type="API")
             url = base_url if base_url else f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={token}"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -5881,12 +5939,190 @@ def _translate_with_ai(text: str, dest: str, ai_entry: dict, suppress_errors: bo
             resp.raise_for_status()
             return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             
+    except requests.HTTPError as e:
+        code = str(getattr(getattr(e, "response", None), "status_code", ""))
+        if code == "429":
+            debug_print("[API] 429 Too Many Requests", log_type="API")
+        elif code == "403":
+            debug_print("[API] 403 Forbidden", log_type="API")
+        elif code:
+            debug_print(f"[API] {code} HTTP error from provider {provider}", log_type="API")
+        if suppress_errors:
+            return None
+        raise
     except Exception as e:
         if suppress_errors:
-            print(Fore.YELLOW + f"  [!] AI {provider}/{model} failed: {e}" + Style.RESET_ALL)
+            debug_print(f"[API] AI {provider}/{model} failed: {e}", log_type="API")
             return None
         raise
     return None
+
+
+def translate_with_ai(provider: str, text: str, target_lang: str) -> str | None:
+    """Translate using one AI provider, retry once on request/validation failure."""
+    provider = (provider or "").lower()
+    if provider not in {"openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"}:
+        return None
+
+    active = get_active_ai_providers()
+    entry = next((e for e in active if (e.get("provider") or "").lower() == provider), None)
+    if not entry:
+        return None
+
+    token = (entry.get("token") or "").strip()
+    if not token:
+        return None
+
+    model = (entry.get("model") or "").strip()
+    default_models = {
+        "openai": "gpt-4o-mini",
+        "gemini": "gemini-2.5-flash",
+        "claude": "claude-3-5-sonnet-latest",
+        "mistral": "mistral-small-latest",
+        "groq": "llama3-70b-8192",
+        "deepseek": "deepseek-chat",
+        "openrouter": "deepseek/deepseek-chat",
+    }
+    model = model or default_models[provider]
+    entry["model"] = model
+
+    for attempt in range(2):
+        if attempt == 0:
+            debug_print(f"[AI] Using {provider}", log_type="API")
+        else:
+            debug_print(f"[AI] Retry {attempt + 1}/2 for provider {provider}", log_type="API")
+        try:
+            result = _translate_with_ai(text, target_lang, entry)
+            if not is_successful_translation_result(result):
+                continue
+            validate_placeholders(result)
+            return result.strip()
+        except ValueError:
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+        except requests.HTTPError as e:
+            status_code = str(getattr(getattr(e, "response", None), "status_code", ""))
+            if status_code:
+                debug_print(f"[API] {status_code} {getattr(e.response, 'reason', 'HTTP Error')}", log_type="API")
+            else:
+                debug_print(f"[API] HTTP error: {e}", log_type="API")
+        except Exception as e:
+            debug_print(f"[API] {provider} failed: {e}", log_type="API")
+    return None
+
+
+def translate_with_fallback(text: str, dest: str) -> str | None:
+    """Final fallback flow: active AI providers in order -> GoogleTranslator."""
+    for idx, ai_entry in enumerate(get_active_ai_providers()):
+        provider = (ai_entry.get("provider") or "").lower()
+        if provider not in {"openai", "gemini", "claude", "mistral", "groq", "deepseek", "openrouter"}:
+            continue
+        if idx > 0:
+            debug_print(f"[AI] Fallback → {provider}", log_type="API")
+        result = translate_with_ai(provider, text, dest)
+        if is_successful_translation_result(result):
+            return result
+
+    debug_print("[AI] Fallback → google", log_type="API")
+    for attempt in range(2):
+        try:
+            translated = GoogleTranslator(source="auto", target=dest).translate(text)
+            validate_placeholders(translated)
+            return translated
+        except ValueError:
+            debug_print("[ERROR] Placeholder leak", log_type="ERROR")
+        except Exception as e:
+            debug_print(f"[API] google fallback failed: {e}", log_type="API")
+    return None
+
+
+def protect_markdown_tokens(text: str, extra_patterns: list[str] | None = None) -> tuple[str, dict[str, str]]:
+    """Protect markdown-sensitive fragments with machine-safe placeholders."""
+    protected_text = text
+    mapping: dict[str, str] = {}
+    counter = 0
+
+    def protect_pattern(pattern: str, flags: int = 0):
+        nonlocal protected_text, counter
+        def repl(match):
+            nonlocal counter
+            placeholder = f"<<<PH_{counter}>>>"
+            mapping[placeholder] = match.group(0)
+            counter += 1
+            return placeholder
+        protected_text = re.sub(pattern, repl, protected_text, flags=flags)
+
+    # Order matters: protect larger markdown structures first.
+    protect_pattern(r"```[\s\S]*?```")                         # fenced code blocks
+    protect_pattern(r"`[^`\n\r]+`")                            # inline code
+    protect_pattern(r"!\[[^\]]*\]\([^)]+\)")                  # markdown images
+    protect_pattern(r"\[[^\]]+\]\([^)]+\)")                   # markdown links
+    protect_pattern(r"<!--[\s\S]*?-->")                        # HTML comments
+    protect_pattern(r"<[^>\n]+>")                              # inline HTML tags
+    protect_pattern(r"https?://[^\s\)]+")                     # standalone URLs
+
+    if extra_patterns:
+        for pat in extra_patterns:
+            try:
+                protect_pattern(pat)
+            except re.error:
+                continue
+
+    return protected_text, mapping
+
+
+def normalize_placeholder_variants(text: str) -> str:
+    """Defensive repair for legacy/corrupted placeholder variants."""
+    normalized = text or ""
+    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
+    return normalized
+
+
+def restore_markdown_tokens(text: str, mapping: dict[str, str]) -> str:
+    restored = normalize_placeholder_variants(text)
+    for placeholder, original in sorted(mapping.items(), key=lambda kv: len(kv[0]), reverse=True):
+        restored = restored.replace(placeholder, original)
+    return restored
+
+
+def validate_no_placeholder_leak(text: str) -> None:
+    normalized = normalize_placeholder_variants(text)
+    if "<<<PH_" in normalized:
+        raise ValueError("Placeholder leak detected")
+    if re.search(r"__\s*p\s*\d+\s*__", normalized, flags=re.IGNORECASE):
+        raise ValueError("Legacy placeholder artifact detected")
+    if re.search(r"\bP\d+\b", normalized):
+        raise ValueError("Broken placeholder artifact detected")
+
+
+def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
+    """Protect -> translate -> restore -> validate with retry + provider fallback."""
+    debug_print("[PIPELINE] Protecting markdown tokens", log_type="FLOW")
+    protected_text, mapping = protect_markdown_tokens(text, extra_patterns)
+    debug_print(f"[PIPELINE] Protected tokens: {len(mapping)}", log_type="FLOW")
+
+    for attempt in range(2):
+        try:
+            debug_print("[PIPELINE] Translation started", log_type="FLOW")
+            translated = translate_with_fallback(protected_text, target_lang)
+            if not is_successful_translation_result(translated):
+                raise ValueError("Empty translation result")
+            debug_print("[PIPELINE] Restoring placeholders", log_type="FLOW")
+            restored = restore_markdown_tokens(translated, mapping)
+            validate_no_placeholder_leak(restored)
+            debug_print("[PIPELINE] Validation passed", log_type="FLOW")
+            return restored
+        except Exception as e:
+            debug_print(f"[PIPELINE] Placeholder leak detected: {e}", log_type="ERROR")
+            if attempt == 0:
+                debug_print("[PIPELINE] Retrying translation", log_type="FLOW")
+            else:
+                debug_print("[PIPELINE] Fallback triggered / final failure", log_type="ERROR")
+    raise ValueError("Translation pipeline failed after retry")
+
+
+def translate_block_preserving_format(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
+    return translate_text_pipeline(text, target_lang, extra_patterns)
 
 
 def translate_text(text: str, dest: str) -> str:
@@ -5900,15 +6136,10 @@ def translate_text(text: str, dest: str) -> str:
     if not text.strip():
         return text
 
-    # Try AI Fallback Chain
-    active_ais = get_active_ais()
-    for ai_entry in active_ais:
-        try:
-            result = _translate_with_ai(text, dest, ai_entry)
-            if is_successful_translation_result(result):
-                return result
-        except Exception:
-            pass
+    # Try AI fallback chain (provider-by-provider with placeholder validation)
+    ai_result = translate_with_fallback(text, dest)
+    if is_successful_translation_result(ai_result):
+        return ai_result
 
     # Try API Fallback Chain
     active_apis = get_active_apis()
@@ -6385,65 +6616,34 @@ def translate_changelog(lang_code, lang_info, protected):
                 translated_lines.append(line)
                 continue
             
-            # Protect text before translation
-            temp_line = line
-            placeholders = {}
-            counter = 0
-            
-            def protect(pattern, text, flags=0):
-                nonlocal counter
-                def repl(m):
-                    nonlocal counter
-                    key = f"__p{counter}__"
-                    placeholders[key] = m.group(0)
-                    counter += 1
-                    return key
-                return re.sub(pattern, repl, text, flags=flags)
-            
-            # Protection for all important patterns
+            extra_patterns = [
+                r"\[[\d\.]+\]:\s*\S+",           # version links
+                r"\b\w+/\w+(/\w+)*\.\w+\b",      # file paths
+                r"\b\w+\.\w+\b",                 # file names/extensions
+                r"\bv\d+\.\d+\.\d+\b",           # versions
+                r"\b\d{4}-\d{2}-\d{2}\b",        # dates
+                r"\bPixiv OAuth Token\b",
+                r"\bOAuth\b",
+                r"\bCLI\b",
+                r"\bGUI\b",
+                r"\bAPI\b",
+                r"\bGitHub\b",
+                r"\bVercel\b",
+                r"\bPython\b",
+                r"[🌐🧾🐞✨🔜📦⚙]",
+                r"\bREL-U\d+\b",
+                r"\bBUILD-UNKNOWN\b",
+            ]
             if is_protect_enabled():
-                for p in protected["protected_phrases"]:
-                    temp_line = protect(p, temp_line)
-            
-            # Additional protection specifically for CHANGELOG
-            temp_line = protect(r"https?://[^\s\)]+", temp_line)           # URLs
-            temp_line = protect(r"`[^`]+`", temp_line)                     # Inline code
-            temp_line = protect(r"\[.*?\]\([^)]+\)", temp_line)            # Markdown links
-            temp_line = protect(r"\[[\d\.]+\]:\s*\S+", temp_line)          # Version links
-            
-            # Additional protection for file paths, versions, dates, and technical terms
-            temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)     # File paths
-            temp_line = protect(r'\b\w+\.\w+\b', temp_line)                # File extensions
-            temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)          # Versions
-            temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)       # Dates
-            temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
-            temp_line = protect(r'\bOAuth\b', temp_line)
-            temp_line = protect(r'\bCLI\b', temp_line)
-            temp_line = protect(r'\bGUI\b', temp_line)
-            temp_line = protect(r'\bAPI\b', temp_line)
-            temp_line = protect(r'\bGitHub\b', temp_line)
-            temp_line = protect(r'\bVercel\b', temp_line)
-            temp_line = protect(r'\bPython\b', temp_line)
-            temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)             # Emoji
-            temp_line = protect(r'\bREL-U\d+\b', temp_line)                # Build codes
-            temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
-            
-            # Translate text
-            translated = translate_text(temp_line, translate_code)
-            
-            # Restore placeholders to original text
-            for key, val in placeholders.items():
-                translated = translated.replace(key, val)
-            
+                extra_patterns.extend(protected.get("protected_phrases", []))
+
+            translated = translate_block_preserving_format(line, translate_code, extra_patterns)
             translated_lines.append(translated)
         
         translated_body = "\n".join(translated_lines)
         
         # Combine header and body
         final_changelog = f"{translated_header}\n\n---\n{translated_body}"
-        
-        # Cleanup remaining placeholders
-        final_changelog = re.sub(r"__p\d+__", "", final_changelog)
         
         # Write translated CHANGELOG file
         with open(changelog_dest_path, "w", encoding="utf-8") as f:
@@ -6933,67 +7133,32 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
             translated_lines.append(line)
             continue
 
-        temp_line = line
-        placeholders = {}
-        counter = 0
-
-        def protect(pattern, text, flags=0):
-            nonlocal counter
-            def repl(m):
-                nonlocal counter
-                key = f"__p{counter}__"
-                placeholders[key] = m.group(0)
-                counter += 1
-                return key
-            return re.sub(pattern, repl, text, flags=flags)
-
-        # Protection for all important patterns
+        extra_patterns = [
+            r"\[.*?\]\(mailto:[^\)]+\)",        # email links
+            r"MIT\s+License",
+            r"\(LICENSE\)",
+            r"\(\.\./\.\./LICENSE\)",
+            r"`auto-translate-readmes\.run`",
+            r"\b\w+/\w+(/\w+)*\.\w+\b",
+            r"\b\w+\.\w+\b",
+            r"\bv\d+\.\d+\.\d+\b",
+            r"\b\d{4}-\d{2}-\d{2}\b",
+            r"\bPixiv OAuth Token\b",
+            r"\bOAuth\b",
+            r"\bCLI\b",
+            r"\bGUI\b",
+            r"\bAPI\b",
+            r"\bGitHub\b",
+            r"\bVercel\b",
+            r"\bPython\b",
+            r"[🌐🧾🐞✨🔜📦⚙]",
+            r"\bREL-U\d+\b",
+            r"\bBUILD-UNKNOWN\b",
+        ]
         if is_protect_enabled():
-            for p in protected["protected_phrases"]:
-                temp_line = protect(p, temp_line)
+            extra_patterns.extend(protected.get("protected_phrases", []))
 
-        # Additional protection for important components
-        temp_line = protect(r"\[.*?\]\(https?://[^\)]+\)", temp_line)  # Markdown links with URL
-        temp_line = protect(r"\[.*?\]\(mailto:[^\)]+\)", temp_line)     # Email links
-        temp_line = protect(r"https?://[^\s\)]+", temp_line)           # URL standalone
-        temp_line = protect(r"MIT\s+License", temp_line, re.IGNORECASE)  # MIT License
-        temp_line = protect(r"\(LICENSE\)", temp_line)                   # (LICENSE)
-        temp_line = protect(r"\(\.\./\.\./LICENSE\)", temp_line)         # (../../LICENSE)
-        temp_line = protect(r"`[^`]+`", temp_line)                       # Inline code
-        temp_line = protect(r"`auto-translate-readmes\.run`", temp_line) # Command ID
-        
-        # Protection for file paths and names
-        temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)       # File paths like app/pixiv_login.py
-        temp_line = protect(r'\b\w+\.\w+\b', temp_line)                  # File extensions like README.md
-        
-        # Protection for version numbers and dates
-        temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)            # Versions like v1.0.4
-        temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)         # Dates like 2026-03-29
-        
-        # Protection for technical terms and product names
-        temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
-        temp_line = protect(r'\bOAuth\b', temp_line)
-        temp_line = protect(r'\bCLI\b', temp_line)
-        temp_line = protect(r'\bGUI\b', temp_line)
-        temp_line = protect(r'\bAPI\b', temp_line)
-        temp_line = protect(r'\bGitHub\b', temp_line)
-        temp_line = protect(r'\bVercel\b', temp_line)
-        temp_line = protect(r'\bPython\b', temp_line)
-        
-        # Protection for emoji
-        temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)
-        
-        # Protection for build codes
-        temp_line = protect(r'\bREL-U\d+\b', temp_line)
-        temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
-        
-        # Translate text
-        translated = translate_text(temp_line, translate_code)
-
-        # Restore placeholders to original text
-        for key, val in placeholders.items():
-            translated = translated.replace(key, val)
-
+        translated = translate_block_preserving_format(line, translate_code, extra_patterns)
         translated_lines.append(translated)
 
     translated_body = "\n".join(translated_lines)
@@ -7129,8 +7294,63 @@ def translate_markdown_table(content: str, lang_code: str) -> str:
     return content
 
 # ---------------------- INTERACTIVE MENU ----------------------
+def has_broken_placeholder(text: str) -> bool:
+    broken_patterns = [
+        r"__\s+p[01]\s+__",
+        r"__\s+p[01]__",
+        r"__p[01]\s+__",
+    ]
+    if any(re.search(pat, text, flags=re.IGNORECASE) for pat in broken_patterns):
+        return True
+
+    # Defensive check for isolated P0/P1 only when placeholder context is present.
+    has_placeholder_context = bool(re.search(r"(__\s*p|__p[01]__|<<<PH_|placeholder)", text, flags=re.IGNORECASE))
+    if has_placeholder_context and re.search(r"\bP[01]\b", text):
+        return True
+    return False
+
+
+def has_unresolved_placeholder_leak(text: str) -> bool:
+    """Detect placeholder artifacts that must never survive in final translated files."""
+    normalized = fix_broken_placeholders(text)
+
+    leak_patterns = [
+        r"__p\d+__",          # normalized legacy placeholders
+        r"__\s*p\s*\d+\s*__", # broken variants with spaces
+        r"<<<PH_\d+>>>",      # protected pipeline placeholder leak
+    ]
+    if any(re.search(pat, normalized, flags=re.IGNORECASE) for pat in leak_patterns):
+        return True
+
+    # Detect isolated P0/P1/Pn remnants only when placeholder context exists.
+    has_placeholder_context = bool(
+        re.search(r"(__\s*p|__p\d+__|<<<PH_|placeholder)", normalized, flags=re.IGNORECASE)
+    )
+    if has_placeholder_context and re.search(r"\bP\d+\b", normalized):
+        return True
+
+    return False
+
+
+def fix_broken_placeholders(text: str) -> str:
+    fixed = text
+    # Normalize broken __ p0 __ / __p0 __ / __ p0__ to __p0__
+    fixed = re.sub(r"__\s*p\s*([01])\s*__", r"__p\1__", fixed, flags=re.IGNORECASE)
+
+    # Repair isolated P0/P1 only in obvious placeholder-corruption context.
+    has_placeholder_context = bool(re.search(r"(__\s*p|__p[01]__|<<<PH_|placeholder)", fixed, flags=re.IGNORECASE))
+    lines = fixed.splitlines()
+    repaired_lines = []
+    for line in lines:
+        if has_placeholder_context and re.search(r"\bP[01]\b", line):
+            line = re.sub(r"\bP([01])\b", r"__p\1__", line)
+        repaired_lines.append(line)
+    return "\n".join(repaired_lines)
+
+
 def repair_translations(target_dir=None, output_base_dir=None):
     """Repair language switchers positioning, remove duplicates, and detect translation failures."""
+    global OUTPUT_DIR
     _msg_repair_starting = t("ui.repairStarting")
     print(Fore.CYAN + f"\n[+] {_msg_repair_starting}")
     
@@ -7146,8 +7366,25 @@ def repair_translations(target_dir=None, output_base_dir=None):
     # 2. Detect translation failures
     _msg_repair_step2 = t("ui.repairStep2")
     print(Fore.YELLOW + f"\n{_msg_repair_step2}")
+    print(Fore.YELLOW + "   - Additional scan: placeholder corruption and unresolved placeholder leaks (__p0__, __ p1__, P0/P1 variants, <<<PH_n>>>)")
     existing_langs = get_existing_translated_languages()
+    scan_langs = set(existing_langs)
+    # Include languages that may only have translated CHANGELOG files.
+    if os.path.exists(OUTPUT_DIR):
+        for filename in os.listdir(OUTPUT_DIR):
+            if not (filename.startswith("CHANGELOG-") and filename.endswith(".md")):
+                continue
+            code_part = filename.replace("CHANGELOG-", "").replace(".md", "").strip().lower()
+            if code_part in {"jp", "zh", "kr"}:
+                scan_langs.add(code_part)
+            else:
+                scan_langs.add(code_part)
     failed_langs = []
+    placeholder_fixed_files = []
+    rebuilt_files = []
+    rebuild_failed_files = []
+    rebuild_failed_langs = set()
+    protected = load_protected_phrases()
     
     if not os.path.exists(SOURCE_FILE):
         print(Fore.RED + "   Error: Root README.md not found.")
@@ -7159,21 +7396,122 @@ def repair_translations(target_dir=None, output_base_dir=None):
     except Exception as e:
         print(Fore.RED + f"   Failed to read source file: {e}")
         return False
+
+    def safe_rebuild_translation(file_path, file_type, lang_code):
+        base_name = os.path.basename(file_path)
+        backup_path = f"{file_path}.bak"
+        temp_target_path = f"{file_path}.tmp"
+        staging_root = os.path.join(OUTPUT_DIR, ".repair_staging")
+        staging_dir = os.path.join(staging_root, f"{lang_code}_{int(time.time() * 1000)}")
+
+        try:
+            os.makedirs(staging_dir, exist_ok=True)
+            print(Fore.YELLOW + f"   📦 Backing up corrupted file: {os.path.basename(backup_path)}")
+            os.replace(file_path, backup_path)
+        except Exception as backup_error:
+            print(Fore.RED + f"   - [ERROR] Failed to backup corrupted file {base_name}: {backup_error}")
+            return False
+
+        original_output_dir = OUTPUT_DIR
+        try:
+            OUTPUT_DIR = staging_dir
+            if file_type == "README":
+                print(Fore.CYAN + f"   🔄 Re-translating {base_name} from original README.md")
+                translate_readme(lang_code, LANGUAGES[lang_code], protected, include_changelog=False)
+            else:
+                if not has_changelog_file():
+                    raise RuntimeError("original CHANGELOG.md not found")
+                print(Fore.CYAN + f"   🔄 Re-translating {base_name} from original CHANGELOG.md")
+                translate_changelog(lang_code, LANGUAGES[lang_code], protected)
+
+            staged_file = os.path.join(staging_dir, base_name)
+            if not os.path.exists(staged_file):
+                raise RuntimeError("staged rebuilt file was not generated")
+
+            # Transactional finalization: stage to temp path first, then atomically replace target.
+            shutil.copyfile(staged_file, temp_target_path)
+            os.replace(temp_target_path, file_path)
+            print(Fore.GREEN + f"   ✅ Rebuilt {base_name} successfully")
+
+            if os.path.exists(backup_path):
+                os.remove(backup_path)
+                print(Fore.GREEN + f"   🗑️ Removed backup file: {os.path.basename(backup_path)}")
+            return True
+        except Exception as rebuild_error:
+            print(Fore.RED + f"   ❌ Rebuild failed for {base_name}: {rebuild_error}")
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                if os.path.exists(temp_target_path):
+                    os.remove(temp_target_path)
+                if os.path.exists(backup_path):
+                    os.replace(backup_path, file_path)
+                    print(Fore.YELLOW + f"   ♻️ Restored previous file from backup: {base_name}")
+                else:
+                    print(Fore.RED + f"   - [ERROR] Backup file missing; cannot restore {base_name}")
+            except Exception as restore_error:
+                print(Fore.RED + f"   - [ERROR] Failed to restore backup for {base_name}: {restore_error}")
+            return False
+        finally:
+            OUTPUT_DIR = original_output_dir
+            shutil.rmtree(staging_dir, ignore_errors=True)
         
-    for lang_code in existing_langs:
+    for lang_code in sorted(scan_langs):
+        if lang_code not in LANGUAGES:
+            print(Fore.YELLOW + f"   - [SKIP] Unknown language code '{lang_code}' detected in output files.")
+            continue
+
         if lang_code == "jp":
             readme_path = os.path.join(OUTPUT_DIR, "README-JP.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-JP.md")
         elif lang_code == "zh":
             readme_path = os.path.join(OUTPUT_DIR, "README-ZH.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-ZH.md")
         elif lang_code == "kr":
             readme_path = os.path.join(OUTPUT_DIR, "README-KR.md")
+            changelog_path = os.path.join(OUTPUT_DIR, "CHANGELOG-KR.md")
         else:
             readme_path = os.path.join(OUTPUT_DIR, f"README-{lang_code.upper()}.md")
+            changelog_path = os.path.join(OUTPUT_DIR, f"CHANGELOG-{lang_code.upper()}.md")
             
+        # Placeholder corruption repair / rebuild logic for both README and CHANGELOG
+        for file_path, file_type in ((readme_path, "README"), (changelog_path, "CHANGELOG")):
+            if not os.path.exists(file_path):
+                continue
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    file_content = f.read()
+
+                base_name = os.path.basename(file_path)
+                repaired_content = file_content
+                if has_broken_placeholder(file_content):
+                    print(Fore.YELLOW + f"   ⚠️ Placeholder corruption detected in {base_name}")
+                    repaired_content = fix_broken_placeholders(file_content)
+                    if repaired_content != file_content:
+                        with open(file_path, "w", encoding="utf-8", newline="") as wf:
+                            wf.write(repaired_content)
+                        placeholder_fixed_files.append(base_name)
+                        print(Fore.GREEN + f"   ✅ Fixed placeholder corruption in {base_name}")
+
+                if has_unresolved_placeholder_leak(repaired_content):
+                    print(Fore.YELLOW + f"   ⚠️ Unresolved placeholder leak detected in {base_name}")
+                    if safe_rebuild_translation(file_path, file_type, lang_code):
+                        rebuilt_files.append(base_name)
+                    else:
+                        rebuild_failed_files.append(base_name)
+                        rebuild_failed_langs.add(lang_code)
+            except Exception as e:
+                print(Fore.RED + f"   - [ERROR] {base_name}: {t('ui.repairErrorScan', error=e)}")
+
+        # Keep existing failure scan logic for translated README only
         if os.path.exists(readme_path):
+            if lang_code in rebuild_failed_langs:
+                print(Fore.RED + f"   - [ERROR] {LANGUAGES[lang_code][0]} ({lang_code}): rebuild failed; language status not marked as OK.")
+                continue
             try:
                 with open(readme_path, "r", encoding="utf-8") as f:
                     trans_content = f.read()
+                trans_content = fix_broken_placeholders(trans_content)
                 
                 # Strip markdown syntax and compare structural words
                 def strip_md(text):
@@ -7201,6 +7539,24 @@ def repair_translations(target_dir=None, output_base_dir=None):
         print(Fore.CYAN + f"\n3. {t('ui.retranslatingFailed', count=len(failed_langs), langs=', '.join(failed_langs))}")
         translate_with_changelog(failed_langs, with_changelog=has_changelog_file(), target_dir=target_dir, output_base_dir=output_base_dir)
         print(Fore.GREEN + f"\n{t('ui.repairFixed')}")
+    elif rebuilt_files:
+        rebuilt_names = ", ".join(rebuilt_files)
+        if placeholder_fixed_files:
+            fixed_names = ", ".join(placeholder_fixed_files)
+            print(Fore.GREEN + f"\n✅ Placeholder formatting repaired in: {fixed_names}")
+        print(Fore.GREEN + f"✅ Corrupted translations rebuilt from source: {rebuilt_names}")
+        if rebuild_failed_files:
+            failed_names = ", ".join(rebuild_failed_files)
+            print(Fore.RED + f"❌ Rebuild failed (restored from backup): {failed_names}")
+    elif rebuild_failed_files:
+        failed_names = ", ".join(rebuild_failed_files)
+        if placeholder_fixed_files:
+            fixed_names = ", ".join(placeholder_fixed_files)
+            print(Fore.GREEN + f"\n✅ Placeholder formatting repaired in: {fixed_names}")
+        print(Fore.RED + f"❌ Rebuild failed (restored from backup): {failed_names}")
+    elif placeholder_fixed_files:
+        fixed_names = ", ".join(placeholder_fixed_files)
+        print(Fore.GREEN + f"\n✅ Placeholder corruption repaired in: {fixed_names}")
     else:
         print(Fore.GREEN + f"\n{t('ui.repairSuccess')}")
         
@@ -8274,8 +8630,8 @@ def interactive_menu():
                     print(f"\n{Fore.MAGENTA}[+] {t('ui.aiAdd')}{Style.RESET_ALL}\n")
                     print(f"{Fore.WHITE}{t('ui.aiProviders')}{Style.RESET_ALL}")
                     
-                    # Available providers (custom removed for compatibility consistency)
-                    provider_list = ["openai", "anthropic", "google", "mistral"]
+                    # Available providers for AI mode
+                    provider_list = ["groq", "deepseek", "openrouter", "openai", "gemini", "claude", "mistral"]
                     
                     for pi, pk in enumerate(provider_list, 1):
                         print(f"  [{pi}] {pk}")
@@ -8295,23 +8651,12 @@ def interactive_menu():
                         continue
 
                     base_url = None
-                    if ai_provider == "custom":
-                        endpoint_in = input(f"{Fore.CYAN}Endpoint URL (Base URL) {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not endpoint_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires endpoint URL." + Style.RESET_ALL
-                            continue
-                        base_url = endpoint_in
-                        model_in = input(f"{Fore.CYAN}Custom model name {Fore.LIGHTBLACK_EX}{t('ui.aiCancelHint')}{Fore.CYAN}: {Fore.WHITE}").strip()
-                        if not model_in:
-                            _ai_msg = Fore.YELLOW + "Custom provider requires model name." + Style.RESET_ALL
-                            continue
-                    else:
-                        model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
-                        print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
-                        if ai_provider == "google" and discovered_models:
-                            print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
-                        elif ai_provider == "google":
-                            print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
+                    model_in, discovered_models = auto_select_ai_model(ai_provider, token_in)
+                    print(f"{Fore.CYAN}Auto selected model: {Fore.WHITE}{model_in}{Style.RESET_ALL}")
+                    if ai_provider == "gemini" and discovered_models:
+                        print(f"{Fore.LIGHTBLACK_EX}Detected {len(discovered_models)} available Gemini models from this API key.{Style.RESET_ALL}")
+                    elif ai_provider == "gemini":
+                        print(f"{Fore.LIGHTBLACK_EX}Could not fetch model list. Using default: {model_in}{Style.RESET_ALL}")
 
                     print(Fore.YELLOW + "🔍 Testing AI connection..." + Style.RESET_ALL)
                     ok, ai_test_status, ai_test_response = test_ai_provider(ai_provider, model_in, token_in, base_url=base_url)
@@ -8358,25 +8703,15 @@ def interactive_menu():
                     if new_key:
                         updates['token'] = new_key
                         
-                    if entry.get('provider') == 'custom':
-                        new_model = input(f"{Fore.CYAN}New model [{entry.get('model','custom-model')}]: {Fore.WHITE}").strip()
-                        if new_model:
-                            updates['model'] = new_model
-                        new_base = input(f"{Fore.CYAN}New Base URL [{entry.get('base_url','')}]: {Fore.WHITE}").strip()
-                        if new_base:
-                            updates['base_url'] = new_base
-
                     if updates:
-                        if entry.get('provider') == 'custom':
-                            check_model = updates.get('model', entry.get('model', 'custom-model'))
-                            check_token = updates.get('token', entry.get('token', ''))
-                            check_base = updates.get('base_url', entry.get('base_url'))
-                            print(Fore.YELLOW + "🔍 Testing updated custom AI connection..." + Style.RESET_ALL)
-                            ok, ai_test_status, ai_test_response = test_ai_provider('custom', check_model, check_token, base_url=check_base)
-                            if not ok:
-                                _ai_msg = Fore.RED + f"Custom AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
-                                continue
-                            updates['test_status'] = ai_test_status
+                        check_model = updates.get('model', entry.get('model', 'default-model'))
+                        check_token = updates.get('token', entry.get('token', ''))
+                        print(Fore.YELLOW + "🔍 Testing updated AI connection..." + Style.RESET_ALL)
+                        ok, ai_test_status, ai_test_response = test_ai_provider(entry.get('provider'), check_model, check_token)
+                        if not ok:
+                            _ai_msg = Fore.RED + f"AI test failed ({ai_test_status}): {ai_test_response}" + Style.RESET_ALL
+                            continue
+                        updates['test_status'] = ai_test_status
                         edit_ai(entry['id'], **updates)
                         _ai_msg = Fore.GREEN + t('ui.aiUpdated', provider=entry['provider'], model=updates.get('model', entry.get('model', 'unknown'))) + Style.RESET_ALL
                     else:
