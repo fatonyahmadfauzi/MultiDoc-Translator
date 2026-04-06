@@ -6035,6 +6035,96 @@ def translate_with_fallback(text: str, dest: str) -> str | None:
     return None
 
 
+def protect_markdown_tokens(text: str, extra_patterns: list[str] | None = None) -> tuple[str, dict[str, str]]:
+    """Protect markdown-sensitive fragments with machine-safe placeholders."""
+    protected_text = text
+    mapping: dict[str, str] = {}
+    counter = 0
+
+    def protect_pattern(pattern: str, flags: int = 0):
+        nonlocal protected_text, counter
+        def repl(match):
+            nonlocal counter
+            placeholder = f"<<<PH_{counter}>>>"
+            mapping[placeholder] = match.group(0)
+            counter += 1
+            return placeholder
+        protected_text = re.sub(pattern, repl, protected_text, flags=flags)
+
+    # Order matters: protect larger markdown structures first.
+    protect_pattern(r"```[\s\S]*?```")                         # fenced code blocks
+    protect_pattern(r"`[^`\n\r]+`")                            # inline code
+    protect_pattern(r"!\[[^\]]*\]\([^)]+\)")                  # markdown images
+    protect_pattern(r"\[[^\]]+\]\([^)]+\)")                   # markdown links
+    protect_pattern(r"<!--[\s\S]*?-->")                        # HTML comments
+    protect_pattern(r"<[^>\n]+>")                              # inline HTML tags
+    protect_pattern(r"https?://[^\s\)]+")                     # standalone URLs
+
+    if extra_patterns:
+        for pat in extra_patterns:
+            try:
+                protect_pattern(pat)
+            except re.error:
+                continue
+
+    return protected_text, mapping
+
+
+def normalize_placeholder_variants(text: str) -> str:
+    """Defensive repair for legacy/corrupted placeholder variants."""
+    normalized = text or ""
+    normalized = re.sub(r"__\s*p\s*(\d+)\s*__", r"<<<PH_\1>>>", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bP\s*(\d+)\b", r"<<<PH_\1>>>", normalized)
+    return normalized
+
+
+def restore_markdown_tokens(text: str, mapping: dict[str, str]) -> str:
+    restored = normalize_placeholder_variants(text)
+    for placeholder, original in sorted(mapping.items(), key=lambda kv: len(kv[0]), reverse=True):
+        restored = restored.replace(placeholder, original)
+    return restored
+
+
+def validate_no_placeholder_leak(text: str) -> None:
+    normalized = normalize_placeholder_variants(text)
+    if "<<<PH_" in normalized:
+        raise ValueError("Placeholder leak detected")
+    if re.search(r"__\s*p\s*\d+\s*__", normalized, flags=re.IGNORECASE):
+        raise ValueError("Legacy placeholder artifact detected")
+    if re.search(r"\bP\d+\b", normalized):
+        raise ValueError("Broken placeholder artifact detected")
+
+
+def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
+    """Protect -> translate -> restore -> validate with retry + provider fallback."""
+    debug_print("[PIPELINE] Protecting markdown tokens", log_type="FLOW")
+    protected_text, mapping = protect_markdown_tokens(text, extra_patterns)
+    debug_print(f"[PIPELINE] Protected tokens: {len(mapping)}", log_type="FLOW")
+
+    for attempt in range(2):
+        try:
+            debug_print("[PIPELINE] Translation started", log_type="FLOW")
+            translated = translate_with_fallback(protected_text, target_lang)
+            if not is_successful_translation_result(translated):
+                raise ValueError("Empty translation result")
+            debug_print("[PIPELINE] Restoring placeholders", log_type="FLOW")
+            restored = restore_markdown_tokens(translated, mapping)
+            validate_no_placeholder_leak(restored)
+            debug_print("[PIPELINE] Validation passed", log_type="FLOW")
+            return restored
+        except Exception as e:
+            debug_print(f"[PIPELINE] Placeholder leak detected: {e}", log_type="ERROR")
+            if attempt == 0:
+                debug_print("[PIPELINE] Retrying translation", log_type="FLOW")
+            else:
+                debug_print("[PIPELINE] Fallback triggered / final failure", log_type="ERROR")
+    raise ValueError("Translation pipeline failed after retry")
+
+
+def translate_block_preserving_format(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
+    return translate_text_pipeline(text, target_lang, extra_patterns)
+
+
 def translate_text(text: str, dest: str) -> str:
     """
     Translate text to the target language.
@@ -6526,65 +6616,34 @@ def translate_changelog(lang_code, lang_info, protected):
                 translated_lines.append(line)
                 continue
             
-            # Protect text before translation
-            temp_line = line
-            placeholders = {}
-            counter = 0
-            
-            def protect(pattern, text, flags=0):
-                nonlocal counter
-                def repl(m):
-                    nonlocal counter
-                    key = f"__p{counter}__"
-                    placeholders[key] = m.group(0)
-                    counter += 1
-                    return key
-                return re.sub(pattern, repl, text, flags=flags)
-            
-            # Protection for all important patterns
+            extra_patterns = [
+                r"\[[\d\.]+\]:\s*\S+",           # version links
+                r"\b\w+/\w+(/\w+)*\.\w+\b",      # file paths
+                r"\b\w+\.\w+\b",                 # file names/extensions
+                r"\bv\d+\.\d+\.\d+\b",           # versions
+                r"\b\d{4}-\d{2}-\d{2}\b",        # dates
+                r"\bPixiv OAuth Token\b",
+                r"\bOAuth\b",
+                r"\bCLI\b",
+                r"\bGUI\b",
+                r"\bAPI\b",
+                r"\bGitHub\b",
+                r"\bVercel\b",
+                r"\bPython\b",
+                r"[🌐🧾🐞✨🔜📦⚙]",
+                r"\bREL-U\d+\b",
+                r"\bBUILD-UNKNOWN\b",
+            ]
             if is_protect_enabled():
-                for p in protected["protected_phrases"]:
-                    temp_line = protect(p, temp_line)
-            
-            # Additional protection specifically for CHANGELOG
-            temp_line = protect(r"https?://[^\s\)]+", temp_line)           # URLs
-            temp_line = protect(r"`[^`]+`", temp_line)                     # Inline code
-            temp_line = protect(r"\[.*?\]\([^)]+\)", temp_line)            # Markdown links
-            temp_line = protect(r"\[[\d\.]+\]:\s*\S+", temp_line)          # Version links
-            
-            # Additional protection for file paths, versions, dates, and technical terms
-            temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)     # File paths
-            temp_line = protect(r'\b\w+\.\w+\b', temp_line)                # File extensions
-            temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)          # Versions
-            temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)       # Dates
-            temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
-            temp_line = protect(r'\bOAuth\b', temp_line)
-            temp_line = protect(r'\bCLI\b', temp_line)
-            temp_line = protect(r'\bGUI\b', temp_line)
-            temp_line = protect(r'\bAPI\b', temp_line)
-            temp_line = protect(r'\bGitHub\b', temp_line)
-            temp_line = protect(r'\bVercel\b', temp_line)
-            temp_line = protect(r'\bPython\b', temp_line)
-            temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)             # Emoji
-            temp_line = protect(r'\bREL-U\d+\b', temp_line)                # Build codes
-            temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
-            
-            # Translate text
-            translated = translate_text(temp_line, translate_code)
-            
-            # Restore placeholders to original text
-            for key, val in placeholders.items():
-                translated = translated.replace(key, val)
-            
+                extra_patterns.extend(protected.get("protected_phrases", []))
+
+            translated = translate_block_preserving_format(line, translate_code, extra_patterns)
             translated_lines.append(translated)
         
         translated_body = "\n".join(translated_lines)
         
         # Combine header and body
         final_changelog = f"{translated_header}\n\n---\n{translated_body}"
-        
-        # Cleanup remaining placeholders
-        final_changelog = re.sub(r"__p\d+__", "", final_changelog)
         
         # Write translated CHANGELOG file
         with open(changelog_dest_path, "w", encoding="utf-8") as f:
@@ -7074,67 +7133,32 @@ def translate_readme(lang_code, lang_info, protected, include_changelog=True):
             translated_lines.append(line)
             continue
 
-        temp_line = line
-        placeholders = {}
-        counter = 0
-
-        def protect(pattern, text, flags=0):
-            nonlocal counter
-            def repl(m):
-                nonlocal counter
-                key = f"__p{counter}__"
-                placeholders[key] = m.group(0)
-                counter += 1
-                return key
-            return re.sub(pattern, repl, text, flags=flags)
-
-        # Protection for all important patterns
+        extra_patterns = [
+            r"\[.*?\]\(mailto:[^\)]+\)",        # email links
+            r"MIT\s+License",
+            r"\(LICENSE\)",
+            r"\(\.\./\.\./LICENSE\)",
+            r"`auto-translate-readmes\.run`",
+            r"\b\w+/\w+(/\w+)*\.\w+\b",
+            r"\b\w+\.\w+\b",
+            r"\bv\d+\.\d+\.\d+\b",
+            r"\b\d{4}-\d{2}-\d{2}\b",
+            r"\bPixiv OAuth Token\b",
+            r"\bOAuth\b",
+            r"\bCLI\b",
+            r"\bGUI\b",
+            r"\bAPI\b",
+            r"\bGitHub\b",
+            r"\bVercel\b",
+            r"\bPython\b",
+            r"[🌐🧾🐞✨🔜📦⚙]",
+            r"\bREL-U\d+\b",
+            r"\bBUILD-UNKNOWN\b",
+        ]
         if is_protect_enabled():
-            for p in protected["protected_phrases"]:
-                temp_line = protect(p, temp_line)
+            extra_patterns.extend(protected.get("protected_phrases", []))
 
-        # Additional protection for important components
-        temp_line = protect(r"\[.*?\]\(https?://[^\)]+\)", temp_line)  # Markdown links with URL
-        temp_line = protect(r"\[.*?\]\(mailto:[^\)]+\)", temp_line)     # Email links
-        temp_line = protect(r"https?://[^\s\)]+", temp_line)           # URL standalone
-        temp_line = protect(r"MIT\s+License", temp_line, re.IGNORECASE)  # MIT License
-        temp_line = protect(r"\(LICENSE\)", temp_line)                   # (LICENSE)
-        temp_line = protect(r"\(\.\./\.\./LICENSE\)", temp_line)         # (../../LICENSE)
-        temp_line = protect(r"`[^`]+`", temp_line)                       # Inline code
-        temp_line = protect(r"`auto-translate-readmes\.run`", temp_line) # Command ID
-        
-        # Protection for file paths and names
-        temp_line = protect(r'\b\w+/\w+(/\w+)*\.\w+\b', temp_line)       # File paths like app/pixiv_login.py
-        temp_line = protect(r'\b\w+\.\w+\b', temp_line)                  # File extensions like README.md
-        
-        # Protection for version numbers and dates
-        temp_line = protect(r'\bv\d+\.\d+\.\d+\b', temp_line)            # Versions like v1.0.4
-        temp_line = protect(r'\b\d{4}-\d{2}-\d{2}\b', temp_line)         # Dates like 2026-03-29
-        
-        # Protection for technical terms and product names
-        temp_line = protect(r'\bPixiv OAuth Token\b', temp_line, re.IGNORECASE)
-        temp_line = protect(r'\bOAuth\b', temp_line)
-        temp_line = protect(r'\bCLI\b', temp_line)
-        temp_line = protect(r'\bGUI\b', temp_line)
-        temp_line = protect(r'\bAPI\b', temp_line)
-        temp_line = protect(r'\bGitHub\b', temp_line)
-        temp_line = protect(r'\bVercel\b', temp_line)
-        temp_line = protect(r'\bPython\b', temp_line)
-        
-        # Protection for emoji
-        temp_line = protect(r'[🌐🧾🐞✨🔜📦⚙]', temp_line)
-        
-        # Protection for build codes
-        temp_line = protect(r'\bREL-U\d+\b', temp_line)
-        temp_line = protect(r'\bBUILD-UNKNOWN\b', temp_line)
-        
-        # Translate text
-        translated = translate_text(temp_line, translate_code)
-
-        # Restore placeholders to original text
-        for key, val in placeholders.items():
-            translated = translated.replace(key, val)
-
+        translated = translate_block_preserving_format(line, translate_code, extra_patterns)
         translated_lines.append(translated)
 
     translated_body = "\n".join(translated_lines)
