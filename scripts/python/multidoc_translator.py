@@ -6045,8 +6045,11 @@ def protect_markdown_tokens(text: str, extra_patterns: list[str] | None = None) 
         nonlocal protected_text, counter
         def repl(match):
             nonlocal counter
+            original = match.group(0)
+            if original.startswith("<<<PH_"):
+                return original
             placeholder = f"<<<PH_{counter}>>>"
-            mapping[placeholder] = match.group(0)
+            mapping[placeholder] = original
             counter += 1
             return placeholder
         protected_text = re.sub(pattern, repl, protected_text, flags=flags)
@@ -6101,6 +6104,7 @@ def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[st
     protected_text, mapping = protect_markdown_tokens(text, extra_patterns)
     debug_print(f"[PIPELINE] Protected tokens: {len(mapping)}", log_type="FLOW")
 
+    last_error = None
     for attempt in range(2):
         try:
             debug_print("[PIPELINE] Translation started", log_type="FLOW")
@@ -6113,12 +6117,13 @@ def translate_text_pipeline(text: str, target_lang: str, extra_patterns: list[st
             debug_print("[PIPELINE] Validation passed", log_type="FLOW")
             return restored
         except Exception as e:
-            debug_print(f"[PIPELINE] Placeholder leak detected: {e}", log_type="ERROR")
+            last_error = e
+            debug_print(f"[PIPELINE] Validation failed: {e}", log_type="ERROR")
             if attempt == 0:
-                debug_print("[PIPELINE] Retrying translation", log_type="FLOW")
+                debug_print(f"[PIPELINE] Retrying translation (reason: {e})", log_type="FLOW")
             else:
-                debug_print("[PIPELINE] Fallback triggered / final failure", log_type="ERROR")
-    raise ValueError("Translation pipeline failed after retry")
+                debug_print(f"[PIPELINE] Final failure reason: {e}", log_type="ERROR")
+    raise ValueError(f"Translation pipeline failed after retry: {last_error}")
 
 
 def translate_block_preserving_format(text: str, target_lang: str, extra_patterns: list[str] | None = None) -> str:
@@ -6546,6 +6551,50 @@ def protect_specific_phrases(text, lang_code):
     return text
 
 # ---------------------- CHANGELOG TRANSLATION ----------------------
+def translate_changelog_line_with_pipeline(line: str, translate_code: str, extra_patterns: list[str] | None = None) -> str:
+    """Specialized CHANGELOG translation with explicit debug trace and strict placeholder validation."""
+    changelog_patterns = [
+        r"\\r\\n",                                  # literal \r\n sequence
+        r"\\n",                                     # literal \n sequence
+        r"\*\*[^*\n]*_[^_\n]+_[^*\n]*\*\*",        # markdown emphasis mix like **bold + _italic_ mix**
+    ]
+    if extra_patterns:
+        changelog_patterns.extend(extra_patterns)
+
+    debug_print("[CHANGELOG] Source line loaded", log_type="FLOW")
+    protected_text, mapping = protect_markdown_tokens(line, changelog_patterns)
+    debug_print(f"[CHANGELOG] Protected token count: {len(mapping)}", log_type="FLOW")
+
+    last_error = None
+    for attempt in range(2):
+        try:
+            debug_print("[CHANGELOG] Translation request started", log_type="FLOW")
+            translated = translate_with_fallback(protected_text, translate_code)
+            if not is_successful_translation_result(translated):
+                raise ValueError("Empty translation result")
+
+            debug_print("[CHANGELOG] Restore step started", log_type="FLOW")
+            restored = restore_markdown_tokens(translated, mapping)
+            validate_no_placeholder_leak(restored)
+
+            if re.search(r"__\s*p\s*\d+\s*__", restored, flags=re.IGNORECASE):
+                raise ValueError("Legacy placeholder token __pN__ remained after restore")
+            if "<<<PH_" in restored:
+                raise ValueError("Machine placeholder token <<<PH_n>>> remained after restore")
+            if re.search(r"\bP\d+\b", restored):
+                raise ValueError("Broken placeholder token Pn remained after restore")
+
+            return restored
+        except Exception as e:
+            last_error = e
+            debug_print(f"[CHANGELOG] Validation failure reason: {e}", log_type="ERROR")
+            if attempt == 0:
+                debug_print(f"[CHANGELOG] Retry reason: {e}", log_type="FLOW")
+            else:
+                debug_print(f"[CHANGELOG] Final failure reason: {e}", log_type="ERROR")
+    raise ValueError(f"CHANGELOG translation failed after retry: {last_error}")
+
+
 def translate_changelog(lang_code, lang_info, protected):
     """Translate CHANGELOG.md file to target language"""
     if not has_changelog_file():
@@ -6565,6 +6614,7 @@ def translate_changelog(lang_code, lang_info, protected):
     print(t("translating_changelog", lang_name=lang_name, lang_code=lang_code.upper()))
     
     try:
+        debug_print("[CHANGELOG] Loading source CHANGELOG.md", log_type="FLOW")
         with open(CHANGELOG_FILE, "r", encoding="utf-8") as f:
             changelog_content = f.read()
         
@@ -6637,7 +6687,7 @@ def translate_changelog(lang_code, lang_info, protected):
             if is_protect_enabled():
                 extra_patterns.extend(protected.get("protected_phrases", []))
 
-            translated = translate_block_preserving_format(line, translate_code, extra_patterns)
+            translated = translate_changelog_line_with_pipeline(line, translate_code, extra_patterns)
             translated_lines.append(translated)
         
         translated_body = "\n".join(translated_lines)
@@ -6653,6 +6703,7 @@ def translate_changelog(lang_code, lang_info, protected):
         return True
         
     except Exception as e:
+        debug_print(f"[CHANGELOG] Final failure reason: {e}", log_type="ERROR")
         print(t("failed_translate_changelog", error=e))
         return False
 
