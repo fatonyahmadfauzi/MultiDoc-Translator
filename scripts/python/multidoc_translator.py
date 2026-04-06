@@ -7296,15 +7296,16 @@ def translate_markdown_table(content: str, lang_code: str) -> str:
 # ---------------------- INTERACTIVE MENU ----------------------
 def has_broken_placeholder(text: str) -> bool:
     broken_patterns = [
-        r"__\s+p\d+\s+__",
-        r"__\s+p\d+__",
-        r"__p\d+\s+__",
+        r"__\s+p[01]\s+__",
+        r"__\s+p[01]__",
+        r"__p[01]\s+__",
     ]
     if any(re.search(pat, text, flags=re.IGNORECASE) for pat in broken_patterns):
         return True
 
     # Defensive check for isolated P0/P1 only when placeholder context is present.
-    if re.search(r"\bP[01]\b", text) and re.search(r"(__\s*p|__p\s+|placeholder)", text, flags=re.IGNORECASE):
+    has_placeholder_context = bool(re.search(r"(__\s*p|__p[01]__|<<<PH_|placeholder)", text, flags=re.IGNORECASE))
+    if has_placeholder_context and re.search(r"\bP[01]\b", text):
         return True
     return False
 
@@ -7312,13 +7313,14 @@ def has_broken_placeholder(text: str) -> bool:
 def fix_broken_placeholders(text: str) -> str:
     fixed = text
     # Normalize broken __ p0 __ / __p0 __ / __ p0__ to __p0__
-    fixed = re.sub(r"__\s*p\s*(\d+)\s*__", r"__p\1__", fixed, flags=re.IGNORECASE)
+    fixed = re.sub(r"__\s*p\s*([01])\s*__", r"__p\1__", fixed, flags=re.IGNORECASE)
 
     # Repair isolated P0/P1 only in obvious placeholder-corruption context.
+    has_placeholder_context = bool(re.search(r"(__\s*p|__p[01]__|<<<PH_|placeholder)", fixed, flags=re.IGNORECASE))
     lines = fixed.splitlines()
     repaired_lines = []
     for line in lines:
-        if re.search(r"\bP[01]\b", line) and re.search(r"(__\s*p|__p\s+|placeholder)", line, flags=re.IGNORECASE):
+        if has_placeholder_context and re.search(r"\bP[01]\b", line):
             line = re.sub(r"\bP([01])\b", r"__p\1__", line)
         repaired_lines.append(line)
     return "\n".join(repaired_lines)
@@ -7341,6 +7343,7 @@ def repair_translations(target_dir=None, output_base_dir=None):
     # 2. Detect translation failures
     _msg_repair_step2 = t("ui.repairStep2")
     print(Fore.YELLOW + f"\n{_msg_repair_step2}")
+    print(Fore.YELLOW + "   - Additional scan: placeholder corruption (__p0__, __ p1__, P0/P1 variants)")
     existing_langs = get_existing_translated_languages()
     failed_langs = []
     placeholder_fixed_langs = []
@@ -7372,14 +7375,14 @@ def repair_translations(target_dir=None, output_base_dir=None):
                     trans_content = f.read()
 
                 if has_broken_placeholder(trans_content):
-                    print(Fore.YELLOW + "   ⚠️ Placeholder corruption detected")
+                    print(Fore.YELLOW + f"   ⚠️ Placeholder corruption detected in {os.path.basename(readme_path)}")
                     repaired_content = fix_broken_placeholders(trans_content)
                     if repaired_content != trans_content:
                         with open(readme_path, "w", encoding="utf-8", newline="") as wf:
                             wf.write(repaired_content)
                         trans_content = repaired_content
                         placeholder_fixed_langs.append(lang_code)
-                        print(Fore.GREEN + f"   ✅ Fixed in {os.path.basename(readme_path)}")
+                        print(Fore.GREEN + f"   ✅ Fixed placeholder corruption in {os.path.basename(readme_path)}")
                 
                 # Strip markdown syntax and compare structural words
                 def strip_md(text):
