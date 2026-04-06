@@ -8,7 +8,7 @@ import { Logger } from './translation-core';
 // ──────────────────────────────────────────────
 export interface AIEntry {
     id: string;
-    provider: string;   // e.g. "openai", "anthropic", "google", "mistral", "custom"
+    provider: string;   // e.g. "openai", "anthropic", "groq", "deepseek", "openrouter", "google", "mistral", "custom"
     model: string;      // e.g. "gpt-4o"
     token: string;      // API key / token
     base_url?: string | null;  // only used for "custom" provider
@@ -23,6 +23,9 @@ export interface AIConfig {
 // Provider / model reference data
 // ──────────────────────────────────────────────
 export const AI_PROVIDERS: string[] = [
+    'groq',
+    'deepseek',
+    'openrouter',
     'openai',
     'anthropic',
     'google',
@@ -31,6 +34,9 @@ export const AI_PROVIDERS: string[] = [
 ];
 
 export const AI_MODELS_BY_PROVIDER: Record<string, string[]> = {
+    groq:      ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768'],
+    deepseek:  ['deepseek-chat'],
+    openrouter:['deepseek/deepseek-chat', 'openai/gpt-4o-mini', 'anthropic/claude-3.5-sonnet'],
     openai:    ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
     anthropic: ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229'],
     google:    ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'],
@@ -196,4 +202,3 @@ function generateId(): string {
         return v.toString(16);
     });
 }
-
